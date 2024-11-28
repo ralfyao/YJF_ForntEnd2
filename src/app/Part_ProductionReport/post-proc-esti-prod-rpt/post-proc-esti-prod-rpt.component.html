@@ -1,0 +1,105 @@
+<div class="pagetitle" style="height: fit-content;">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>後處理預計到站紀錄表
+</div>
+<div>
+<ngb-tabset>
+  <ngb-tab title="司機載運與簽收">
+    <ng-template ngbTabContent>
+      <ng-container *ngIf="gridData.length>0">
+        <ng-container *ngFor="let item of gridData;index as i; ">
+          <h2><i class="fa fa-play-circle mr-1" aria-hidden="true"></i>拆箱日期：{{item.unpackOutDate}}</h2>
+
+          <ngx-datatable #dataTable [rows]="item.postProcEstiProdElem" (rowClick)="selectedRow=$event.data"
+          class="material expandable" [headerHeight]="50" [footerHeight]="50"
+          [scrollbarV]="true" [scrollbarH]="true" [rowHeight]="50" >
+
+            <ngx-datatable-column headerClass="d-flex justify-content-center" [autoResize]="true" cellClass="text-center" prop="PartNo"
+            name="品號" ></ngx-datatable-column>
+            <ngx-datatable-column headerClass="d-flex justify-content-center" [autoResize]="true" cellClass="text-center" prop="PartDesc"
+            name="品名"></ngx-datatable-column>
+            <ngx-datatable-column headerClass="d-flex justify-content-center" [autoResize]="true" cellClass="text-center" prop="UnitWeight"
+            name="單重" ></ngx-datatable-column>
+            <ngx-datatable-column headerClass="d-flex justify-content-center" [autoResize]="true" cellClass="text-center" prop="Quantity"
+            name="數量"></ngx-datatable-column>
+            <!-- <ngx-datatable-column headerClass="d-flex justify-content-center" cellClass="text-center" prop="UnpackOutDate"
+            name="拆箱日期"></ngx-datatable-column> -->
+            <ngx-datatable-column headerClass="d-flex justify-content-center" [autoResize]="true" cellClass="text-center" prop="ArriveDate"
+            name="到站日期"></ngx-datatable-column>
+            <ngx-datatable-column headerClass="d-flex justify-content-center" [autoResize]="true" cellClass="text-center" prop="WorkOrder"
+            name="製令單別-單號"></ngx-datatable-column>
+            <ngx-datatable-column>
+              <ng-template ngx-datatable-cell-template let-rowIndex="rowIndex">
+                <button class="btn mb-1" [class]="'btn-success'" (click)="submit(dataTable, rowIndex)" >
+                  簽收
+                </button>
+              </ng-template>
+            </ngx-datatable-column>
+          </ngx-datatable>
+          <br>
+          <H2 style="text-align: right;">總重：{{utilityService.parseFloat(total[i].toString())}}</H2>
+          <br>
+        </ng-container>
+      </ng-container>
+      <ng-container *ngIf="gridData.length==0">
+        <br>
+        <h2>目前鑄件皆已簽收</h2>
+      </ng-container>
+    </ng-template>
+  </ngb-tab>
+  <ngb-tab title="資料查詢">
+    <ng-template ngbTabContent>
+      <button class="btn btn-info mr-1" (click)="query()">查詢</button>
+      <div class="d-flex">
+        <div class="col">製令單號</div>
+        <div class="col">品號</div>
+        <div class="col">品名</div>
+        <div class="col">司機載運日期</div>
+        <div class="col">簽收日期</div>
+      </div>
+      <div class="d-flex">
+        <div class="col"><input type="text" [(ngModel)]="WorkOrderParm"/></div>
+        <div class="col"><input type="text" [(ngModel)]="PartNoParm"/></div>
+        <div class="col"><input type="text" [(ngModel)]="PartDescParm"/></div>
+        <div class="col"><input type="date" [(ngModel)]="InStationDateParm"/></div>
+        <div class="col"><input type="date" [(ngModel)]="SignDateParm"/></div>
+      </div>
+      <ng-container *ngFor="let item of queryResult">
+        <div class="d-flex">
+          <div class="col p-3">{{ item.workOrder }}</div>
+          <div class="col p-3">{{ item.partNo }}</div>
+          <div class="col p-3">{{ item.partDesc }}</div>
+          <div class="col p-3">{{ item.inStationDate }}</div>
+          <div class="col p-3">{{ item.signDate }}</div>
+        </div>
+      </ng-container>
+      <!-- <table>
+        <tr>
+          <td>
+
+          </td>
+          <td>
+
+          </td>
+          <td>
+
+          </td>
+          <td>
+
+          </td>
+          <td>
+
+          </td>
+        </tr>
+        <tr>
+          <td>製令單號</td>
+          <td>品號</td>
+          <td>品名</td>
+          <td>司機載運日期</td>
+          <td>簽收日期</td>
+        </tr>
+      </table> -->
+    </ng-template>
+  </ngb-tab>
+</ngb-tabset>
+
+</div>

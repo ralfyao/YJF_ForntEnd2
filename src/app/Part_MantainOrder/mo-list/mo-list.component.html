@@ -1,0 +1,92 @@
+<!--右邊內容__標題Start-->
+<div class="pagetitle"><i class="fa fa-play-circle mr-2" aria-hidden="true"></i>保修單維護</div>
+<!--右邊內容__標題End-->
+<!--右邊內容__搜尋區域Start-->
+<section class="search_area">
+  <form role="form">
+    <div style="display: -webkit-box;margin: 5px">
+      <table>
+        <tr>
+          <td>
+            <label class="mx-1">開單日期:</label>
+            <mat-form-field appearance="fill">
+              <input matInput [matDatepicker]="dp1" [(ngModel)]="StartDate" [ngModelOptions]="{standalone: true}"
+                [matDatepickerFilter]="myFilterS" (ngModelChange)="queryMOListWithFilter('1')">
+              <mat-datepicker-toggle matSuffix [for]="dp1"></mat-datepicker-toggle>
+              <mat-datepicker #dp1></mat-datepicker>
+            </mat-form-field>
+          </td>
+          <td>
+            <mat-form-field appearance="fill">
+              <input matInput [matDatepicker]="dp2" [(ngModel)]="EndDate" [ngModelOptions]="{standalone: true}"
+                [matDatepickerFilter]="myFilterE" (ngModelChange)="queryMOListWithFilter('1')">
+              <mat-datepicker-toggle matSuffix [for]="dp2"></mat-datepicker-toggle>
+              <mat-datepicker #dp2></mat-datepicker>
+            </mat-form-field>
+          </td>
+          <ng-container *ngIf="AccountIdentity=='1'">
+
+            <td>
+              <label class="mx-1 mr-1">工單類型:</label>
+              <select class="select_search" (change)="queryMOListWithFilter('1')" [(ngModel)]="ASMTGTG004String"
+                [ngModelOptions]="{standalone: true}">
+                <option value="All">全部</option>
+                <option value="N20">保修工單</option>
+                <option value="N21">委外保修工單</option>
+              </select>
+            </td>
+            <td>
+              <input class="ml-2" type="text" style="background-color: honeydew;width: 100%;margin:0px"
+                placeholder="全文關鍵字搜尋" [(ngModel)]="SearchText" [ngModelOptions]="{standalone: true}">
+            </td>
+          </ng-container>
+
+        </tr>
+      </table>
+    </div>
+    <div class="typesetting-4">
+      <button class="btn  btn-outline-primary" (click)="queryMOListWithFilter('1')">
+        <i class="fa fa-search"></i>
+        查詢
+      </button>
+      <button *ngIf="AccountIdentity=='1'" class="btn  btn-outline-primary ml-1" (click)="toAddDetail()">
+        <i class="fa fa-plus"></i>
+        新增
+      </button>
+      <label id="status" style="color:red;visibility:hidden;font-size:large;margin: 5px;">請輸入開單日期起迄日</label>
+    </div>
+  </form>
+</section>
+<!--右邊內容__搜尋區域End-->
+
+<!--右邊內容__搜尋之後的表格清單Start -->
+<table class="table table-bordered table-striped table-hover">
+  <thead>
+    <tr class="color_th1">
+      <th>開單日期</th>
+      <th>廠商</th>
+      <th>保修單號</th>
+      <th width="480">問題描述</th>
+      <th>保修人員</th>
+      <th width="80">操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr id="MatiainOrder{{i}}" (click)="TableRowColorChange('MatiainOrder',MOList,i)"
+      *ngFor="let MO of MOList;let i = index">
+      <td>{{MO.BillingDate}}</td>
+      <td>{{MO.MaintainSupplier}}</td>
+      <td>{{MO.DocumentNumber}}</td>
+      <td><textarea readonly="readonly" style="width:100%;resize:none;height: 1cm"
+          placeholder="系統將自動帶出">{{MO.ProblemDescription}}</textarea></td>
+      <td>{{MO.MaintainPerson}}</td>
+      <td class="manage">
+        <button type="button" class="btn btn-outline-info" (click)="toDetail(MO)">瀏覽</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<ngb-pagination (pageChange)="loadPage($event)" class="pagination pull-right" [(collectionSize)]="TotalCount"
+  [(page)]="Page" [pageSize]="9" [maxSize]="10" aria-label="Default pagination" size="sm">
+</ngb-pagination>
+<!--右邊內容__搜尋之後的表格清單End -->

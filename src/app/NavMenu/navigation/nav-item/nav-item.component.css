@@ -1,0 +1,23 @@
+::marker{
+  content:none;
+}
+li{
+  width: 100%;
+  padding: 0px 20px;
+  background-color:#2b4880 ;
+  font-size: 16px;
+}
+li a{
+  color: #f7fcfc;
+  cursor: pointer;
+}
+li:hover{
+  background-color: #7189b5;
+    border-left: 4px solid #12bff6;
+    color: #fefdff;
+}
+.selected{
+  background-color: #7189b5;
+    border-left: 4px solid #12bff6;
+    color: #fefdff;
+}

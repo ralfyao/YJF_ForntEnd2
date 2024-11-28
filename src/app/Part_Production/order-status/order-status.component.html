@@ -1,0 +1,371 @@
+<div class="card px-4">
+  <ngb-tabset class="card-body" (tabChange)="clearAll()">
+    <ngb-tab title="造模" >
+      <ng-template ngbTabContent>
+        <div class="py-4">
+          <div class="row align-items-center mt-2 mb-2">
+            <label class="col-1 text-right">搜尋:</label>
+            <input class="col-3 form-control m-0" type="text" [(ngModel)]="MoldingSearchtxt" (keyup)="MoldingFilter()"
+              placeholder="輸入製令單、客戶、品號、品名..." />
+            <label class="col-1 text-right">排單日期:</label>
+            <div class="col-7 row">
+              <input class="mr-2 form-control" type="date" [(ngModel)]="MoldingStartday"
+                (ngModelChange)="MoldingFilter()" />
+              <div class="mr-2">~</div>
+              <input class="form-control" type="date" [(ngModel)]="MoldingEndday" (ngModelChange)="MoldingFilter()" />
+            </div>
+          </div>
+          <div class="row align-items-center mt-2 mb-2">
+            <label class="col-1 text-right">狀態:</label>
+
+            <div class="col-3">
+              <div class="form-check">
+                <input type="radio" id="MoldingState1" [(ngModel)]="MoldingState" (ngModelChange)="MoldingFilter()"
+                  value="all" name="MoldingState" class="form-check-input">
+                <label class="form-check-label" for="MoldingState1">全部</label>
+              </div>
+              <div class="form-check">
+                <input type="radio" id="MoldingState2" [(ngModel)]="MoldingState" (ngModelChange)="MoldingFilter()"
+                  value="finish" name="MoldingState" class="form-check-input">
+                <label class="form-check-label" for="MoldingState2">已完成</label>
+              </div>
+              <div class="form-check">
+                <input type="radio" id="MoldingState3" [(ngModel)]="MoldingState" (ngModelChange)="MoldingFilter()"
+                  value="undo" name="MoldingState" class="form-check-input">
+                <label class="form-check-label" for="MoldingState3">未完成</label>
+              </div>
+            </div>
+            <label class="col-1 text-right">生產線別:</label>
+            <select class="custom-select col-3" (ngModelChange)="MoldingProductionLine=$event;MoldingFilter()"
+              [(ngModel)]="MoldingProductionLine">
+              <option selected>全部</option>
+              <ng-container *ngFor="let item of ProductionList">
+                <option *ngIf="item.ProductionLineName.indexOf('造模') != -1" value="{{item.ProductionLineName}}">
+                  {{item.ProductionLineName}}</option>
+              </ng-container>
+            </select>
+          </div>
+          <div class="row align-items-center mt-2 mb-2" *ngIf="MoldingState == 'undo'">
+            <label class="col-1 text-right">進站狀態:</label>
+            <div class="col-3">
+              <div class="form-check">
+                <input type="radio" id="MoldTrackingStateIn" [(ngModel)]="MoldTrackingState"  (ngModelChange)="MoldingFilter()"
+                  value="in" name="MoldTrackingState" class="form-check-input">
+                <label class="form-check-label" for="MoldTrackingStateIn">已進站</label>
+              </div>
+              <div class="form-check">
+                <input type="radio" id="MoldTrackingStateOut" [(ngModel)]="MoldTrackingState"  (ngModelChange)="MoldingFilter()"
+                  value="notIn" name="MoldTrackingState" class="form-check-input">
+                <label class="form-check-label" for="MoldTrackingStateOut">未進站</label>
+              </div>
+            </div>
+          </div>
+          <label class="col-1 text-right">進/出站日期:</label>
+          <input type="date" id="TrackInOutDate" name="TrackInOutDate" [(ngModel)]="MoldTrackInOutDate" (ngModelChange)="MoldingFilter()"/>
+          <button class="btn btn-info btn-sm m-2" (click)="exportexcel('MoldingTable')"><i class="fa fa-file-excel-o mr-1" ></i>Excel匯出</button>
+        </div>
+        <table class="table tab_content_table table-bordered" id="MoldingTable">
+          <tr>
+            <td>製令單別</td>
+            <td>製令單號</td>
+            <td>訂單</td>
+            <td>品號</td>
+            <td>品名</td>
+            <td>材質</td>
+            <td>數量</td>
+            <td>重量</td>
+            <td>上鐵斗</td>
+            <td>下鐵斗</td>
+            <td>預計完工日</td>
+            <td>造模組別</td>
+            <td>實際開工日</td>
+            <td>實際完工日</td>
+          </tr>
+          <ng-container *ngFor="let item of Moldingdata">
+            <tr>
+              <td>{{item.ProductionHeadCode}}</td>
+              <td>{{item.ProductionOrderCode}}</td>
+              <td>{{item.OrderHeadCode+'-'+item.OrderCode+'-'+item.OrderSeries}}</td>
+              <td>{{item.ItemCode}}</td>
+              <td>{{item.PartDesc}}</td>
+              <td>{{item.MaterialType}}</td>
+              <td>{{item.PlanQTY}}</td>
+              <td>{{item.ProductWeight}}</td>
+              <td>{{item.TopFlask}}</td>
+              <td>{{item.BottomFlask}}</td>
+              <td>{{item.ETD}}</td>
+              <td>{{item.MoldingLineName}}</td>
+              <td>{{item.MoldingStartDate}}</td>
+              <td>{{item.MoldingFinishDate}}</td>
+            </tr>
+          </ng-container>
+        </table>
+      </ng-template>
+    </ngb-tab>
+    <ngb-tab title="合模" >
+      <ng-template ngbTabContent>
+        <div class="py-4">
+          <div class="row align-items-center mt-2 mb-2">
+            <label class="col-1  text-right">搜尋:</label>
+            <input class="col-3 m-0 form-control" type="text" [(ngModel)]="AsemblingSearchtxt"
+              (keyup)="AsemblingFilter()" placeholder="輸入製令單、客戶、品號、品名..." />
+            <label class="col-1 text-right">排單日期:</label>
+            <div class="col-7 row">
+              <input class="mr-2 form-control" type="date" [(ngModel)]="AsemblingStartday"
+                (ngModelChange)="AsemblingFilter()" />
+              <div class="mr-2">~
+              </div><input class="form-control" type="date" [(ngModel)]="AsemblingEndday"
+                (ngModelChange)="AsemblingFilter()" />
+            </div>
+          </div>
+          <div class="row align-items-center mt-2 mb-2">
+            <label class="col-1 text-right">狀態:</label>
+            <div class="col-3">
+              <div class="form-check">
+                <input type="radio" id="AsemblingState1" [(ngModel)]="AsemblingState" value="all"
+                  (ngModelChange)="AsemblingFilter()" name="AsemblingState" class="form-check-input">
+                <label class="form-check-label" for="AsemblingState1">全部</label>
+              </div>
+              <div class="form-check">
+                <input type="radio" id="AsemblingState2" [(ngModel)]="AsemblingState" value="finish"
+                  (ngModelChange)="AsemblingFilter()" name="AsemblingState" class="form-check-input">
+                <label class="form-check-label" for="AsemblingState2">已完成</label>
+              </div>
+              <div class="form-check">
+                <input type="radio" id="AsemblingState3" [(ngModel)]="AsemblingState" value="undo"
+                  (ngModelChange)="AsemblingFilter()" name="AsemblingState" class="form-check-input">
+                <label class="form-check-label" for="AsemblingState3">未完成</label>
+              </div>
+            </div>
+            <label class="col-1 text-right">生產線別:</label>
+            <select class="custom-select col-3" [(ngModel)]="AsemblingProductionLine"
+              (ngModelChange)="AsemblingFilter()">
+              <option selected>全部</option>
+              <ng-container *ngFor="let item of ProductionList">
+                <option *ngIf="item.WIPProcessType=='合模' && item.IsActive" value="{{item.ProductionLineName}}">
+                  {{item.ProductionLineName}}</option>
+              </ng-container>
+            </select>
+
+          </div>
+          <!-- <div class="row align-items-center mt-2 mb-2"> -->
+            <div class="row align-items-center mt-2 mb-2" *ngIf="AsemblingState == 'undo'">
+              <label class="col-1 text-right">進/出站:</label>
+              <div class="col-3">
+                <div class="form-check">
+                  <input type="radio" id="AssemblingTrackingStateIn" [(ngModel)]="AssemblingTrackingState"  (ngModelChange)="AsemblingFilter()"
+                    value="in" name="AssemblingTrackingState" class="form-check-input">
+                  <label class="form-check-label" for="AssemblingTrackingStateIn">已進站</label>
+                </div>
+                <div class="form-check">
+                  <input type="radio" id="AssemblingTrackingStateOut" [(ngModel)]="AssemblingTrackingState" (ngModelChange)="AsemblingFilter()"
+                    value="notIn" name="AssemblingTrackingState" class="form-check-input">
+                  <label class="form-check-label" for="AssemblingTrackingStateOut">未進站</label>
+                </div>
+              </div>
+            </div>
+            <label class="col-1 text-right">進/出站日期:</label>
+            <input type="date" id="TrackInOutDate" name="TrackInOutDate" [(ngModel)]="AssemblingTrackInOutDate"/>
+            <button class="btn btn-info btn-sm m-2"  (click)="exportexcel('AssemblingTable')"><i class="fa fa-file-excel-o mr-1" ></i>Excel匯出</button>
+          <!-- </div> -->
+        </div>
+        <table class="table tab_content_table table-bordered" id="AssemblingTable">
+          <tr>
+            <td>製令單別</td>
+            <td>製令單號</td>
+            <td>訂單</td>
+            <td>品號</td>
+            <td>品名</td>
+            <td>材質</td>
+            <td>數量</td>
+            <td>重量</td>
+            <td>上鐵斗</td>
+            <td>下鐵斗</td>
+            <td>預計完工日</td>
+            <td>合模組別</td>
+            <td>實際開工日</td>
+            <td>實際完工日</td>
+          </tr>
+          <ng-container *ngFor="let item of Asemblingdata">
+            <tr>
+              <td>{{item.ProductionHeadCode}}</td>
+              <td>{{item.ProductionOrderCode}}</td>
+              <td>{{item.OrderHeadCode+'-'+item.OrderCode+'-'+item.OrderSeries}}</td>
+              <td>{{item.ItemCode}}</td>
+              <td>{{item.PartDesc}}</td>
+              <td>{{item.MaterialType}}</td>
+              <td>{{item.PlanQTY}}</td>
+              <td>{{item.ProductWeight}}</td>
+              <td>{{item.TopFlask}}</td>
+              <td>{{item.BottomFlask}}</td>
+              <td>{{item.ETD}}</td>
+              <td>{{item.AsemblingLineName}}</td>
+              <td>{{item.AsemblingStartDate}}</td>
+              <td>{{item.AsemblingFinishDate}}</td>
+            </tr>
+          </ng-container>
+        </table>
+        <!-- <ngx-datatable id="AssemblingTable" #mydatatable class="material" [headerHeight]="50" style="height:calc(100vh - 244px - 5.75rem) ;" [columnMode]="'force'"
+          [footerHeight]="50" [rowHeight]="50" [rows]="Asemblingdata" [selectAllRowsOnPage]="true" [scrollbarV]="true">
+          <ngx-datatable-column prop="ProductionHeadCode" [width]="80" name="製令單別"></ngx-datatable-column>
+          <ngx-datatable-column prop="ProductionOrderCode" [width]="100" name="製令單號"></ngx-datatable-column>
+          <ngx-datatable-column prop="OrderCode" name="訂單">
+            <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+              {{value+"-"+row["OrderSeries"]}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="CusOrder" [width]="100" name="客單"></ngx-datatable-column>
+          <ngx-datatable-column prop="CustomerName" [width]="100" name="客戶"></ngx-datatable-column>
+          <ngx-datatable-column prop="ItemCode" name="品號"></ngx-datatable-column>
+          <ngx-datatable-column prop="PartDesc" [width]="350" name="品名"></ngx-datatable-column>
+          <ngx-datatable-column prop="MaterialType" [width]="90" name="材質"></ngx-datatable-column>
+          <ngx-datatable-column prop="PlanQTY" [width]="50" name="數量"></ngx-datatable-column>
+          <ngx-datatable-column prop="ProductWeight" [width]="60" name="重量"></ngx-datatable-column>
+          <ngx-datatable-column prop="SchedulingDate" [width]="90" name="排單日期">
+            <ng-template ngx-datatable-cell-template let-value="value">
+              {{DateStringFormat(value)}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="ETD" [width]="90" name="預交日">
+            <ng-template ngx-datatable-cell-template let-value="value">
+              {{DateStringFormat(value)}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="PlanFinDate" [width]="90" name="預計完工日">
+            <ng-template ngx-datatable-cell-template let-value="value">
+              {{DateStringFormat(value)}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="AsemblingLineName" [width]="80" name="合模組別"></ngx-datatable-column>
+          <ngx-datatable-column prop="AsemblingStartDate" [width]="90" name="實際開工日">
+            <ng-template ngx-datatable-cell-template let-value="value">
+              {{DateStringFormat(value)}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="AsemblingFinishDate" [width]="90" name="實際完工日">
+            <ng-template ngx-datatable-cell-template let-value="value">
+              {{DateStringFormat(value)}}
+            </ng-template>
+          </ngx-datatable-column>
+        </ngx-datatable> -->
+      </ng-template>
+    </ngb-tab>
+    <ngb-tab title="澆注" >
+      <ng-template ngbTabContent>
+        <div class="py-4">
+          <div class="row align-items-center mt-2 mb-2">
+            <label class="col-1 text-right">搜尋:</label>
+            <input class="col-3 m-0 form-control" type="text" [(ngModel)]="PouringSearchtxt" (keyup)="PouringFilter()"
+              placeholder="輸入製令單、客戶、品號、品名..." />
+            <label class="col-1 text-right">排單日期:</label>
+            <div class="col-7 row">
+              <input class="mr-2 form-control" type="date" [(ngModel)]="PouringStartday"
+                (ngModelChange)="PouringFilter()" />
+              <div class="mr-2">~</div>
+              <input class="form-control" type="date" [(ngModel)]="PouringEndday" (ngModelChange)="PouringFilter()" />
+            </div>
+          </div>
+          <div class="row align-items-center mt-2 mb-2">
+            <label class="col-1 text-right">進/出站:</label>
+            <div class="col-3">
+              <div class="form-check">
+                <input type="radio" id="PouringTrackingStateIn" [(ngModel)]="PouringTrackingState" (ngModelChange)="PouringFilter()"
+                  value="in" name="PouringTrackingState" class="form-check-input">
+                <label class="form-check-label" for="PouringTrackingStateIn">進站</label>
+              </div>
+              <div class="form-check">
+                <input type="radio" id="PouringTrackingStateOut" [(ngModel)]="PouringTrackingState" (ngModelChange)="PouringFilter()"
+                  value="out" name="PouringTrackingState" class="form-check-input">
+                <label class="form-check-label" for="PouringTrackingStateOut">出站</label>
+              </div>
+            </div>
+            <label class="col-1 text-right">進/出站日期:</label>
+            <input type="date" id="TrackInOutDate" name="TrackInOutDate" [(ngModel)]="PouringTrackInOutDate" (ngModelChange)="PouringFilter()"/>
+            <button class="btn btn-info btn-sm m-2"  (click)="exportexcel('PouringTable')"><i class="fa fa-file-excel-o mr-1" ></i>Excel匯出</button>
+          </div>
+        </div>
+        <table class="table tab_content_table table-bordered" id="PouringTable">
+          <tr>
+            <td>製令單別</td>
+            <td>製令單號</td>
+            <td>訂單</td>
+            <td>品號</td>
+            <td>品名</td>
+            <td>材質</td>
+            <td>數量</td>
+            <td>重量</td>
+            <td>上鐵斗</td>
+            <td>下鐵斗</td>
+            <td>預計完工日</td>
+            <td>造模組別</td>
+            <td>合模組別</td>
+            <td>實際開工日</td>
+            <td>實際完工日</td>
+          </tr>
+          <ng-container *ngFor="let item of Pouringdata">
+            <tr>
+              <td>{{item.ProductionHeadCode}}</td>
+              <td>{{item.ProductionOrderCode}}</td>
+              <td>{{item.OrderHeadCode+'-'+item.OrderCode+'-'+item.OrderSeries}}</td>
+              <td>{{item.ItemCode}}</td>
+              <td>{{item.PartDesc}}</td>
+              <td>{{item.MaterialType}}</td>
+              <td>{{item.PlanQTY}}</td>
+              <td>{{item.ProductWeight}}</td>
+              <td>{{item.TopFlask}}</td>
+              <td>{{item.BottomFlask}}</td>
+              <td>{{item.ETD}}</td>
+              <td>{{item.MoldingLineName}}</td>
+              <td>{{item.AsemblingLineName}}</td>
+              <td>{{item.PouringStartDate}}</td>
+              <td>{{item.PouringFinishDate}}</td>
+            </tr>
+          </ng-container>
+        </table>
+        <!-- <ngx-datatable id="PouringTable" #mydatatable class="material" [headerHeight]="50" style="height:calc(100vh - 206px - 5.25rem) ;" [columnMode]="'force'"
+          [footerHeight]="50" [rowHeight]="50" [rows]="Pouringdata" [selectAllRowsOnPage]="true" [scrollbarV]="true">
+          <ngx-datatable-column prop="ProductionHeadCode" [width]="80" name="製令單別"></ngx-datatable-column>
+          <ngx-datatable-column prop="ProductionOrderCode" [width]="100" name="製令單號" scrollbarH="false">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="OrderCode" name="訂單">
+            <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+              {{value+"-"+row["OrderSeries"]}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="CusOrder" [width]="100" name="客單"></ngx-datatable-column>
+          <ngx-datatable-column prop="CustomerName" [width]="100" name="客戶"></ngx-datatable-column>
+          <ngx-datatable-column prop="ItemCode" name="品號"></ngx-datatable-column>
+          <ngx-datatable-column prop="PartDesc" [width]="350" name="品名"></ngx-datatable-column>
+          <ngx-datatable-column prop="MaterialType" [width]="90" name="材質"></ngx-datatable-column>
+          <ngx-datatable-column prop="PlanQTY" [width]="50" name="數量"></ngx-datatable-column>
+          <ngx-datatable-column prop="ProductWeight" [width]="60" name="重量"></ngx-datatable-column>
+          <ngx-datatable-column prop="SchedulingDate" [width]="90" name="排單日期">
+            <ng-template ngx-datatable-cell-template let-value="value">
+              {{DateStringFormat(value)}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="ETD" [width]="90" name="預交日">
+            <ng-template ngx-datatable-cell-template let-value="value">
+              {{DateStringFormat(value)}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="PlanFinDate" [width]="90" name="預計完工日">
+            <ng-template ngx-datatable-cell-template let-value="value">
+              {{DateStringFormat(value)}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="PouringStartDate" [width]="90" name="實際開工日">
+            <ng-template ngx-datatable-cell-template let-value="value">
+              {{DateStringFormat(value)}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="PouringFinishDate" [width]="90" name="實際完工日">
+            <ng-template ngx-datatable-cell-template let-value="value">
+              {{DateStringFormat(value)}}
+            </ng-template>
+          </ngx-datatable-column>
+        </ngx-datatable> -->
+      </ng-template>
+    </ngb-tab>
+  </ngb-tabset>
+</div>

@@ -1,0 +1,21 @@
+
+::marker{
+  content:none;
+}
+.Menugroup{
+  width: 100%;
+  padding-left: 10px;
+  cursor: pointer;
+  position: relative;
+  font-weight: 500;
+}
+.Menugroup .CollapseIcon{
+  position: absolute;
+  right: 10px;
+  top: calc(50% - 9px);
+}
+.Menugroup:hover
+{
+  background-color:#7189b5;
+  color: #ffffff;
+}

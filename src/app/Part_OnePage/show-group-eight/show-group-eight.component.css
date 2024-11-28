@@ -1,0 +1,146 @@
+.loading {
+  position: absolute;
+  width: 100vw;
+  top: 0;
+  left: 0;
+  background-color: #39baebcc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+}
+.lds-spinner {
+  color: official;
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+.lds-spinner div {
+  transform-origin: 40px 40px;
+  animation: lds-spinner 1.2s linear infinite;
+}
+.lds-spinner div:after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 3px;
+  left: 37px;
+  width: 6px;
+  height: 18px;
+  border-radius: 20%;
+  background: #fff;
+}
+.lds-spinner div:nth-child(1) {
+  transform: rotate(0deg);
+  animation-delay: -1.1s;
+}
+.lds-spinner div:nth-child(2) {
+  transform: rotate(30deg);
+  animation-delay: -1s;
+}
+.lds-spinner div:nth-child(3) {
+  transform: rotate(60deg);
+  animation-delay: -0.9s;
+}
+.lds-spinner div:nth-child(4) {
+  transform: rotate(90deg);
+  animation-delay: -0.8s;
+}
+.lds-spinner div:nth-child(5) {
+  transform: rotate(120deg);
+  animation-delay: -0.7s;
+}
+.lds-spinner div:nth-child(6) {
+  transform: rotate(150deg);
+  animation-delay: -0.6s;
+}
+.lds-spinner div:nth-child(7) {
+  transform: rotate(180deg);
+  animation-delay: -0.5s;
+}
+.lds-spinner div:nth-child(8) {
+  transform: rotate(210deg);
+  animation-delay: -0.4s;
+}
+.lds-spinner div:nth-child(9) {
+  transform: rotate(240deg);
+  animation-delay: -0.3s;
+}
+.lds-spinner div:nth-child(10) {
+  transform: rotate(270deg);
+  animation-delay: -0.2s;
+}
+.lds-spinner div:nth-child(11) {
+  transform: rotate(300deg);
+  animation-delay: -0.1s;
+}
+.lds-spinner div:nth-child(12) {
+  transform: rotate(330deg);
+  animation-delay: 0s;
+}
+@keyframes lds-spinner {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/*#region 滑動特效*/
+.Page {
+  position: absolute;
+  display: none;
+}
+.Page.FirstPage{
+  display: block;
+}
+.Page.CurrentPage {
+  display: block;
+  left: 0;
+  animation-name: MoveOut; /*動畫名稱，需與 keyframe 名稱對應*/
+  animation-duration: 4s; /*動畫持續時間，單位為秒*/
+  animation-fill-mode:forwards /* 停留在結束狀態*/
+}
+
+.Page.NextPage {
+  display: block;
+  left: 100vw;
+  animation-name: MoveIn;/*動畫名稱，需與 keyframe 名稱對應*/
+  animation-duration: 4s;/*動畫持續時間，單位為秒*/
+  animation-fill-mode:forwards /* 停留在結束狀態*/
+}
+
+@keyframes MoveOut {
+  0% {
+    top: 0;
+    left: 0;
+  }
+
+  100% {
+    top: 0;
+    left: -100vw;
+  }
+}
+
+@keyframes MoveIn {
+  0% {
+    top: 0;
+    left: 100vw;
+  }
+
+  100% {
+    top: 0;
+    left: 0vw;
+  }
+}
+
+
+.v-center{
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+/*#endregion */

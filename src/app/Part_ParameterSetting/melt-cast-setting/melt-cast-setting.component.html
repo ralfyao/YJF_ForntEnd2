@@ -1,0 +1,47 @@
+<div class="row m-3 bg-light border border-primary ">
+  <div class="col-3 d-inline p-3 font-weight-bold">
+    <span>材料：</span>
+    <select class="custom-select custom-select-sm d-inline w-50" (ngModelChange)="materialTypeChange($event)"
+      [(ngModel)]="selectedMaterialType">
+      <option [ngValue]="materialType" *ngFor="let materialType of materialTypes">{{materialType}}
+      </option>
+    </select>
+  </div>
+  <div class="col-auto d-inline p-3 font-weight-bold">
+    <label class=" d-inline">關鍵字：</label>
+    <input class=" d-inline" type="text" [(ngModel)]="searchString" [ngModelOptions]="{standalone: true}"
+      (ngModelChange)="searchKetWord()">
+    <!-- <button class="btn btn-primary d-inline">搜尋</button> -->
+  </div>
+</div>
+<div class="row m-3 mb-0 border border-dark justify-content-end" style="height:560px;">
+  <table class="table  mt-0  table-striped  table-bordered">
+    <thead>
+      <tr class="color_th1">
+        <th>名稱</th>
+        <th style="width:120px;">操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of sourcelistpageary; let i=index">
+        <td>材質：{{item.MaterialType}} 編號：{{item.MaterialNo}} {{item.MaterialName}} 重量：{{item.MaterialWeight}}</td>
+        <td class="justify-content-start align-middle">
+          <div class="checkbox checkbox-info justify-content-start align-middle">
+            <label class="switch">
+              <input type="checkbox" class="warning" [(ngModel)]="item.IsParamater"
+                [ngModelOptions]="{standalone: true}">
+              <span class="slider round"></span>
+            </label>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <ngb-pagination (pageChange)="loadPage($event)" class="pagination pull-right mt-2 mr-3" [collectionSize]="TotalCount"
+    [(page)]="Page" [pageSize]="PageCount" aria-label="Default pagination" size="sm">
+  </ngb-pagination>
+
+</div>
+<div class="row justify-content-end mr-3">
+  <button class="btn btn-primary btn-lg" (click)="addCheckedMaterial()">存檔</button>
+</div>

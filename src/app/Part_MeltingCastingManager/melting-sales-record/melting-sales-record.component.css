@@ -1,0 +1,16 @@
+input.search{
+background-color: honeydew;width: 100%;margin:0px
+}
+select{
+    padding: 5px 12px;
+    font-size: 16px;
+}
+.searchTerms{
+    font-weight: 600;
+    text-align: center;
+    align-items: center;
+}
+.searchTerms > span{
+    margin: 0px 10px;
+    font-size: 16px;
+}

@@ -1,0 +1,986 @@
+<!--右邊內容__標題Start-->
+<div class="pagetitle">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>詢價清單
+</div>
+
+<!--右邊內容__標題End-->
+<!--建立or瀏覽詢價清單Start-->
+<section class="content_data">
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a class="nav-link active" href="#tab_1" data-toggle="tab"><i class="fa fa-search-plus"></i>內容檢視</a>
+    </li>
+  </ul>
+
+  <div class="tab-content">
+    <div class="tab-pane active show active" id="tab_1" role="tabpanel" aria-labelledby="home-tab">
+      <button *ngIf="QuoteNumber=='' && premanager.GetPermission(Permission, 'Quotation', 'IsCanAdd',Adder);"
+        type="button" class="btn btn-info btn-sm active m-2" (click)="queryCustomerList(1)" data-toggle="modal"
+        data-target="#Modal_CustomSelector" data-backdrop="static">
+        <i class="fa fa-save"></i> 選擇客戶
+      </button>
+      <button
+        *ngIf="Quotation.Status==1&&QuoteNumber!=''&& premanager.GetPermission(Permission, 'Quotation', 'IsCanDelete',Adder);"
+        type="button" class="btn btn-info btn-sm active m-2" (click)="deleteQuotation()">
+        <i class="fa fa-trash"></i>
+        刪除
+      </button>
+      <button type="button" class="btn btn-info btn-sm active m-2" (click)="backPage()"><i
+          class="fa fa-reply"></i>回上頁</button>
+      <table *ngIf="premanager.GetPermission(Permission, 'Quotation', 'IsCanEdit',Adder);else NoEditPermission"
+        class="table tab_content_table table-bordered">
+        <tr>
+          <td colspan="4" class="heading">
+            ({{Quotation_ID}})建檔日期：{{Today}}&nbsp;&nbsp;&nbsp; /
+            &nbsp;&nbsp;&nbsp;建檔人：
+            <b>{{Quotation.CreateByName}}</b>
+          </td>
+        </tr>
+        <tr>
+          <th>客戶編號</th>
+          <td>
+            <input style="font-size:20px" type="text" placeholder="系統將自動帶出" readonly
+              [(ngModel)]="customer.CustomerNumber" [ngModelOptions]="{standalone: true}">
+            <button (click)="queryCustomerList(1)" class="choose" data-toggle="modal"
+              data-target="#Modal_CustomSelector" data-backdrop="static">
+              ...
+            </button>
+          </td>
+          <th>
+            <span>客戶名稱</span>
+          </th>
+          <td>
+            <input style="width: 100%;height: 35px;padding: 0px;margin: 0px;font-size: 20px" type="text"
+              placeholder="系統自動帶出或由清單選擇" readonly [(ngModel)]="customer.UserName" [ngModelOptions]="{standalone: true}">
+
+          </td>
+        </tr>
+        <tr>
+          <th>
+            <span>詢價單編號</span>
+          </th>
+          <td>
+            <input style="width: 100%;height: 35px;padding: 0px;margin: 0px;font-size: 20px" type="text"
+              placeholder="建立完成自動帶出" readonly [(ngModel)]="QuoteNumber" [ngModelOptions]="{standalone: true}">
+          </td>
+          <th>業務人員</th>
+          <td>
+            <input style="width: 100%;height: 35px;padding: 0px;margin: 0px;font-size: 20px" type="text"
+              placeholder="系統將自動帶出" readonly [(ngModel)]="Quotation.CreateByName" [ngModelOptions]="{standalone: true}">
+          </td>
+        </tr>
+        <tr>
+          <th>
+            交易幣別
+          </th>
+          <td style="padding: 5px;">
+            <select style="width: 100%;height: 35px;padding: 0px;margin: 0px;font-size: 20px"
+              [(ngModel)]="customer.Currency" [ngModelOptions]="{standalone: true}"
+              (change)="CustomerDataChange(customer)">
+              <option></option>
+              <option>TWD</option>
+              <option>EUR</option>
+              <option>USD</option>
+              <option>JPY</option>
+            </select>
+          </td>
+          <th>
+            交易條件
+          </th>
+          <td style="padding: 5px;">
+            <select style="width: 100%;height: 35px;padding: 0px;margin: 0px;font-size: 20px"
+              [(ngModel)]="customer.DeliveryTerm" [ngModelOptions]="{standalone: true}"
+              (change)="CustomerDataChange(customer)">
+              <option></option>
+              <option>Ex-Work</option>
+              <option>FOB</option>
+              <option>CIF</option>
+              <option>DDU</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <th>
+            聯絡人
+          </th>
+          <td>
+            <input style="width: 100%;height: 35px;padding: 0px;margin: 0px;font-size: 20px" type="text"
+              placeholder="請輸入客戶端聯絡人" [(ngModel)]="customer.ContactPerson" [ngModelOptions]="{standalone: true}">
+          </td>
+          <th>
+            聯絡人
+          </th>
+          <td>
+            <input style="width: 100%;height: 35px;padding: 0px;margin: 0px;font-size: 20px" type="text"
+              placeholder="客戶信箱" [(ngModel)]="customer.Email" [ngModelOptions]="{standalone: true}">
+          </td>
+        </tr>
+        <tr>
+          <th>備註</th>
+          <td colspan="3">
+            <textarea style="width:100%;resize:none;height: 1.5cm;" [(ngModel)]="QuoteRemark"
+              [ngModelOptions]="{standalone: true}"></textarea>
+          </td>
+        </tr>
+        <tr *ngIf="IsProgressing=='1';">
+          <td *ngIf="QuoteNumber!=''; else elseTemplate2" colspan="4">
+            <button type="button" class="btn btn-info btn-sm active m-2" style="margin-top:0.5cm" data-toggle="modal"
+              data-target="#Modal_ItemSelector" data-backdrop="static" (click)="QueryQuoteTypes('1').subscribe()">
+              <i class="fa fa-copy"></i> 新增品項
+            </button>
+            <button type="button" class="btn btn-info btn-sm active m-2" style="margin-top:0.5cm" data-toggle="modal"
+              data-target="#Modal_MailToSupplier" data-backdrop="static" (click)="checkmailreq(Quotation_ID)">
+              <i class="fa fa-paper-plane"></i>送供應商郵件
+            </button>
+            <button *ngIf="Quotation.InternalAudit=='N' else Audittemp " type="button"
+              class="btn btn-info btn-sm active m-2" style="margin-top:0.5cm" (click)="InternalAudit()">
+              <i class="fa fa-check"></i>送內部審核郵件
+            </button>
+            <ng-template #Audittemp>
+              <button type="button" class="btn btn-info btn-sm active m-2" style="margin-top:0.5cm" data-toggle="modal"
+                data-target="#Modal_AuditItem">
+                <i class="fa fa-check"></i>已送審
+              </button>
+            </ng-template>
+          </td>
+          <ng-template #elseTemplate2>
+            <td colspan="4">
+              <button type="button" class="btn btn-info btn-sm active m-2" style="margin-top:0.5cm" data-toggle="modal"
+                data-target="#Modal_ItemSelector" data-backdrop="static" disabled>
+                <i class="fa fa-copy"></i>新增品項
+              </button>
+              <button type="button" class="btn btn-info btn-sm active m-2" style="margin-top:0.5cm" disabled>
+                <i class="fa fa-paper-plane"></i>供應商詢價信送出
+              </button>
+            </td>
+          </ng-template>
+        </tr>
+
+      </table>
+      <ng-template #NoEditPermission>
+        <table class="table tab_content_table table-bordered">
+          <tr>
+            <td colspan="4" class="heading">
+              ({{Quotation_ID}})建檔日期：{{Today}}&nbsp;&nbsp;&nbsp; /
+              &nbsp;&nbsp;&nbsp;建檔人：
+              <b>{{UserName}}</b>&nbsp;&nbsp;&nbsp; /
+              &nbsp;&nbsp;&nbsp;
+              <b>沒有編輯權限</b>
+            </td>
+          </tr>
+          <tr>
+            <th>客戶編號</th>
+            <td>
+              <input type="text" placeholder="系統將自動帶出" readonly [(ngModel)]="customer.CustomerNumber"
+                [ngModelOptions]="{standalone: true}">
+            </td>
+            <th>
+              <span>客戶名稱</span>
+            </th>
+            <td>
+              <input type="text" placeholder="系統自動帶出或由清單選擇" readonly [(ngModel)]="customer.UserName"
+                [ngModelOptions]="{standalone: true}">
+              <button (click)="queryCustomerList(1)" class="choose" data-toggle="modal"
+                data-target="#Modal_CustomSelector" data-backdrop="static" disabled>
+                …
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <th>
+              <span>詢價單編號</span>
+            </th>
+            <td>
+              <input type="text" placeholder="建立完成自動帶出" readonly [(ngModel)]="QuoteNumber"
+                [ngModelOptions]="{standalone: true}">
+            </td>
+            <th>業務人員</th>
+            <td>
+              <input type="text" placeholder="系統將自動帶出" readonly [(ngModel)]="UserName"
+                [ngModelOptions]="{standalone: true}">
+            </td>
+          </tr>
+          <tr>
+            <th>備註</th>
+            <td colspan="3">
+              <textarea style="width:100%;resize:none;height: 1.5cm;" [(ngModel)]="QuoteRemark"
+                [ngModelOptions]="{standalone: true}" disabled></textarea>
+            </td>
+          </tr>
+          <tr>
+            <th>附件</th>
+            <td colspan="3">
+              <button *ngIf="QuoteNumber!=''; else elseTemplate" id="btn_chooseAttach" class="btn btn-outline-info"
+                data-toggle="modal" data-target="#Modal_AttachmentList_Main" data-backdrop="static"
+                (click)="queryQuotationAttachList()">
+                檢視....
+              </button>
+              <ng-template #elseTemplate>
+                <!-- 詢價單未成立時附件按鈕不作動 -->
+                <button type="button" id="btn_chooseAttach" class="btn btn-outline-info" data-toggle="modal"
+                  data-target="#Modal_AttachmentList_Main" data-backdrop="static" (click)="queryQuotationAttachList()"
+                  disabled>
+                  檢視....
+                </button>
+              </ng-template>
+            </td>
+          </tr>
+          <button type="button" class="btn btn-info btn-sm active m-2" style="margin-top:0.5cm" disabled>
+            <i class="fa fa-copy"></i>
+            新增品項
+          </button>
+        </table>
+      </ng-template>
+      <table class="table table-bordered table-striped table-hover" style="text-align: center;">
+        <thead>
+          <tr class="color_th1">
+            <th>品名</th>
+            <th>項目</th>
+            <th>尺寸細節</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let quotationDetail of detailDistinctList">
+            <tr>
+              <td>{{quotationDetail.QuoteItemNumber}}</td>
+              <td align="center" style="width: 430px;">
+                <div [ngStyle]="dividediv(quotationDetail)">
+                  <ng-container *ngFor="let item of quotationDetailList;let i = index">
+                    <div (click)="TableRowColorChange(item)"
+                      [ngStyle]="{'background-color':selectDetail.QuoteTypeName==item.QuoteTypeName&&selectDetail.QuoteItemNumber==item.QuoteItemNumber?'deepskyblue':'','width': '100%','display':'grid','grid-template-columns':'120px 120px 80px 80px 80px 120px'}"
+                      *ngIf="item.QuoteItemNumber==quotationDetail.QuoteItemNumber">
+                      <div>
+                        <label>{{item.QuoteTypeName+
+                          (item.CheckQuotationDetailRep.IsDetailClosed == '1' ? '(完工)' :
+                          item.CheckQuotationDetailRep.IsDetailClosed == '0' ? '' : '')
+                          }}</label>
+                      </div>
+                      <div>
+                        <button
+                          *ngIf="item.CheckQuotationDetailRep.IsDetailClosed != '1'&&premanager.GetPermission(Permission, 'Quotation', 'IsCanEdit',Adder)"
+                          type="button" class="btn btn-outline-info" data-toggle="modal"
+                          data-target="#Modal_ItemTypeList" (click)="queryDetailVendor(item)" data-backdrop="static">
+                          <i class="fa fa-industry"></i>{{'('+item.IsQuoted+')'+'廠商'}}
+                        </button>
+                      </div>
+                      <div>
+                        <button
+                          *ngIf="item.CheckQuotationDetailRep.IsDetailClosed != '1'&&premanager.GetPermission(Permission, 'Quotation', 'IsCanEdit',Adder);"
+                          type="button" class="btn btn-outline-info" data-toggle="modal"
+                          data-target="#Update_Modal_ItemSelector" data-backdrop="static" (click)="remarkselect(item)">
+                          <i class="fa fa-edit fa-2"></i>修改
+                        </button>
+                      </div>
+                      <div>
+                        <button
+                          *ngIf="item.CheckQuotationDetailRep.IsHaveSupplier=='0'&&item.CheckQuotationDetailRep.IsDetailClosed != '1'&&premanager.GetPermission(Permission, 'Quotation', 'IsCanEdit',Adder);"
+                          type="button" class="btn btn-outline-info" (click)="deleteQuotationDetail(item)">
+                          <i class="fa fa-trash fa-2"></i>移除
+                        </button>
+                      </div>
+                      <div>
+                        <button
+                          *ngIf="item.QuoteRemark.length>0&&item.CheckQuotationDetailRep.IsDetailClosed != '1'&&premanager.GetPermission(Permission, 'Quotation', 'IsCanEdit',Adder);"
+                          type="button" class="btn btn-outline-info" (click)="remarkselect(item)" data-toggle="modal"
+                          data-target="#Modal_Remark" data-backdrop="static">
+                          <i class="fa fa-comment"></i>備註
+                        </button>
+                        <button
+                          *ngIf="item.QuoteRemark.length==0&&item.CheckQuotationDetailRep.IsDetailClosed != '1'&&premanager.GetPermission(Permission, 'Quotation', 'IsCanEdit',Adder);"
+                          type="button" class="btn btn-outline-info" (click)="remarkselect(item)" data-toggle="modal"
+                          data-target="#Modal_Remark" data-backdrop="static">
+                          <i class="fa fa-comment-o"></i>備註
+                        </button>
+                      </div>
+                      <div>
+                        <button *ngIf="QuoteNumber!=''; else elseTemplate" id="btn_chooseAttach"
+                          class="btn btn-outline-info" data-toggle="modal" data-target="#Modal_AttachmentList_Main"
+                          data-backdrop="static"
+                          (click)="queryQuotationAttachList(item);FileBatchStatus(item);">檔案{{item.CheckQuotationDetailRep.IsHaveAnnex=='1'?'(已附)':''}}
+                        </button>
+                      </div>
+                    </div>
+                  </ng-container>
+                </div>
+              </td>
+              <td>尺寸:{{quotationDetail.CastingSize}}<br>
+                重量:{{quotationDetail.CastingWeight}}KG材質:{{quotationDetail.CastingMaterial}}年量:{{quotationDetail.EstimateQuantity}}
+              </td>
+              <ng-template #elseTemplate>
+                <td class="manage">
+                  <h5>本品項已全數結單</h5>
+                </td>
+              </ng-template>
+            </tr>
+          </ng-container>
+        </tbody>
+      </table>
+
+
+
+      <!--備註查詢-->
+      <div class="modal fade" tabindex="-1" role="dialog" id="Modal_Remark">
+        <div class="modal-dialog modal-xl" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h3>報價備註</h3>
+            </div>
+            <div class="modal-body">
+              <input type="text" placeholder="請輸入備註項目" [(ngModel)]="newremark" [ngModelOptions]="{standalone: true}"
+                (change)="Remarkchange(newremark,selectDetail)">
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-secondary" data-dismiss="modal">確定</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+      <!--#region 新增品項彈跳視窗Start -->
+      <div class="modal fade" tabindex="-1" role="dialog" id="Modal_ItemSelector">
+        <div class="modal-dialog modal-xl" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+            </div>
+            <div class="modal-body">
+              <section class="section-style on">
+                <div>
+                  <flash-messages></flash-messages>
+                </div>
+                <div style="display: grid;grid-template-columns: 60% 40%">
+                  <div>
+
+                    <table class="table tab_content_table table-bordered">
+                      <thead>
+                        <tr>
+                          <td colspan="4" class="heading">
+                            新增品項
+                          </td>
+                        </tr>
+                      </thead>
+                      <tbody style="background-color: ghostwhite;">
+                        <tr>
+                          <th>
+                            重量(KG)：
+                          </th>
+                          <td>
+                            <input type="number" [(ngModel)]="newdetail.CastingWeight"
+                              [ngModelOptions]="{standalone: true}" required />
+                          </td>
+                          <th>
+                            材質：
+                          </th>
+                          <td>
+                            <input type="text" [(ngModel)]="newdetail.CastingMaterial"
+                              [ngModelOptions]="{standalone: true}" required />
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            報價品號：
+                          </th>
+                          <td>
+                            <input type="text" [(ngModel)]="newdetail.QuoteItemNumber"
+                              [ngModelOptions]="{standalone: true}" required />
+
+                          </td>
+                          <th>鑄鐵尺寸：</th>
+                          <td>
+                            <input type="text" [(ngModel)]="newdetail.CastingSize" [ngModelOptions]="{standalone: true}"
+                              required />
+                          </td>
+                        </tr>
+                        <tr>
+                          <th> 年量：</th>
+                          <td>
+                            <input type="text" [(ngModel)]="newdetail.EstimateQuantity"
+                              [ngModelOptions]="{standalone: true}" required />
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>備註：</th>
+                          <td colspan="3">
+                            <input type="text" [(ngModel)]="newdetail.QuoteRemark"
+                              [ngModelOptions]="{standalone: true}">
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colspan="4">
+                            <button type="submit" class="btn btn-secondary mr-2" data-dismiss="modal">取消</button>
+                            <button type="submit" class="btn btn-primary" (click)="addQuotationDetail();">
+                              確定
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div>
+                    <table class="table tab_content_table table-bordered">
+                      <thead>
+                        <tr>
+                          <td colspan="4" class="heading">
+                            報價項目
+                          </td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <div style="overflow: auto;height:208px;display: grid;grid-template-columns: 140px 140px 140px">
+                          <div style="width:100%;" *ngFor="let item of QuoteTypesList">
+                            <input style="float: left;" type="checkbox" class="form-check-input"
+                              id="item+{{item.SYS_QuoteType_ID}}" value="item.Choice" [(ngModel)]="item.Choice"
+                              [ngModelOptions]="{standalone: true}">
+                            <label class="form-check-label" style="font-size: 20px;float: left;"
+                              for="item+{{item.SYS_QuoteType_ID}}">{{item.QuoteTypeName}}</label>
+                          </div>
+                        </div>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </section>
+            </div>
+            <div class="modal-footer">
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--#endregion 新增品項彈跳視窗End -->
+
+      <!--#region 更新品項彈跳視窗Start -->
+      <div class="modal fade" tabindex="-1" role="dialog" id="Update_Modal_ItemSelector">
+        <div class="modal-dialog modal-xl" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+            </div>
+            <div class="modal-body">
+              <section class="section-style on">
+                <div>
+                  <flash-messages></flash-messages>
+                </div>
+                <div style="display: grid;grid-template-columns: 60% 40%">
+                  <div>
+
+                    <table class="table tab_content_table table-bordered">
+                      <thead>
+                        <tr>
+                          <td colspan="4" class="heading">
+                            品項修改
+                          </td>
+                        </tr>
+                      </thead>
+                      <tbody style="background-color: ghostwhite;">
+                        <tr>
+                          <th>
+                            重量(KG)：
+                          </th>
+                          <td>
+                            <input type="number" [(ngModel)]="newdetail.CastingWeight"
+                              [ngModelOptions]="{standalone: true}" required />
+                          </td>
+                          <th>
+                            材質：
+                          </th>
+                          <td>
+                            <input type="text" [(ngModel)]="newdetail.CastingMaterial"
+                              [ngModelOptions]="{standalone: true}" required />
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>
+                            報價品號：
+                          </th>
+                          <td>
+                            <input type="text" [(ngModel)]="newdetail.QuoteItemNumber"
+                              [ngModelOptions]="{standalone: true}" required />
+
+                          </td>
+                          <th>鑄鐵尺寸：</th>
+                          <td>
+                            <input type="text" [(ngModel)]="newdetail.CastingSize" [ngModelOptions]="{standalone: true}"
+                              required />
+                          </td>
+                        </tr>
+                        <tr>
+                          <th> 年量：</th>
+                          <td>
+                            <input type="text" [(ngModel)]="newdetail.EstimateQuantity"
+                              [ngModelOptions]="{standalone: true}" required />
+                          </td>
+                        </tr>
+                        <tr>
+                          <th>備註：</th>
+                          <td colspan="3">
+                            <input type="text" [(ngModel)]="newdetail.QuoteRemark"
+                              [ngModelOptions]="{standalone: true}">
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colspan="4">
+                            <button type="submit" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                            <button type="submit" class="btn btn-primary"
+                              (click)="QuotationDetailUpdateAll(newdetail,QuoteTypesList)">
+                              確定
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div>
+                    <table class="table tab_content_table table-bordered">
+                      <thead>
+                        <tr>
+                          <td colspan="4" class="heading">
+                            報價項目
+                          </td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <div style="overflow: auto;height:208px;display: grid;grid-template-columns: 140px 140px 140px">
+                          <div style="width:100%;" *ngFor="let item of QuoteTypesList">
+                            <ng-container *ngIf="item.IsQuoted">
+                              <input style="float: left" type="checkbox" class="form-check-input" checked>
+                              <label readonly class="form-check-label"
+                                style="font-size: 20px;float: left;color: darkgrey;">{{item.QuoteTypeName}}</label>
+                            </ng-container>
+                            <ng-container *ngIf="!item.IsQuoted">
+                              <input style="float: left;" type="checkbox" class="form-check-input"
+                                id="item+{{item.SYS_QuoteType_ID}}" value="item.Choice" [(ngModel)]="item.Choice"
+                                [ngModelOptions]="{standalone: true}">
+                              <label disabled class="form-check-label" style="font-size: 20px;float: left;"
+                                for="item+{{item.SYS_QuoteType_ID}}">{{item.QuoteTypeName}}</label>
+                            </ng-container>
+                          </div>
+                        </div>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </section>
+            </div>
+            <div class="modal-footer">
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--#endregion 更新品項彈跳視窗End -->
+
+
+
+      <!--#region 選擇客戶彈跳視窗Start -->
+      <div class="modal fade " tabindex="-1" role="dialog" id="Modal_CustomSelector">
+        <div class="modal-dialog modal-xl" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+            </div>
+            <div class="modal-body">
+              <section class="section-style on">
+                <h3>
+                  <i class="fa fa-address-book"></i> 選擇客戶
+                </h3>
+                <div class="typesetting-3">
+                  <button type="button" class="btn btn-default float_right" data-dismiss="modal" aria-label="Close">
+                    <i class="fa fa-window-close"></i>
+                    關閉視窗
+                  </button>
+                </div>
+                <div class="search_area">
+                  <form role="form">
+                    <label>客戶名稱</label>
+                    <input type="text" (input)="queryCustomerList()" (change)="queryCustomerList()"
+                      [(ngModel)]="customername" [ngModelOptions]="{standalone: true}">
+                    <label>聯絡人</label>
+                    <input type="text" (input)="queryCustomerList()" (change)="queryCustomerList()"
+                      [(ngModel)]="customerContactPerson" [ngModelOptions]="{standalone: true}">
+                    <button type="button" class="btn btn-info btn-sm active m-2" (click)="queryCustomerList()">
+                      <i class="fa fa-search"></i>
+                      查詢
+                    </button>
+                  </form>
+                </div>
+                <table class="table table-bordered table-striped table-hover">
+                  <thead>
+                    <tr class="color_th1">
+                      <th>客戶編號</th>
+                      <th>客戶名稱</th>
+                      <th>統一編號</th>
+                      <th>聯絡人</th>
+                      <th>電話</th>
+                      <th width="135">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let cust of customerlist">
+                      <td>{{cust.CustomerNumber}}</td>
+                      <td>{{cust.Nickname}}</td>
+                      <td>{{cust.TaxIDNumber}}</td>
+                      <td>{{cust.ContactPerson}}</td>
+                      <td>{{cust.TEL}}</td>
+                      <td class="manage">
+                        <button *ngIf="QuoteNumber.length>0" type="button" class="btn btn-outline-info"
+                          (click)="getSingleCustomer(cust.CST_Customer_ID);" data-dismiss="modal" aria-label="Close">
+                          <i class="fa fa-external-link"></i>
+                          取回資料
+                        </button>
+                        <button *ngIf="QuoteNumber.length==0" type="button" class="btn btn-outline-info"
+                          (click)="getSingleCustomer(cust.CST_Customer_ID);addRFQ(cust,QuoteRemark);"
+                          data-dismiss="modal" aria-label="Close">
+                          <i class="fa fa-external-link"></i>
+                          取回資料
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="7">
+                        <ngb-pagination (pageChange)="customerloadPage($event)" class="pagination pull-right"
+                          [(collectionSize)]="TotalCount" [pageSize]="10" [(page)]="Page"
+                          aria-label="Default pagination" size="sm">
+                        </ngb-pagination>
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </section>
+            </div>
+            <div class="modal-footer">
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- #endregion選擇客戶彈跳視窗End -->
+
+      <!--#region 檢視廠商列表彈跳視窗Start-->
+      <div class="modal fade" tabindex="-1" role="dialog" id="Modal_ItemTypeList">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+            </div>
+            <div class="modal-body">
+              <section class="section-style on">
+                <h3>
+                  <i class="fa fa-address-book"></i> 品項負責廠商{{selectDetail.QuoteTypeName}}
+                </h3>
+                <div class="search_area">
+                  <label>選擇廠商：</label>
+                  <button class="choose" data-toggle="modal" data-target="#Modal_VendorSelector" data-backdrop="static"
+                    (click)="queryVendorList('')">
+                    按此選擇…
+                  </button>
+                </div>
+                <table class="table table-bordered table-striped table-hover">
+                  <thead>
+                    <tr class="color_th1">
+                      <th>廠商編號</th>
+                      <th>廠商名稱</th>
+                      <th>已報價</th>
+                      <th width="90">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let vendor of selectDetail_VendorList; let i=index">
+                      <td>{{vendor.SupplierNumber}}</td>
+                      <td>{{vendor.SupplierName}}</td>
+                      <td *ngIf="vendor.QuotePrice.length>0;else NotQuote">
+                        已報價
+                      </td>
+                      <ng-template #NotQuote>
+                        <td>未報價</td>
+                      </ng-template>
+                      <td>
+                        <button *ngIf="vendor.QuotePrice.length==0" type="button" class="btn btn-outline-info"
+                          (click)="deleteQuotationDetailVendor(vendor)">
+                          <i class="fa fa-external-link"></i>移除
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                  </tfoot>
+                </table>
+              </section>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="modelclose()">確定</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--#endregion-->
+
+      <!--#endregion 品項附件檔案彈跳視窗End -->
+      <!--#region 詢價單附件檔案彈跳視窗Start -->
+      <div class="modal fade" tabindex="-1" role="dialog" id="Modal_AttachmentList_Main">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+            </div>
+            <div class="modal-body">
+              <section class="section-style on">
+                <h3>
+                  <i class="fa fa-address-book"></i> 上傳說明附件
+                </h3>
+                <div class="search_area">
+                  <ngb-progressbar id="progressbar" type="warning" [value]="ProgressPercent" [striped]="true"
+                    height="25px" style="visibility: hidden;">
+                    <i>已上傳{{Uploaded}}，共{{UploadTotal}}---{{ProgressPercent}}%</i>
+                  </ngb-progressbar>
+                  <form *ngIf="premanager.GetPermission(Permission, 'Quotation', 'IsCanEdit',Adder);" role="form">
+                    <input id="fileupload_main" type="file" class="btn btn-default" value="選擇檔案"
+                      (change)="chooseFile_Quotation($event.target.files)">
+                    <button id="fileupload_btn" type="button" class="btn btn-info btn-sm active m-2"
+                      (click)="uploadQuotationAttach()">
+                      <i class="fa fa-search"></i>
+                      上傳檔案
+                    </button>
+                    <input type="checkbox" class="form-check-input" id="FileSyncCheckBox" value="FileSyncCheckBox"
+                      [(ngModel)]="FileSyncCheckBox" [ngModelOptions]="{standalone: true}">
+                    <label class="form-check-label" for="FileSyncCheckBox">上傳至相同品號</label>
+                  </form>
+                </div>
+                <table class="table tab_content_table table-bordered">
+                  <thead>
+                    <tr>
+                      <td colspan="5" style="background-color:lightcyan;">
+                        <button type="button" class="btn btn-outline-info" style="float: left;" id="FileListButton"
+                          (click)="FileListCollpes()">收起表單</button>
+                        <!--
+                          <button type="button" class="btn btn-outline-info" style="float: right;" id="FileListButton"
+                            (click)="FileBatchUpload(selectDetail,FileBatchList)">同步上傳至選擇項目</button>-->
+                        <label style="font-weight:bold ;">檔案同步複製清單</label>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th style="text-align: center;background-color:lightcyan;">選擇複製</th>
+                      <th style="text-align: center;background-color:lightcyan;">同步狀態</th>
+                      <th style="text-align: center;background-color:lightcyan;">檔案狀態</th>
+                      <th style="text-align: center;background-color:lightcyan;">品名</th>
+                      <th style="text-align: center;background-color:lightcyan;">項目</th>
+                    </tr>
+                  </thead>
+                  <tbody id="FileCollapseBody">
+                    <tr *ngFor="let item of FileBatchList">
+                      <ng-container *ngIf="selectDetail.FORM_QuotationDetail_ID==item.FORM_QuotationDetail_ID">
+                        <td>
+                          <label style="font-weight: bold;" for="Check2{{item.FORM_QuotationDetail_ID}}">已選擇</label>
+                        </td>
+                        <td>{{item.FileSync?"複製此檔案":"非同步"}}</td>
+                      </ng-container>
+                      <ng-container *ngIf="selectDetail.FORM_QuotationDetail_ID!=item.FORM_QuotationDetail_ID">
+                        <td>
+                          <input type="checkbox" class="form-check-input" id="Check2{{item.FORM_QuotationDetail_ID}}"
+                            [(ngModel)]="item.Choice" [ngModelOptions]="{standalone: true}">
+                          <label class="form-check-label" for="Check2{{item.FORM_QuotationDetail_ID}}">選擇</label>
+                        </td>
+                        <td>{{item.FileSync?"包含檔案":"不包含檔案"}}</td>
+                      </ng-container>
+                      <td>{{item.FileStatus}}</td>
+                      <td>{{item.QuoteItemNumber}}</td>
+                      <td>{{item.QuoteTypeName}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <table class="table table-bordered table-striped table-hover">
+                  <thead>
+                    <tr class="color_th1">
+                      <th>項目</th>
+                      <th>檔案說明</th>
+                      <th>下載</th>
+                      <th width="115" *ngIf="premanager.GetPermission(Permission, 'Quotation', 'IsCanEdit',Adder);">
+                        管理
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let Attach of quotation_AttachList; let i=index">
+                      <td>{{Attach.FORM_QuotationAnnexMap_ID}}</td>
+                      <td>{{Attach.AnnexName}}</td>
+                      <td>
+                        <a href="{{rest.APserver}}{{Attach.AnnexURL}}" target="_blank">下載</a>
+                      </td>
+                      <td *ngIf="premanager.GetPermission(Permission, 'Quotation', 'IsCanEdit',Adder);" class="manage">
+                        <button type="button" class="btn btn-outline-info"
+                          (click)="deleteQuotationAttach(Attach.FORM_QuotationAnnexMap_ID)">
+                          <i class="fa fa-external-link"></i> 移除
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                  </tfoot>
+                </table>
+              </section>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-dismiss="modal"
+                (click)="queryQuotationDetailList().subscribe();">關閉</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--#endregion 詢價單附件檔案彈跳視窗End -->
+
+      <!--#region 選擇廠商彈跳視窗Start -->
+      <div class="modal fade" tabindex="-1" role="dialog" id="Modal_VendorSelector">
+        <div class="modal-dialog modal-xl" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+            </div>
+            <div class="modal-body">
+              <section class="section-style on">
+                <h3>
+                  <i class="fa fa-address-book"></i> 系統廠商清單
+                </h3>
+                <div class="typesetting-3">
+                  <button type="button" class="btn btn-default float_right" data-dismiss="modal" aria-label="Close">
+                    <i class="fa fa-window-close"></i> 關閉視窗
+                  </button>
+                </div>
+                <div class="search_area">
+                  <form role="form">
+                    <label>姓名：</label>
+                    <input type="text" [(ngModel)]="vendorQueryName" [ngModelOptions]="{standalone: true}"
+                      (change)="queryVendername(vendorQueryName)" (input)="queryVendername(vendorQueryName)">
+                    <button type="button" class="btn btn-info btn-sm active m-2"
+                      (click)="queryVendername(vendorQueryName)"><i class="fa fa-search"></i>
+                      查詢</button>
+                  </form>
+                </div>
+                <table class="table table-bordered table-striped table-hover">
+                  <thead>
+                    <tr class="color_th1">
+                      <th></th>
+                      <th>廠商編號</th>
+                      <th>廠商名稱</th>
+                      <th width="135">管理</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let vendor of vendorList; let i=index">
+                      <td>{{i+1}}</td>
+                      <td>{{vendor.SupplierNumber}}</td>
+                      <td>{{vendor.SupplierName}}</td>
+                      <td class="manage">
+                        <button type="button" class="btn btn-outline-info" data-dismiss="modal"
+                          (click)="selectQuotationDetailVendor(vendor)">
+                          <i class="fa fa-external-link"></i>
+                          取回資料
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="7">
+                        <ngb-pagination (pageChange)="vendorloadPage($event)" class="pagination pull-right"
+                          [(collectionSize)]="TotalCount" [(page)]="Page" aria-label="Default pagination" size="sm">
+                        </ngb-pagination>
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </section>
+            </div>
+            <div class="modal-footer">
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--#endregion 選擇廠商彈跳視窗End -->
+      <!--#region 送出供應商詢價郵件彈跳視窗Start -->
+      <div class="modal fade" tabindex="-1" role="dialog" id="Modal_MailToSupplier">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+            </div>
+            <div class="modal-body">
+              <section class="section-style on">
+                <h3>
+                  <i class="fa fa-address-book"></i> 寄送供應商郵件 {{UserName}}
+                </h3>
+                <div class="search_area">
+                  <table class="table  mt-0  table-striped  table-bordered">
+                    <thead>
+                      <tr class="color_th1">
+                        <th>品名</th>
+                        <th>項目</th>
+                        <th>已寄送Email</th>
+                        <th>專責人員</th>
+                        <th>供應商選擇</th>
+                        <th><button (click)="mailtoallselect(supplierMailList)">全選</button></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let quotationDetail of supplierMailList">
+                        <td>{{quotationDetail.QuoteItemNumber}}</td>
+                        <td>{{quotationDetail.QuoteTypeName}}</td>
+                        <td>{{quotationDetail.IsEmail=='N'?'未寄送':'已寄送'}}</td>
+                        <td>{{quotationDetail.Representative}}</td>
+                        <ng-container *ngIf="quotationDetail.SupplierListString!=''">
+                          <td>
+                            {{quotationDetail.SupplierListString!=''?quotationDetail.SupplierListString:'未選擇'}}
+                          </td>
+                          <td class="manage">
+                            <input type="checkbox" id="{{'object-'+quotationDetail.FORM_QuotationDetail_ID}}"
+                              class="form-check-input" [(ngModel)]="quotationDetail.Mailto"
+                              [ngModelOptions]="{standalone: true}">
+                            <label class="form-check-label"
+                              for="{{'object-'+quotationDetail.FORM_QuotationDetail_ID}}">寄送</label>
+                          </td>
+                        </ng-container>
+
+                      </tr>
+                    </tbody>
+                  </table>
+                  <button type="submit" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                  <button *ngIf="MailAvaliable" type="submit" class="btn btn-primary" data-dismiss="modal"
+                    (click)="sendsupplieremail(supplierMailList)">
+                    確定
+                  </button>
+                </div>
+              </section>
+            </div>
+            <div class="modal-footer">
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--#endregion 新增品項彈跳視窗End -->
+
+      <!--#region 是否送審核信-->
+      <div class="modal fade" tabindex="-1" role="dialog" id="Modal_AuditItem">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+            </div>
+            <div class="modal-body">
+              <section class="section-style on">
+                <h3>
+                  <i class="fa fa-address-book"></i> 是否再次寄送審核清單
+                </h3>
+                <div class="search_area">
+
+                  <button type="submit" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                  <button *ngIf="MailAvaliable" type="submit" class="btn btn-primary" data-dismiss="modal"
+                    (click)="InternalAudit()">
+                    確定
+                  </button>
+                </div>
+              </section>
+            </div>
+            <div class="modal-footer">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!--#endregion 是否送審核信END-->
+
+    </div>
+  </div>
+
+</section>

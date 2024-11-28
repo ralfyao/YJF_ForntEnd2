@@ -1,0 +1,41 @@
+.fitwindow{
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: calc(100% - 250px);
+}
+.table-fixed thead th {
+  position: sticky;
+  position: -webkit-sticky;
+  top: 0;
+}
+.fullsizetd {
+  border: black solid 1px;padding: 0px;height: 10px;
+}
+
+.patternsize{
+  color: red;
+}
+.tablehead {
+  background-color: cornsilk;
+  text-align: center;
+  border:  1px grey solid;
+}
+
+.tdbutton {
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  border: 0px;
+  color: black;
+
+}
+.tdbutton:hover {
+  background-color: greenyellow;
+}
+.tdbuttonDisable{
+  width: 100%;
+  height: 100%;
+  border: 0px;
+  color: black;
+}
+

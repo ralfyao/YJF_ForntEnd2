@@ -1,0 +1,11 @@
+
+/*無使用權限頁面*/
+
+.error_page {
+  border: 10px solid #fff;
+  margin: 0 auto;
+  width: 400px;
+  margin: 80px auto;
+  padding: 50px 90px 90px 90px;
+  text-align: center;
+}

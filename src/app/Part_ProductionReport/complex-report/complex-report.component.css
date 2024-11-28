@@ -1,0 +1,26 @@
+input[type=text],
+input[type=number] {
+  width: 75%;
+}
+
+input[type=date] {
+  width: calc(37.5% - 5px);
+}
+
+.reportblock {
+  border-radius: 1rem;
+  padding: 1rem;
+  background-color: #efefef;
+}
+
+.Calculate {
+  position: absolute;
+  right: 4rem;
+}
+.Calculate label
+{
+  font-size: 20px;
+}
+.Red{
+  color: #b40000 !important;
+}

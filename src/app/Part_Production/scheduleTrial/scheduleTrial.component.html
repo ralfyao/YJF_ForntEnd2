@@ -1,0 +1,92 @@
+<div class="pagetitle mb-2" style="height: fit-content;">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>試算
+  <button class="btn btn-info mx-1" (click)="onTrial()">試算</button>
+  <button class="btn btn-danger mx-1" (click)="goBack()">返回</button>
+</div>
+<div class="tableBlock">
+  <div class="table table-hover">
+    <thead>
+      <tr>
+        <ng-container *ngFor="let item of theadList">
+          <ng-container *ngIf="dateCols(item);else normolTh">
+            <th colspan="2">
+              <div class="text-center">{{item}}</div>
+              <div class="d-flex justify-content-around">
+                <span class="col mx-1 text-center">開始</span><span class="col mx-1 text-center">完成</span>
+              </div>
+            </th>
+          </ng-container>
+          <ng-template #normolTh>
+            <th>
+              <p class="text-center" [class]="item=='品號' || item=='品名'?'maxWidth':''">{{item}}</p>
+            </th>
+          </ng-template>
+
+
+        </ng-container>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngIf="tableData;else noData">
+        <ng-container *ngFor="let item of tableData">
+          <tr [ngClass]="{'overCapacity': item.isOverCapacity, 'overDue': item.isOverDue}" [ngbTooltip]="item.toolTipString">
+            <td class="text-center">
+              <button class="btn mb-1" [class]="item.isLocked?'btn-success':'btn-danger'" (click)="lock(item)">
+                {{item.isLocked ?'解除':'鎖定'}}
+              </button>
+              <button *ngIf="!item.isLocked" class="btn btn-primary"
+                (click)="getCalculateLineProduction.emit(item.workOrderNumber)">計算</button>
+            </td>
+            <!-- <td class="text-center">{{item.customerAlias}}</td>
+            <td class="text-center">{{item.orderNumber}}</td>
+            <td class="text-center">{{item.EstimatedTargetDay}}</td>
+            <td class="text-center">{{item.workOrderNumber}}</td>
+            <td class="text-center">{{item.workOrderWeight}}</td>
+            <td class="text-center">{{item.PartNo}}</td>
+            <td class="text-center">{{item.PartDesc}}</td>
+            <td class="text-center">{{item.EstimatedWOCompleteDay}}</td>
+            <td class="text-center">{{item.flaskNo}}</td> -->
+            <td class="text-center" style="left: 70px">{{item.customerAlias}}</td>
+            <td class="text-center" style="left: 160px">{{item.orderNumber}}</td>
+            <td class="text-center" style="left: 275px">{{item.EstimatedTargetDay}}</td>
+            <td class="text-center" style="left: 370px">{{item.workOrderNumber}}</td>
+            <td class="text-center" style="left: 490px">{{item.workOrderWeight}}</td>
+            <td class="text-center" style="left: 550px">{{item.PartNo}}</td>
+            <td class="text-center" style="left: 650px">{{item.PartDesc}}</td>
+            <td class="text-center" style="left: 750px">{{item.EstimatedWOCompleteDay}}</td>
+            <!-- <td class="text-center" style="left: 850px">{{item.flaskNo}}</td> -->
+            <td class="text-center"><input type="date" [(ngModel)]="item.patternStartDay" disabled="{{( fromVice ? item.patternEnded==''?false:true : false)}}" (ngModelChange)="seeChange(item, $event)" (blur)="checkDate(item.workOrderNumber, 'pattern', item.patternStartDay, item.patternEndDay, item.moldingStartDay)"></td>
+            <td class="text-center"><input type="date" [(ngModel)]="item.patternEndDay" disabled="{{( fromVice ? item.patternEnded==''?false:true:false)}}" (blur)="checkDate(item.workOrderNumber, 'pattern', item.patternStartDay, item.patternEndDay, item.moldingStartDay)"></td>
+            <td class="text-center">{{item.moldingGroup}}</td>
+            <td class="text-center"><input type="date" [(ngModel)]="item.moldingStartDay" disabled="{{(fromVice ?item.moldingEnded==''?false:true:false)}}" (ngModelChange)="seeChange(item, $event)" (blur)="checkDate(item.workOrderNumber, 'mold', item.moldingStartDay, item.moldingEndDay, item.moldClosingStartDay)"></td>
+            <td class="text-center"><input type="date" [(ngModel)]="item.moldingEndDay" disabled="{{(fromVice ?item.moldingEnded==''?false:true:false)}}" (blur)="checkDate(item.workOrderNumber, 'mold', item.moldingStartDay, item.moldingEndDay, item.moldClosingStartDay)"></td>
+            <td class="text-center">{{item.moldClosingGroup}}</td>
+            <td class="text-center"><input type="date" [(ngModel)]="item.moldClosingStartDay" disabled="{{(fromVice ?item.moldClosingEnded==''?false:true:false)}}" (ngModelChange)="seeChange(item, $event)" (blur)="checkDate(item.workOrderNumber, 'moldClosing', item.moldClosingStartDay, item.moldClosingEndDay, item.pouringStartDay)"></td>
+            <td class="text-center"><input type="date" [(ngModel)]="item.moldClosingEndDay" disabled="{{(fromVice ?item.moldClosingEnded==''?false:true:false)}}" (blur)="checkDate(item.workOrderNumber, 'moldClosing', item.moldClosingStartDay, item.moldClosingEndDay, item.pouringStartDay)"></td>
+            <td class="text-center"><input type="date" [(ngModel)]="item.pouringStartDay" disabled="{{(fromVice ?item.pouringEnded==''?false:true:false)}}" (ngModelChange)="seeChange(item, $event)" (blur)="checkDate(item.workOrderNumber, 'pouring', item.pouringStartDay, item.pouringEndDay, item.unpackStartDay, item)"></td>
+            <td class="text-center"><input type="date" [(ngModel)]="item.pouringEndDay" disabled="{{(fromVice ?item.pouringEnded==''?false:true:false)}}" (blur)="checkDate(item.workOrderNumber, 'pouring', item.pouringStartDay, item.pouringEndDay, item.unpackStartDay, item)"></td>
+            <td class="text-center"><input type="date" [(ngModel)]="item.unpackStartDay" disabled="{{(fromVice ?item.unpackEnded==''?false:true:false)}}" (ngModelChange)="seeChange(item, $event)" (blur)="checkDate(item.workOrderNumber, 'unpack', item.unpackStartDay, item.unpackEndDay, item.annelProcStartDay)"></td>
+            <td class="text-center"><input type="date" [(ngModel)]="item.unpackEndDay" disabled="{{(fromVice ?item.unpackEnded==''?false:true:false)}}" (blur)="checkDate(item.workOrderNumber, 'unpack', item.unpackStartDay, item.unpackEndDay, item.annelProcStartDay)"></td>
+            <td class="text-center"><input type="date" [(ngModel)]="item.annelProcStartDay" disabled="{{(fromVice ?item.annelProcEnded==''?false:true:false)}}" (ngModelChange)="seeChange(item, $event)" (blur)="checkDate(item.workOrderNumber, 'annel', item.annelProcStartDay, item.annelProcEndDay, item.deRoughEdgeProcStartDay)"></td>
+            <td class="text-center"><input type="date" [(ngModel)]="item.annelProcEndDay" disabled="{{(fromVice ?item.annelProcEnded==''?false:true:false)}}" (blur)="checkDate(item.workOrderNumber, 'annel', item.annelProcStartDay, item.annelProcEndDay, item.deRoughEdgeProcStartDay)"></td>
+            <td class="text-center"><input type="date" [(ngModel)]="item.deRoughEdgeProcStartDay" disabled="{{(fromVice ?item.deRoughEdgeProcEnded==''?false:true:false)}}" (ngModelChange)="seeChange(item, $event)" (blur)="checkDate(item.workOrderNumber, 'deRouge', item.deRoughEdgeProcStartDay, item.deRoughEdgeProcEndDay, item.post3ProcStartDay)"></td>
+            <td class="text-center"><input type="date" [(ngModel)]="item.deRoughEdgeProcEndDay" disabled="{{(fromVice ?item.deRoughEdgeProcEnded==''?false:true:false)}}" (blur)="checkDate(item.workOrderNumber, 'deRouge', item.deRoughEdgeProcStartDay, item.deRoughEdgeProcEndDay, item.post3ProcStartDay)"></td>
+            <td class="text-center"><input type="date" [(ngModel)]="item.post3ProcStartDay" disabled="{{(fromVice ?item.post3ProcEnded==''?false:true:false)}}" (ngModelChange)="seeChange(item, $event)" (blur)="checkDate(item.workOrderNumber, 'post3', item.post3ProcStartDay, item.post3ProcEndDay, item.post4ProcStartDay)"></td>
+            <td class="text-center"><input type="date" [(ngModel)]="item.post3ProcEndDay" disabled="{{(fromVice ?item.post3ProcEnded==''?false:true:false)}}" (blur)="checkDate(item.workOrderNumber, 'post3', item.post3ProcStartDay, item.post3ProcEndDay, item.post4ProcStartDay)"></td>
+            <td class="text-center"><input type="date" [(ngModel)]="item.post4ProcStartDay" disabled="{{(fromVice ?item.post4ProcEnded==''?false:true:false)}}" (ngModelChange)="seeChange(item, $event)" (blur)="checkDate(item.workOrderNumber, 'post4', item.post4ProcStartDay, item.post4ProcEndDay, item.post5ProcStartDay)"></td>
+            <td class="text-center"><input type="date" [(ngModel)]="item.post4ProcEndDay" disabled="{{(fromVice ?item.post4ProcEnded==''?false:true:false)}}" (blur)="checkDate(item.workOrderNumber, 'post4', item.post4ProcStartDay, item.post4ProcEndDay, item.post5ProcStartDay)"></td>
+            <td class="text-center"><input type="date" [(ngModel)]="item.post5ProcStartDay" disabled="{{(fromVice ?item.post5ProcEnded==''?false:true:false)}}" (ngModelChange)="seeChange(item, $event)" (blur)="checkDate(item.workOrderNumber, 'post5', item.post5ProcStartDay, item.post5ProcEndDay,'9999-12-31')"></td>
+            <td class="text-center"><input type="date" [(ngModel)]="item.post5ProcEndDay" disabled="{{(fromVice ?item.post5ProcEnded==''?false:true:false)}}" (blur)="checkDate(item.workOrderNumber, 'post5', item.post5ProcStartDay, item.post5ProcEndDay,'9999-12-31')"></td>
+          </tr>
+        </ng-container>
+      </ng-container>
+    </tbody>
+  </div>
+</div>
+<ng-template #noData>
+  <tr>
+    <td colspan="100%">
+      沒有資料
+    </td>
+  </tr>
+</ng-template>

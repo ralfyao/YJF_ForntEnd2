@@ -1,0 +1,66 @@
+<!--右邊內容__標題Start-->
+<div class="pagetitle">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>詢價清單
+</div>
+<!--右邊內容__標題End-->
+<!--右邊內容__搜尋區域Start-->
+<section class="search_area">
+  <form role="form">
+    <input type="text" style="background-color: honeydew;width: 350px;" placeholder="全文關鍵字搜尋" [(ngModel)]="SearchText"
+      [ngModelOptions]="{standalone: true}" (change)="SmartSearch(Page)" (input)="SmartSearch(Page)">
+    <select class="select_search" [(ngModel)]="QuotationIsClosedString" [ngModelOptions]="{standalone: true}"
+      (ngModelChange)="ChangeIsClosed($event)">
+      <option *ngFor="let Status of StatusList" [ngValue]="Status">{{Status}}</option>
+    </select>
+
+    <div class="typesetting-4">
+      <button type="button" class="btn btn-outline-primary mx-1" (click)="SmartSearch(Page)">
+        <i class="fa fa-search"></i>
+        查詢
+      </button>
+      <button type="button" class="btn btn-outline-primary mx-1" (click)="addQuotation()">
+        <i class="fa fa-plus-circle"></i>新增詢價單
+      </button>
+    </div>
+  </form>
+</section>
+<!--右邊內容__搜尋區域End-->
+<!--右邊內容__搜尋之後的表格清單Start -->
+<table class="table table-bordered table-striped table-hover">
+  <thead>
+    <tr class="color_th1">
+      <th>報價編號</th>
+      <th>建立人</th>
+      <th>建立時間</th>
+      <th>客戶簡稱</th>
+      <th>報價項目</th>
+      <th>備註</th>
+      <th>結案碼</th>
+      <th width="90">管理</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr id="QuotationTable{{i}}" (click)="TableRowColorChange('QuotationTable',QuotationList,i)"
+      *ngFor="let Quotation of QuotationList;let i =index" title="{{Quotation.QuoteItemString}}">
+      <td>{{Quotation.QuoteNumber}}</td>
+      <td>{{Quotation.CreateByName}}</td>
+      <td>{{Quotation.CreateDate}}</td>
+      <td>{{Quotation.CustomerName}}({{Quotation.CustomerNumber}})</td>
+      <td>{{Quotation.QuoteItemString.substring(0,20)}}...</td>
+      <td>{{Quotation.QuoteRemark}}</td>
+      <td *ngIf="Quotation.Status==1;  else CaseClosed">未結案</td>
+      <ng-template #CaseClosed>結案</ng-template>
+
+      <td class="manage">
+        <button type="button" class="btn btn-outline-info" (click)="EditQuotation(Quotation)">
+          <i class="fa fa-search-plus"></i>查看
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<ngb-pagination *ngIf="TotalCount" (pageChange)="loadPage($event)" class="pagination pull-right"
+  [(collectionSize)]="TotalCount" [(page)]="Page" [pageSize]="PageCount" [maxSize]="8" aria-label="Default pagination"
+  size="sm">
+</ngb-pagination>
+<!--右邊內容__搜尋之後的表格清單End -->

@@ -1,0 +1,26 @@
+<div class="pagetitle">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>參數設定
+</div>
+<div class="row justify-content-start mt-3">
+  <div class="path ml-3">
+    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+      <label class="mr-1 btn btn-outline-primary active" (click)="setDynamicComponent('MeltCast')">
+        <input type="radio" name="options" id="option1" autocomplete="off" checked>
+        爐前管制記錄參數
+      </label>
+      <label class="mr-1 btn btn-outline-primary" (click)="setDynamicComponent('RFQSetting')">
+        <input type="radio" name="options" id="option2" autocomplete="off">
+        報價單參數
+      </label>
+      <label class="btn btn-outline-primary" (click)="setDynamicComponent('SDSetting')">
+        <input type="radio" name="options" id="option3" autocomplete="off">
+        暫停生產原因參數
+      </label>
+    </div>
+    <!-- <button class="btn btn-outline-primary btn-lg" data-toggle="button"
+      >爐前管制記錄參數</button>
+    <button class="btn btn-outline-primary btn-lg" data-toggle="button"
+      (click)="setDynamicComponent('RFQSetting')">報價單參數</button> -->
+  </div>
+</div>
+<ng-container appDynamicComponentHost></ng-container>

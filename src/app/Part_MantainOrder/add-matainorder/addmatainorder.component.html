@@ -1,0 +1,1205 @@
+<div class="pagetitle"><a (click)="backPage()"><i class="fa fa-arrow-circle-left mr-2" aria-hidden="true"></i>保修單新增</a>
+</div>
+<!--員工輸入頁面-->
+<ng-container *ngIf="AccountIdentity=='1' else SupplierPage">
+  <div *ngIf="premanager.GetPermission(Permission, 'MaintainManage', 'IsCanEdit',acc)">
+    <section class="content_data">
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a class="nav-link active" href="#tab_1" data-toggle="tab" role="tab" aria-controls="tab_1"
+            aria-selected="true"><i class="fa fa-search-plus"></i>內容檢視</a>
+        </li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane active show active" id="tab_1" role="tabpanel" aria-labelledby="home-tab">
+          <button *ngIf="MaintainOrderList.ASMTG.TG002 == ''" type="button" class="btn btn-outline-primary mr-3"
+            (click)="updateDetail()">
+            <i class="fa fa-floppy-o"></i>
+            儲存
+          </button>
+          <button *ngIf="MaintainOrderList.ASMTG.TG002 != ''&&!MatainOrderClose" type="button"
+            class="btn btn-outline-primary mr-3" (click)="ModifyDetail()">
+            <i class="fa fa-floppy-o"></i>
+            更新
+          </button>
+          <button *ngIf="MaintainOrderList.ASMTG.TG002 != ''&&MatainOrderClose" disabled="disabled" type="button"
+            class="btn btn-outline-primary mr-3">
+            <i class="fa fa-floppy-o"></i>
+            更新
+          </button>
+          <label *ngIf="Validation==2" style="color: red">{{Errmsg}}</label>
+          <flash-messages></flash-messages>
+
+          <table id="HeadTable" class="table tab_content_table table-bordered">
+            <tr>
+              <td colspan="8" class="heading">單頭：{{mataindetail.TH002}}</td>
+            </tr>
+            <tr>
+              <th>維修類型</th>
+              <td>
+                <select class="select_search" [(ngModel)]="MaintainOrderList.ASMTG.TG001"
+                  [ngModelOptions]="{standalone: true}" (ngModelChange)="ASMTGTG004Change($event)">
+                  <option>N20</option>
+                  <option>N21</option>
+                </select>
+                <label>{{MaintainOrderList.ASMTG.TG001.trim()=='N20'?'保修工單':'委外保修工單'}}</label>
+              </td>
+              <th>保修單號</th>
+              <td>
+                <input type="text" readonly="readonly" placeholder="儲存後自動新增" [(ngModel)]="MaintainOrderList.ASMTG.TG002"
+                  [ngModelOptions]="{standalone: true}">
+              </td>
+              <th>
+                <span>資產編號</span>
+              </th>
+              <td>
+                <input style="width: 80%" type="text" readonly="readonly" placeholder="請選擇資產"
+                  [(ngModel)]="asset.AssetNo" [ngModelOptions]="{standalone: true}">
+                <button type="button" data-toggle="modal" data-target="#Modal_AssetList"
+                  (click)="QueryAssetList('','',1)">...</button>
+              </td>
+            </tr>
+            <tr>
+              <th>開單日期</th>
+              <td>
+                <mat-form-field appearance="fill">
+                  <input matInput [matDatepicker]="dp1" [(ngModel)]="ASMTG003Date"
+                    [ngModelOptions]="{standalone: true}">
+                  <mat-datepicker-toggle matSuffix [for]="dp1"></mat-datepicker-toggle>
+                  <mat-datepicker #dp1></mat-datepicker>
+                </mat-form-field>
+              </td>
+              <th>問題描述</th>
+              <td colspan="3">
+                <input type="text" style="width: 90%;" placeholder="請輸入問題描述" [(ngModel)]="MaintainOrderList.ASMTG.TG009"
+                  [ngModelOptions]="{standalone: true}">
+              </td>
+            </tr>
+            <tr>
+              <th>請修單號</th>
+              <td>
+                <input style="width: 80%" type="text" readonly="readonly" placeholder="帶入請修單號"
+                  [(ngModel)]="matainrequest.ASMTA002" [ngModelOptions]="{standalone: true}">
+                <button type="button" data-toggle="modal" data-target="#Modal_MatainRequest"
+                  (click)="QueryMatainRequestList(1)">...</button>
+              </td>
+              <th>設備品名</th>
+              <td colspan="3">{{asset.AssetName}}</td>
+            </tr>
+            <tr>
+              <th>設備規格</th>
+              <td>{{asset.AssetSpec}}</td>
+              <th>維修性質</th>
+              <td>
+                <select class="select_search" [(ngModel)]="MaintainOrderList.ASMTG.TG006"
+                  [ngModelOptions]="{standalone: true}">
+                  <option value="1">保養</option>
+                  <option value="2">維修</option>
+                </select>
+              </td>
+              <th>狀態碼</th>
+              <td>
+                <select class="select_search" [(ngModel)]="MaintainOrderList.ASMTG.TG007"
+                  [ngModelOptions]="{standalone: true}">
+                  <option value="1">未保修</option>
+                  <option value="2">保修中</option>
+                  <option value="Y">已完工</option>
+                  <option value="y">指定完工</option>
+                </select>
+              </td>
+            <tr *ngIf="MaintainOrderList.ASMTG.TG001.trim()=='N20'">
+              <th>
+                <span>保修部門</span>
+              </th>
+              <td>
+                <input style="width: 80%" type="text" readonly="readonly" placeholder="請選擇部門"
+                  [(ngModel)]="apart.ApartName" [ngModelOptions]="{standalone: true}">
+                <button type="button" data-toggle="modal" data-target="#Modal_ApartList"
+                  (click)="QueryApartList('','',1)">...</button>
+              </td>
+              <th>
+                <span>保修人員</span>
+              </th>
+              <td>
+                <input style="width: 80%" type="text" readonly="readonly" placeholder="請選擇保修人員"
+                  [(ngModel)]="EmAp.CMSMV002" [ngModelOptions]="{standalone: true}">
+                <button type="button" data-toggle="modal" data-target="#Modal_EmployeeApartList"
+                  (click)="QueryEmployeeApartList('','','',1)">...</button>
+              </td>
+            </tr>
+            <tr *ngIf="MaintainOrderList.ASMTG.TG001.trim()=='N21'">
+              <th>
+                <span>保修廠商</span>
+              </th>
+              <td>
+                <input style="width: 80%" type="text" readonly="readonly" placeholder="請選擇廠商"
+                  [(ngModel)]="supplier.PURMA002" [ngModelOptions]="{standalone: true}">
+                <button type="button" data-toggle="modal" data-target="#Modal_SupplierList"
+                  (click)="QuerySupplierList('','','',1)">...</button>
+              </td>
+              <th rowspan="2">
+                <span>稅別碼</span>
+              </th>
+              <td>
+                <input style="width: 80%" type="text" readonly="readonly" placeholder="請選擇稅別碼"
+                  [(ngModel)]="taxcode.CMSNN001" [ngModelOptions]="{standalone: true}">
+                <button type="button" data-toggle="modal" data-target="#Modal_TaxCodeList"
+                  (click)="QueryTaxCodeList('','',1)">...</button>
+              </td>
+              <th rowspan="2">
+                <span>付款條件</span>
+              </th>
+              <td>
+                <input style="width: 80%" type="text" readonly="readonly" placeholder="請選擇交易條件"
+                  [(ngModel)]="paymentterm.CMSNA002" [ngModelOptions]="{standalone: true}">
+                <button type="button" data-toggle="modal" data-target="#Modal_PaymnetTermList"
+                  (click)="QueryPaymnetTermList('','',1)">...</button>
+              </td>
+            </tr>
+            <tr>
+              <th>備註</th>
+              <td>
+                <input type="text" placeholder="請輸入備註" [(ngModel)]="MaintainOrderList.ASMTG.TG021"
+                  [ngModelOptions]="{standalone: true}">
+              </td>
+              <td *ngIf="MaintainOrderList.ASMTG.TG001.trim()=='N21'">{{taxcode.CMSNN002}}</td>
+              <td *ngIf="MaintainOrderList.ASMTG.TG001.trim()=='N21'">{{paymentterm.CMSNA003}}</td>
+            </tr>
+          </table>
+          <table id="MOdetailTable" class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <td colspan="4">
+                  <span style="text-align: center; color: red" *ngIf="!Formcheck.Check">{{Formcheck.msg}}</span>
+                </td>
+              </tr>
+              <tr class="color_th1">
+                <th style="width: 10%">保修序號</th>
+                <th style="width: 10%">保修代號</th>
+                <th style="width: 10%">保修名稱</th>
+                <th style="width: 27%">保修原因</th>
+                <th style="width: 27%">解決方法</th>
+                <th style="width: 16%">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let x of MaintainOrderList.maintaindetail" (click)="querysingleDetail(x)">
+                <td class="text-center">
+                  {{x.TH003}}
+                </td>
+                <td class="text-left">
+                  <input style="width: 75%" type="text" readonly="readonly" placeholder="請輸入發生問題代號"
+                    [(ngModel)]="x.TH004" [ngModelOptions]="{standalone: true}">
+                  <button data-toggle="modal" data-target="#Modal_ProblemCodeList"
+                    (click)="ProblemCodeList('','',1);querysingleDetail(x)">...</button>
+                </td>
+                <td class="text-left">
+                  <input type="text" readonly="readonly" placeholder="發生問題代號選擇後代入" [(ngModel)]="x.TH005"
+                    [ngModelOptions]="{standalone: true}">
+                </td>
+                <td>
+                  <input type="text" placeholder="請輸入保修原因" [(ngModel)]="x.TH006" [ngModelOptions]="{standalone: true}">
+                </td>
+                <td>
+                  <input type="text" placeholder="請輸入解決方法" [(ngModel)]="x.TH007" [ngModelOptions]="{standalone: true}">
+                </td>
+                <td>
+                  <button type="button" class="choose" (click)="deletedetail(x)">
+                    <i class="fa fa-trash fa-2"></i>移除
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="6">
+                  <button type="button" class="btn btn-outline-primary mr-3" (click)="AddNewASMTH()">
+                    <i class="fa fa-plus-circle">新增單身</i>
+                  </button>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+          <ng-container *ngFor="let y of MaintainOrderList.maintaindetail">
+            <table id="detailTable" class="table tab_content_table table-bordered" *ngIf="y.TH003==mataindetail.TH003">
+              <tr>
+                <td colspan="6" class="heading">{{MaintainOrderList.ASMTG.TG001}}序號:{{mataindetail.TH003}}</td>
+              </tr>
+              <tr>
+                <th style="width: 15%"><span>預計保修日</span>
+                  <button style="float: right;width: 20px;" title="統一保修日"
+                    (click)="UniASMTHDate(mataindetail.TH003,ASMTH015Date)"><i class="fa fa-files-o"
+                      aria-hidden="true"></i>
+                  </button>
+                </th>
+                <td>
+                  <mat-form-field appearance="fill">
+                    <input matInput [matDatepicker]="dp2" [(ngModel)]="ASMTH015Date"
+                      [ngModelOptions]="{standalone: true}" (ngModelChange)="ChangeASMTH(mataindetail.TH003)">
+                    <mat-datepicker-toggle matSuffix [for]="dp2"></mat-datepicker-toggle>
+                    <mat-datepicker #dp2></mat-datepicker>
+                  </mat-form-field>
+                </td>
+                <th style="width: 15%"><span>預計完工日</span></th>
+                <td>
+                  <mat-form-field appearance="fill">
+                    <input matInput [matDatepicker]="dp3" [(ngModel)]="ASMTH016Date"
+                      [ngModelOptions]="{standalone: true}" (ngModelChange)="ChangeASMTH(mataindetail.TH003)">
+                    <mat-datepicker-toggle matSuffix [for]="dp3"></mat-datepicker-toggle>
+                    <mat-datepicker #dp3></mat-datepicker>
+                  </mat-form-field>
+                </td>
+                <th style="width: 15%"><span>預計保修時數</span></th>
+                <td>
+                  <input style="width: 85%" type="text" placeholder="請輸入預計保修時數" [(ngModel)]="y.TH008"
+                    [ngModelOptions]="{standalone: true}" (change)="ChangeASMTH(mataindetail.TH003)">
+                </td>
+              </tr>
+              <tr>
+                <th style="width: 15%"><span>實際保修日</span></th>
+                <td>
+                  <mat-form-field appearance="fill">
+                    <input matInput [matDatepicker]="dp4" [(ngModel)]="ASMTH017Date"
+                      [ngModelOptions]="{standalone: true}" (ngModelChange)="ChangeASMTH(mataindetail.TH003)">
+                    <mat-datepicker-toggle matSuffix [for]="dp4"></mat-datepicker-toggle>
+                    <mat-datepicker #dp4></mat-datepicker>
+                  </mat-form-field>
+                </td>
+                <th style="width: 15%"><span>實際完工日</span></th>
+                <td>
+                  <mat-form-field appearance="fill">
+                    <input matInput [matDatepicker]="dp5" [(ngModel)]="ASMTH018Date"
+                      [ngModelOptions]="{standalone: true}" (ngModelChange)="ChangeASMTH(mataindetail.TH003)">
+                    <mat-datepicker-toggle matSuffix [for]="dp5"></mat-datepicker-toggle>
+                    <mat-datepicker #dp5></mat-datepicker>
+                  </mat-form-field>
+                </td>
+                <th style="width: 15%"><span>實際保修時數</span></th>
+                <td>
+                  <input style="width: 85%" type="text" placeholder="請輸入實際保修時數" [(ngModel)]="y.TH009"
+                    [ngModelOptions]="{standalone: true}" (change)="ChangeASMTH(mataindetail.TH003)">
+                </td>
+              </tr>
+              <tr>
+                <th style="width: 15%">工作紀錄</th>
+                <td colspan="5">
+                  <input type="text" placeholder="請輸入工作紀錄" [(ngModel)]="y.TH025"
+                    (change)="ChangeASMTH(mataindetail.TH003)">
+                </td>
+              </tr>
+            </table>
+          </ng-container>
+          <ng-container *ngFor="let x of MaintainOrderList.inhousementain">
+            <table class="table tab_content_table table-bordered"
+              *ngIf="x.TO003==mataindetail.TH003&&MaintainOrderList.ASMTG.TG001.trim()=='N20'">
+              <tr>
+                <th style="width: 15%"><span>處理代號</span></th>
+                <td>
+                  <input style="width: 85%" type="text" placeholder="請輸入處理代號" [(ngModel)]="x.TO008"
+                    [ngModelOptions]="{standalone: true}">
+                  <button type="button" data-toggle="modal" data-target="#Modal_SolutionList"
+                    (click)="QuerySolutionList('','',1)">...</button>
+                </td>
+                <th style="width: 15%">處理內容</th>
+                <td>
+                  <input type="text" placeholder="選擇後輸出內容" readonly="readonly" [(ngModel)]="x.TO009"
+                    [ngModelOptions]="{standalone: true}">
+                </td>
+                <th style="width: 15%"><span>保修時數</span></th>
+                <td>
+                  <input type="text" placeholder="請輸入保修時數" [(ngModel)]="x.TO010" [ngModelOptions]="{standalone: true}">
+                </td>
+              </tr>
+              <tr>
+                <th style="width: 15%">備註</th>
+                <td colspan="5">
+                  <input type="text" placeholder="請輸入備註" [(ngModel)]="x.TO012" [ngModelOptions]="{standalone: true}">
+                </td>
+              </tr>
+            </table>
+          </ng-container>
+          <ng-container *ngFor="let x of MaintainOrderList.outsourcematain">
+            <table class="table tab_content_table table-bordered"
+              *ngIf="x.TQ003==mataindetail.TH003&&MaintainOrderList.ASMTG.TG001.trim()=='N21'">
+              <tr>
+                <th style="width: 15%"><span>處理代號</span></th>
+                <td>
+                  <input style="width: 85%" type="text" placeholder="請輸入處理代號" [(ngModel)]="x.TQ008"
+                    [ngModelOptions]="{standalone: true}">
+                  <button type="button" data-toggle="modal" data-target="#Modal_SolutionList"
+                    (click)="QuerySolutionList('','',1)">...</button>
+                </td>
+                <th style="width: 15%">處理內容</th>
+                <td>
+                  <input type="text" placeholder="選擇後輸出內容" readonly="readonly" [(ngModel)]="x.TQ009"
+                    [ngModelOptions]="{standalone: true}">
+                </td>
+                <th style="width: 15%">備註</th>
+                <td>
+                  <input type="text" placeholder="請輸入備註" [(ngModel)]="x.TQ015" [ngModelOptions]="{standalone: true}">
+                </td>
+              </tr>
+              <tr>
+                <th style="width: 15%"><span>保修品項</span></th>
+                <td>
+                  <input type="text" placeholder="請輸入保修品項" [(ngModel)]="x.UDF01" [ngModelOptions]="{standalone: true}">
+                </td>
+                <th style="width: 15%"><span>保修數量</span></th>
+                <td>
+                  <input type="text" placeholder="請輸入保修金額" [(ngModel)]="x.UDF06" [ngModelOptions]="{standalone: true}"
+                    (change)="SyncPrice(x.TQ010)">
+                </td>
+                <th style="width: 15%"><span>保修單價</span></th>
+                <td>
+                  <input type="text" placeholder="請輸入保修金額" [(ngModel)]="x.UDF07" [ngModelOptions]="{standalone: true}"
+                    (change)="SyncPrice(x.TQ010)">
+                </td>
+              </tr>
+              <tr>
+                <th>保修金額</th>
+                <td colspan="5">
+                  <input type="text" placeholder="請輸入保修金額" [(ngModel)]="x.TQ010" [ngModelOptions]="{standalone: true}"
+                    (change)="SyncPrice(x.TQ010)">
+                </td>
+              </tr>
+            </table>
+          </ng-container>
+        </div>
+      </div>
+    </section>
+  </div>
+</ng-container>
+
+<!--供應商輸入頁面-->
+<ng-template #SupplierPage>
+  <div>
+    <section class="content_data">
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a class="nav-link active" href="#tab_1" data-toggle="tab" role="tab" aria-controls="tab_1"
+            aria-selected="true"><i class="fa fa-search-plus"></i>供應商維修回饋</a>
+        </li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane active show active" id="tab_1" role="tabpanel" aria-labelledby="home-tab">
+          <button *ngIf="MaintainOrderList.ASMTG.TG002 == ''" type="button" class="btn btn-outline-primary mr-3"
+            (click)="updateDetail()">
+            <i class="fa fa-floppy-o"></i>
+            儲存
+          </button>
+          <button *ngIf="MaintainOrderList.ASMTG.TG002 != ''&&!MatainOrderClose" type="button"
+            class="btn btn-outline-primary mr-3" (click)="ModifyDetail()">
+            <i class="fa fa-floppy-o"></i>
+            更新
+          </button>
+          <button *ngIf="MaintainOrderList.ASMTG.TG002 != ''&&MatainOrderClose" disabled="disabled" type="button"
+            class="btn btn-outline-primary mr-3">
+            <i class="fa fa-floppy-o"></i>
+            更新
+          </button>
+          <label *ngIf="Validation==2" style="color: red">{{Errmsg}}</label>
+          <flash-messages></flash-messages>
+
+          <table id="HeadTable" class="table tab_content_table table-bordered">
+            <tr>
+              <td colspan="8" class="heading">單頭：{{mataindetail.TH002}}</td>
+            </tr>
+            <tr>
+              <th>維修類型</th>
+              <td>
+                <label>{{MaintainOrderList.ASMTG.TG001.trim()=='N20'?'保修工單':'委外保修工單'}}</label>
+              </td>
+              <th>保修單號</th>
+              <td>
+                <input type="text" readonly="readonly" placeholder="儲存後自動新增" [(ngModel)]="MaintainOrderList.ASMTG.TG002"
+                  [ngModelOptions]="{standalone: true}">
+              </td>
+              <th>
+                <span>資產編號</span>
+              </th>
+              <td>
+                <label>{{asset.AssetNo}}</label>
+              </td>
+            </tr>
+            <tr>
+              <th>開單日期</th>
+              <td>
+                <label>{{ASMTG003Date.toLocaleDateString()}}</label>
+              </td>
+              <th>問題描述</th>
+              <td colspan="3">
+                <label>{{MaintainOrderList.ASMTG.TG009}}</label>
+              </td>
+            </tr>
+            <tr>
+              <th>請修單號</th>
+              <td>
+                <label>{{matainrequest.ASMTA002}}</label>
+              </td>
+              <th>設備品名</th>
+              <td colspan="3">{{asset.AssetName}}</td>
+            </tr>
+            <tr>
+              <th>設備規格</th>
+              <td>{{asset.AssetSpec}}</td>
+              <th>維修性質</th>
+              <td>
+                <label>{{ASMTG006String}}</label>
+              </td>
+              <th>狀態碼</th>
+              <td>
+                <label>{{ASMTG007String}}</label>
+              </td>
+            <tr *ngIf="MaintainOrderList.ASMTG.TG001.trim()=='N21'">
+              <th>
+                <span>保修廠商</span>
+              </th>
+              <td>
+                {{supplier.PURMA002}}
+              </td>
+              <th rowspan="2">
+                <span>稅別碼</span>
+              </th>
+              <td>
+                {{taxcode.CMSNN001}}
+              </td>
+              <th rowspan="2">
+                <span>付款條件</span>
+              </th>
+              <td>
+                {{paymentterm.CMSNA002}}
+              </td>
+            </tr>
+            <tr>
+              <th>備註</th>
+              <td>
+                {{MaintainOrderList.ASMTG.TG021}}
+              </td>
+              <td *ngIf="MaintainOrderList.ASMTG.TG001.trim()=='N21'">{{taxcode.CMSNN002}}</td>
+              <td *ngIf="MaintainOrderList.ASMTG.TG001.trim()=='N21'">{{paymentterm.CMSNA003}}</td>
+            </tr>
+          </table>
+          <table id="MOdetailTable" class="table table-bordered table-hover">
+            <thead>
+              <tr>
+                <td colspan="4">
+                  <span style="text-align: center; color: red" *ngIf="!Formcheck.Check">{{Formcheck.msg}}</span>
+                </td>
+              </tr>
+              <tr class="color_th1">
+                <th style="width: 10%">保修序號</th>
+                <th style="width: 10%">保修代號</th>
+                <th style="width: 10%">保修名稱</th>
+                <th style="width: 27%">保修原因</th>
+                <th style="width: 27%">解決方法</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let x of MaintainOrderList.maintaindetail" (click)="querysingleDetail(x)">
+                <td class="text-center">
+                  {{x.TH003}}
+                </td>
+                <td class="text-center">
+                  <label>{{x.TH004}}</label>
+                </td>
+                <td class="text-center">
+                  {{x.TH005}}
+                </td>
+                <td>
+                  {{x.TH006}}
+                </td>
+                <td>
+                  {{x.TH007}}
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+            </tfoot>
+          </table>
+          <ng-container *ngFor="let y of MaintainOrderList.maintaindetail">
+            <table id="detailTable" class="table tab_content_table table-bordered" *ngIf="y.TH003==mataindetail.TH003">
+              <tr>
+                <td colspan="6" class="heading">{{MaintainOrderList.ASMTG.TG001}}序號:{{mataindetail.TH003}}</td>
+              </tr>
+              <tr>
+                <th style="width: 15%"><span>預計保修日</span>
+                <td>
+                  {{ASMTH015Date.toLocaleDateString()}}
+                </td>
+                <th style="width: 15%"><span>預計完工日</span></th>
+                <td>
+                  {{ASMTH016Date.toLocaleDateString()}}
+                </td>
+                <th style="width: 15%"><span>預計保修時數</span></th>
+                <td>
+                  {{y.TH008}}
+                </td>
+              </tr>
+              <tr>
+                <th style="width: 15%"><span>實際保修日</span></th>
+                <td>
+                  {{ASMTH017Date.toLocaleDateString()}}
+                </td>
+                <th style="width: 15%"><span>實際完工日</span></th>
+                <td>
+                  {{ASMTH018Date.toLocaleDateString()}}
+                </td>
+                <th style="width: 15%"><span>實際保修時數</span></th>
+                <td>
+                  {{y.TH009}}
+                </td>
+              </tr>
+              <tr>
+                <th style="width: 15%">工作紀錄</th>
+                <td colspan="5">
+                  {{y.TH025}}
+                </td>
+              </tr>
+            </table>
+          </ng-container>
+          <ng-container *ngFor="let x of MaintainOrderList.inhousementain">
+            <table class="table tab_content_table table-bordered"
+              *ngIf="x.TO003==mataindetail.TH003&&MaintainOrderList.ASMTG.TG001.trim()=='N20'">
+              <tr>
+                <th style="width: 15%"><span>處理代號</span></th>
+                <td>
+                  {{x.TO008}}
+                </td>
+                <th style="width: 15%">處理內容</th>
+                <td>
+                  {{x.TO009}}
+                </td>
+                <th style="width: 15%"><span>保修時數</span></th>
+                <td>
+                  {{x.TO010}}
+                </td>
+              </tr>
+              <tr>
+                <th style="width: 15%">備註</th>
+                <td colspan="5">
+                  {{x.TO012}}
+                </td>
+              </tr>
+            </table>
+          </ng-container>
+          <ng-container *ngFor="let x of MaintainOrderList.outsourcematain">
+            <table class="table tab_content_table table-bordered"
+              *ngIf="x.TQ003==mataindetail.TH003&&MaintainOrderList.ASMTG.TG001.trim()=='N21'">
+              <tr>
+                <th style="width: 15%"><span>處理代號</span></th>
+                <td>
+                  {{x.TQ008}}
+                </td>
+                <th style="width: 15%">處理內容</th>
+                <td>
+                  {{x.TQ009}}
+                </td>
+                <th style="width: 15%">備註</th>
+                <td>
+                  {{x.TQ015}}
+                </td>
+              </tr>
+              <tr>
+                <th style="width: 15%"><span>保修品項</span></th>
+                <td>
+                  {{x.UDF01}}
+                </td>
+                <th style="width: 15%"><span>保修數量</span></th>
+                <td>
+                  <input type="text" placeholder="請輸入保修金額" [(ngModel)]="x.UDF06" [ngModelOptions]="{standalone: true}"
+                    (change)="SyncPrice(x.TQ010)">
+                </td>
+                <th style="width: 15%"><span>保修單價</span></th>
+                <td>
+                  <input type="text" placeholder="請輸入保修金額" [(ngModel)]="x.UDF07" [ngModelOptions]="{standalone: true}"
+                    (change)="SyncPrice(x.TQ010)">
+                </td>
+              </tr>
+              <tr>
+                <th>保修金額</th>
+                <td colspan="5">
+                  <input type="text" placeholder="請輸入保修金額" [(ngModel)]="x.TQ010" [ngModelOptions]="{standalone: true}"
+                    (change)="SyncPrice(x.TQ010)">
+                </td>
+              </tr>
+            </table>
+          </ng-container>
+        </div>
+      </div>
+    </section>
+  </div>
+</ng-template>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="Modal_MatainRequest">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4>請修單列表</h4>
+      </div>
+      <div class="modal-body">
+        <section class="search_area">
+          <form role="form">
+            <table>
+              <tr>
+                <input type="text" style="background-color: honeydew;width: 350px;" placeholder="全文關鍵字搜尋"
+                  [(ngModel)]="SearchText" [ngModelOptions]="{standalone: true}" (change)="QueryMatainRequestList(1)"
+                  (input)="QueryMatainRequestList(1)">
+              </tr>
+              <tr>
+                <td colspan="3">
+                  <button type="button" class="btn btn-outline-primary" (click)="QueryMatainRequestList(1)">
+                    <i class="fa fa-search"></i>
+                    查詢
+                  </button>
+                </td>
+              </tr>
+            </table>
+          </form>
+        </section>
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <tr>
+              <th style="width: 10%">單號</th>
+              <th style="width: 10%">日期</th>
+              <th style="width: 10%">部門</th>
+              <th style="width: 10%">請修人員</th>
+              <th style="width: 10%">資產名稱</th>
+              <th style="width: 35%">問題描述</th>
+              <th style="width: 15%">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let matainrequest of matainrequestlist">
+              <td style="width: 10%;font-size:5px">{{matainrequest.ASMTA002}}</td>
+              <td style="width: 10%;font-size:5px">{{matainrequest.ASMTA003}}</td>
+              <td style="width: 10%;font-size:5px">{{matainrequest.ASMTA004String}}</td>
+              <td style="width: 10%;font-size:5px">{{matainrequest.ASMTA005String}}</td>
+              <td style="width: 10%;font-size:5px">{{matainrequest.ASMTA007String}}</td>
+              <td style="width: 35%">{{matainrequest.ASMTA008}}</td>
+              <td style="width: 15%">
+                <button type="button" class="btn btn-outline-info" data-dismiss="modal"
+                  (click)="selectmatainrequest(matainrequest)">
+                  <i class="fa fa-external-link"></i>
+                  取回
+                </button>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="7">
+                <ngb-pagination (pageChange)="matainrequestloadPage($event)" class="pagination pull-right"
+                  [(collectionSize)]="TotalCount" [(page)]="Page" [pageSize]="PageCount" [maxSize]="10"
+                  [boundaryLinks]="true" aria-label="Default pagination" size="sm">
+                </ngb-pagination>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="Clearmatainrequest()">確定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" tabindex="-1" role="dialog" id="Modal_EmployeeApartList">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4>部門列表</h4>
+      </div>
+      <div class="modal-body">
+        <section class="search_area">
+          <form role="form">
+            <label>部門代號：</label>
+            <input type="text" placeholder="請輸入員工代號" [(ngModel)]="CMSMV001" [ngModelOptions]="{standalone: true}" />
+            <label>員工姓名：</label>
+            <input type="text" placeholder="請輸入員工姓名" [(ngModel)]="CMSMV002"
+              [ngModelOptions]="{standalone: true}" /><br />
+            <label>部門名稱：</label>
+            <input type="text" placeholder="請輸入部門名稱" [(ngModel)]="CMSMV004" [ngModelOptions]="{standalone: true}" />
+            <button type="button" class="btn btn-outline-primary"
+              (click)="QueryEmployeeApartList(CMSMV001,CMSMV002,CMSMV004,1)">
+              <i class="fa fa-search"></i>
+              查詢
+            </button>
+          </form>
+        </section>
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <tr>
+              <th>員工代號</th>
+              <th>員工姓名</th>
+              <th>部門名稱</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let EmAp of employeeapartlist">
+              <td>{{EmAp.CMSMV001}}</td>
+              <td>{{EmAp.CMSMV002}}</td>
+              <td>{{EmAp.CMSMV004}}</td>
+              <td>
+                <button type="button" class="btn btn-outline-info" data-dismiss="modal" (click)="selectEmAp(EmAp)">
+                  <i class="fa fa-external-link"></i>
+                  取回資料
+                </button>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3">
+                <ngb-pagination (pageChange)="EmployeeApartloadPage($event)" class="pagination pull-right"
+                  [(collectionSize)]="TotalCount" [(page)]="Page" [pageSize]="PageCount" [maxSize]="10"
+                  [boundaryLinks]="true" aria-label="Default pagination" size="sm">
+                </ngb-pagination>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="ClearEmAp()">確定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="Modal_SolutionList">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4>處理方式列表</h4>
+      </div>
+      <div class="modal-body">
+        <section class="search_area">
+          <form role="form">
+            <label>處理代號：</label>
+            <input type="text" placeholder="請輸入處理代號" [(ngModel)]="ME001" [ngModelOptions]="{standalone: true}" />
+            <label>處理名稱：</label>
+            <input type="text" placeholder="請輸入處理名稱" [(ngModel)]="ME002" [ngModelOptions]="{standalone: true}" />
+            <button type="button" class="btn btn-outline-primary" (click)="QuerySolutionList(ME001,ME002,1)">
+              <i class="fa fa-search"></i>
+              查詢
+            </button>
+          </form>
+        </section>
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <tr>
+              <th>處理代號</th>
+              <th>處理名稱</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let sol of solutionlist">
+              <td>{{sol.ME001}}</td>
+              <td>{{sol.ME002}}</td>
+              <td>
+                <button type="button" class="btn btn-outline-info" data-dismiss="modal" (click)="selectsolution(sol)">
+                  <i class="fa fa-external-link"></i>
+                  取回資料
+                </button>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3">
+                <ngb-pagination (pageChange)="SolutionloadPage($event)" class="pagination pull-right"
+                  [(collectionSize)]="TotalCount" [(page)]="Page" [pageSize]="PageCount" [maxSize]="10"
+                  [boundaryLinks]="true" aria-label="Default pagination" size="sm">
+                </ngb-pagination>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="clearsolution()">確定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="Modal_ProblemCodeList">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4>交易條件列表</h4>
+      </div>
+      <div class="modal-body">
+        <section class="search_area">
+          <form role="form">
+            <label>發生問題代號：</label>
+            <input type="text" placeholder="請輸入發生問題代號" [(ngModel)]="MD001" [ngModelOptions]="{standalone: true}" />
+            <label>發生問題名稱：</label>
+            <input type="text" placeholder="請輸入發生問題名稱" [(ngModel)]="MD002" [ngModelOptions]="{standalone: true}" />
+            <button type="button" class="btn btn-outline-primary" (click)="ProblemCodeList(MD001,MD002,1)">
+              <i class="fa fa-search"></i>
+              查詢
+            </button>
+          </form>
+        </section>
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <tr>
+              <th>發生問題代號</th>
+              <th>發生問題名稱</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let problemcode of problemcodelist">
+              <td>{{problemcode.MD001}}</td>
+              <td>{{problemcode.MD002}}</td>
+              <td>
+                <button type="button" class="btn btn-outline-info" data-dismiss="modal"
+                  (click)="selectproblemcode(problemcode)">
+                  <i class="fa fa-external-link"></i>
+                  取回資料
+                </button>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3">
+                <ngb-pagination (pageChange)="ProblemCodeloadPage($event)" class="pagination pull-right"
+                  [(collectionSize)]="TotalCount" [(page)]="Page" [pageSize]="PageCount" [maxSize]="10"
+                  [boundaryLinks]="true" aria-label="Default pagination" size="sm">
+                </ngb-pagination>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="ClearProblemCode()">確定</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" tabindex="-1" role="dialog" id="Modal_PaymnetTermList">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4>交易條件列表</h4>
+      </div>
+      <div class="modal-body">
+        <section class="search_area">
+          <form role="form">
+            <label>交易條件代號：</label>
+            <input type="text" placeholder="請輸入交易條件代號" [(ngModel)]="CMSNA002" [ngModelOptions]="{standalone: true}" />
+            <label>交易條件名稱：</label>
+            <input type="text" placeholder="請輸入交易條件名稱" [(ngModel)]="CMSNA003" [ngModelOptions]="{standalone: true}" />
+            <button type="button" class="btn btn-outline-primary" (click)="QueryPaymnetTermList(CMSNA002,CMSNA003,1)">
+              <i class="fa fa-search"></i>
+              查詢
+            </button>
+          </form>
+        </section>
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <tr>
+              <th>交易條件代號</th>
+              <th>交易條件名稱</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let paymentterm of paymenttermlist">
+              <td>{{paymentterm.CMSNA002}}</td>
+              <td>{{paymentterm.CMSNA003}}</td>
+              <td>
+                <button type="button" class="btn btn-outline-info" data-dismiss="modal"
+                  (click)="selectpaymentterm(paymentterm)">
+                  <i class="fa fa-external-link"></i>
+                  取回資料
+                </button>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3">
+                <ngb-pagination (pageChange)="PaymentTermListloadPage($event)" class="pagination pull-right"
+                  [(collectionSize)]="TotalCount" [(page)]="Page" [pageSize]="PageCount" [maxSize]="10"
+                  [boundaryLinks]="true" aria-label="Default pagination" size="sm">
+                </ngb-pagination>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="ClearPaymentTerm()">確定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="Modal_TaxCodeList">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4>稅別碼列表</h4>
+      </div>
+      <div class="modal-body">
+        <section class="search_area">
+          <form role="form">
+            <label>稅別碼代號：</label>
+            <input type="text" placeholder="請輸入稅別碼代號" [(ngModel)]="CMSNN001" [ngModelOptions]="{standalone: true}" />
+            <label>稅別碼名稱：</label>
+            <input type="text" placeholder="請輸入稅別碼名稱" [(ngModel)]="CMSNN002" [ngModelOptions]="{standalone: true}" />
+            <button type="button" class="btn btn-outline-primary" (click)="QueryTaxCodeList(CMSNN001,CMSNN002,1)">
+              <i class="fa fa-search"></i>
+              查詢
+            </button>
+          </form>
+        </section>
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <tr>
+              <th>稅別碼代號</th>
+              <th>稅別碼名稱</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let taxcode of taxcodelist">
+              <td>{{taxcode.CMSNN001}}</td>
+              <td>{{taxcode.CMSNN002}}</td>
+              <td>
+                <button type="button" class="btn btn-outline-info" data-dismiss="modal"
+                  (click)="selecttaxcode(taxcode)">
+                  <i class="fa fa-external-link"></i>
+                  取回資料
+                </button>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3">
+                <ngb-pagination (pageChange)="TaxCodeListloadPage($event)" class="pagination pull-right"
+                  [(collectionSize)]="TotalCount" [(page)]="Page" [pageSize]="PageCount" [maxSize]="10"
+                  [boundaryLinks]="true" aria-label="Default pagination" size="sm">
+                </ngb-pagination>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="ClearTaxCode()">確定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="Modal_SupplierList">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4>供應商列表</h4>
+      </div>
+      <div class="modal-body">
+        <section class="search_area">
+          <form role="form">
+            <label>供應商代號：</label>
+            <input type="text" (input)="QuerySupplierList(PURMA001,PURMA002,PURMA013,1)"
+              (change)="QuerySupplierList(PURMA001,PURMA002,PURMA013,1)" placeholder="請輸入供應商代號" [(ngModel)]="PURMA001"
+              [ngModelOptions]="{standalone: true}" />
+            <label>供應商名稱：</label>
+            <input type="text" (input)="QuerySupplierList(PURMA001,PURMA002,PURMA013,1)"
+              (change)="QuerySupplierList(PURMA001,PURMA002,PURMA013,1)" placeholder="請輸入供應商名稱" [(ngModel)]="PURMA002"
+              [ngModelOptions]="{standalone: true}" /><br />
+            <label>供應商聯絡人：</label>
+            <input type="text" (input)="QuerySupplierList(PURMA001,PURMA002,PURMA013,1)"
+              (change)="QuerySupplierList(PURMA001,PURMA002,PURMA013,1)" placeholder="請輸入供應商聯絡人" [(ngModel)]="PURMA013"
+              [ngModelOptions]="{standalone: true}" />
+            <button type="button" class="btn btn-outline-primary"
+              (click)="QuerySupplierList(PURMA001,PURMA002,PURMA013,1)">
+              <i class="fa fa-search"></i>
+              查詢
+            </button>
+          </form>
+        </section>
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <tr>
+              <th>供應商代號</th>
+              <th>供應商名稱</th>
+              <th>供應商聯絡人</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let supplier of supplieralls">
+              <td>{{supplier.PURMA001}}</td>
+              <td>{{supplier.PURMA002}}</td>
+              <td>{{supplier.PURMA013}}</td>
+              <td>
+                <button type="button" class="btn btn-outline-info" data-dismiss="modal"
+                  (click)="selectsupplier(supplier)">
+                  <i class="fa fa-external-link"></i>
+                  取回資料
+                </button>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3">
+                <ngb-pagination (pageChange)="SupplierloadPage($event)" class="pagination pull-right"
+                  [(collectionSize)]="TotalCount" [(page)]="Page" [pageSize]="PageCount" [maxSize]="10"
+                  [boundaryLinks]="true" aria-label="Default pagination" size="sm">
+                </ngb-pagination>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="ClearSupplier()">確定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="Modal_ApartList">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4>部門列表</h4>
+      </div>
+      <div class="modal-body">
+        <section class="search_area">
+          <form role="form">
+            <label>部門代號：</label>
+            <input type="text" placeholder="請輸入部門代號" [(ngModel)]="ApartNo" [ngModelOptions]="{standalone: true}" />
+            <label>部門名稱：</label>
+            <input type="text" placeholder="請輸入部門名稱" [(ngModel)]="ApartName" [ngModelOptions]="{standalone: true}" />
+            <button type="button" class="btn btn-outline-primary" (click)="QueryApartList(ApartNo,ApartName,1)">
+              <i class="fa fa-search"></i>
+              查詢
+            </button>
+          </form>
+        </section>
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <tr>
+              <th>部門代號</th>
+              <th>部門名稱</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let apart of apartlist">
+              <td>{{apart.ApartNo}}</td>
+              <td>{{apart.ApartName}}</td>
+              <td>
+                <button type="button" class="btn btn-outline-info" data-dismiss="modal" (click)="selectApart(apart)">
+                  <i class="fa fa-external-link"></i>
+                  取回資料
+                </button>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3">
+                <ngb-pagination (pageChange)="ApartloadPage($event)" class="pagination pull-right"
+                  [(collectionSize)]="TotalCount" [(page)]="Page" [pageSize]="PageCount" [maxSize]="10"
+                  [boundaryLinks]="true" aria-label="Default pagination" size="sm">
+                </ngb-pagination>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="ClearApart()">確定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="Modal_AssetList">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4>資產列表</h4>
+      </div>
+      <div class="modal-body">
+        <section class="search_area">
+          <form role="form">
+            <label>資產編號：</label>
+            <input type="text" placeholder="請輸入資產編號" (input)="QueryAssetList(AssetNo,AssetName,1)"
+              (change)="QueryAssetList(AssetNo,AssetName,1)" [(ngModel)]="AssetNo"
+              [ngModelOptions]="{standalone: true}" />
+            <label>資產名稱：</label>
+            <input type="text" placeholder="請輸入資產名稱" (input)="QueryAssetList(AssetNo,AssetName,1)"
+              (change)="QueryAssetList(AssetNo,AssetName,1)" [(ngModel)]="AssetName"
+              [ngModelOptions]="{standalone: true}" />
+            <button type="button" class="btn btn-outline-primary" (click)="QueryAssetList(AssetNo,AssetName,1)">
+              <i class="fa fa-search"></i>
+              查詢
+            </button>
+          </form>
+        </section>
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <tr>
+              <th>資產編號</th>
+              <th>資產名稱</th>
+              <th>資產規格</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let asset of assetlist">
+              <td>{{asset.AssetNo}}</td>
+              <td>{{asset.AssetName}}</td>
+              <td>{{asset.AssetSpec}}</td>
+              <td>
+                <button type="button" class="btn btn-outline-info" data-dismiss="modal" (click)="selectAsset(asset)">
+                  <i class="fa fa-external-link"></i>
+                  取回資料
+                </button>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4">
+                <ngb-pagination (pageChange)="assetloadPage($event)" class="pagination pull-right"
+                  [(collectionSize)]="TotalCount" [(page)]="Page" [pageSize]="PageCount" [maxSize]="10"
+                  [boundaryLinks]="true" aria-label="Default pagination" size="sm">
+                </ngb-pagination>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="ClearAsset()">確定</button>
+      </div>
+    </div>
+  </div>
+</div>

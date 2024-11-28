@@ -1,0 +1,70 @@
+<!--搜尋區域Start-->
+<div class="pagetitle">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>帳號管理
+</div>
+<section class="search_area">
+  <form role="form">
+    <label>帳號：</label>
+    <input type="text" placeholder="請輸入帳號" [(ngModel)]="UserAccount" [ngModelOptions]="{standalone: true}">
+    <label>名稱：</label>
+    <input type="text" placeholder="請輸入名稱" [(ngModel)]="Name" [ngModelOptions]="{standalone: true}">
+    <label>狀態：</label>
+    <select class="select_search" [(ngModel)]="Status" [ngModelOptions]="{standalone: true}">
+      <option value="0">全部</option>
+      <option value="1">啟用</option>
+      <option value="2">停用</option>
+    </select>
+    <label>身分別：</label>
+    <select class="select_search" [(ngModel)]="AccountIdentity" [ngModelOptions]="{standalone: true}">
+      <option value="">全部</option>
+      <option value="1">員工</option>
+      <option value="2">供應商</option>
+    </select>
+    <div class="typesetting-4">
+      <button type="submit" class="btn btn-outline-primary" (click)="postMemberList()">
+        <i class="fa fa-search"></i>
+        查詢</button>
+    </div>
+  </form>
+</section>
+<!--搜尋區域End-->
+
+<!--右邊內容__搜尋之後的表格清單Start -->
+<table class="table table-bordered table-striped table-hover">
+  <thead>
+    <tr class="color_th1">
+      <th>帳號</th>
+      <th>名稱</th>
+      <th>登入日期</th>
+      <th>狀態</th>
+      <th>身分</th>
+      <th width="180">管理</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let member of memberlist">
+      <td>{{member.UserAccount}}</td>
+      <td>{{member.Name}}</td>
+      <td>{{member.LoginDate}}</td>
+      <td *ngIf="member.Status=='啟用'; else elseTemplate">
+        <i class="fa fa-play fa-2x" aria-hidden="true"></i>
+      </td>
+      <ng-template #elseTemplate>
+        <td style="color:red">
+          <i class="fa fa-ban fa-2x" aria-hidden="true"></i>
+        </td>
+      </ng-template>
+      <td>{{member.AccountIdentity}}</td>
+      <td class="manage">
+        <button type="button" class="btn btn-outline-primary" (click)="updateMemberStatus(member.UserAccount,1)"><i
+            class="fa fa-play fa-2" aria-hidden="true"></i>啟用</button>
+        <button type="button" class="btn btn-outline-danger" (click)="updateMemberStatus(member.UserAccount,2)"><i
+            class="fa fa-ban fa-2" aria-hidden="true"></i>停用</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<ngb-pagination *ngIf="TotalCount > 1" (pageChange)="loadPage($event)" class="pagination pull-right"
+  [(collectionSize)]="TotalCount" [(page)]="Page" aria-label="Default pagination" size="md">
+</ngb-pagination>
+<!--右邊內容__搜尋之後的表格清單End -->

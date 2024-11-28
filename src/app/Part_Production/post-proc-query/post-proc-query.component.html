@@ -1,0 +1,215 @@
+<div class="pagetitle" style="height: fit-content;">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>後處理報工查詢
+</div>
+<div class="row">
+  <div class="col-4 align-items-center mt-2 mb-2">
+    <label class="col-3 text-left">生產線別:</label>
+    <select class="custom-select col-4"  [(ngModel)]="ProdcSelected" >
+      <option value="07A1">敲毛邊/退火/洗砂</option>
+      <option value="08A1">磨毛邊</option>
+      <option value="09A4">噴漆/品管</option>
+    </select>
+  </div>
+  <div class="col-4 align-items-center mt-2 mb-2">
+    <label class="col-3 text-left">(僅進出站紀錄查詢用)</label>
+    <label class="col-3 text-right">進/出站:</label>
+    <input class="col-1" type="radio" [(ngModel)]="Type" value="0"/>進站&nbsp;
+    <input class="col-1" type="radio" [(ngModel)]="Type" value="1"/>出站
+  </div>
+  <div class="col-4 align-items-center mt-2 mb-2">
+    <label class="col-3 text-left">(僅進出站紀錄查詢用)</label>
+    <label class="col-3 text-left">日期:</label>
+    <input type="date" [(ngModel)]="Date"/>&nbsp;
+    <button class="btn mb-1" [class]="'btn-success'" (click)="query()">查詢</button>&nbsp;
+  </div>
+</div>
+<ngb-tabset>
+  <ngb-tab title="未生產"><!--尚未進站紀錄-->
+    <ng-template ngbTabContent>
+      <label class="col-2 text-left">總鑄件數量：{{ prodCntNotOn }}</label><br>
+      <label class="col-2 text-left">總鑄件公斤：{{ prodCntNotOnKg | number: '3.0-2'}}</label><br>
+      <button type="button" *ngIf="GridDataNotOn.length>0" class="btn btn-primary" (click)="exportexcel('excel-table3', GridDataNotOn)">
+        <i class="mr-1 fa fa-file-excel-o"></i>匯出Excel
+      </button>
+      <ngx-datatable [headerHeight]="50" [footerHeight]="50"
+        [scrollbarH]="true" [rowHeight]="50" [rows]="GridDataNotOn">
+        <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="week"
+            name="排單週別" ></ngx-datatable-column>
+        <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="WorkOrder"
+            name="製令單別單號" ></ngx-datatable-column>
+        <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="PartNo"
+            name="品號" ></ngx-datatable-column>
+        <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="PartDesc"
+            name="品名" ></ngx-datatable-column>
+        <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="ReportWorkerNumber"
+            name="報工人數" ></ngx-datatable-column>
+        <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="WorkOrderQty"
+            name="製令數量" ></ngx-datatable-column>
+        <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="WIPProcessType"
+            name="工站" ></ngx-datatable-column>
+        <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="Category"
+            name="類別" ></ngx-datatable-column>
+      </ngx-datatable>
+      <table style="visibility: hidden;" id="excel-table3">
+        <tr>
+          <td>排單週別</td>
+          <td>製令單別單號</td>
+          <td>品號</td>
+          <td>品名</td>
+          <td>報工人數</td>
+          <td>製令數量</td>
+          <td>工站</td>
+          <td>類別</td>
+        </tr>
+        <ng-container *ngFor="let item of GridDataNotOn">
+          <tr>
+            <td>{{item.week}}</td>
+            <td>{{item.WorkOrder}}</td>
+            <td>{{item.PartNo}}</td>
+            <td>{{item.PartDesc}}</td>
+            <td>{{item.ReportWorkerNumber}}</td>
+            <td>{{item.WorkOrderQty}}</td>
+            <td>{{item.WIPProcessType}}</td>
+            <td>{{item.Category}}</td>
+          </tr>
+        </ng-container>
+      </table>
+    </ng-template>
+  </ngb-tab>
+  <ngb-tab title="生產中"><!--尚未出站紀錄-->
+    <ng-template ngbTabContent>
+      <label class="col-2 text-left">總鑄件數量：{{ prodCntOn }}</label><br>
+      <label class="col-2 text-left">總鑄件公斤：{{ prodCntOnKg | number: '3.0-2'}}</label><br>
+      <button type="button" *ngIf="GridDataOn.length>0" class="btn btn-primary" (click)="exportexcel('excel-table2', GridDataOn)">
+        <i class="mr-1 fa fa-file-excel-o"></i>匯出Excel
+      </button>
+      <ngx-datatable [headerHeight]="50" [footerHeight]="50"
+        [scrollbarH]="true" [rowHeight]="50" [rows]="GridDataOn">
+        <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="week"
+            name="排單週別" ></ngx-datatable-column>
+        <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="WorkOrder"
+            name="製令單別單號" ></ngx-datatable-column>
+        <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="PartNo"
+            name="品號" ></ngx-datatable-column>
+        <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="PartDesc"
+            name="品名" ></ngx-datatable-column>
+        <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="ReportWorkerNumber"
+            name="報工人數" ></ngx-datatable-column>
+        <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="ReportWorker"
+            name="報工人員" ></ngx-datatable-column>
+        <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="WorkOrderQty"
+            name="製令數量" ></ngx-datatable-column>
+        <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="WIPProcessType"
+            name="工站" ></ngx-datatable-column>
+        <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="Category"
+            name="類別" ></ngx-datatable-column>
+      </ngx-datatable>
+      <table style="visibility: hidden;" id="excel-table2">
+        <tr>
+          <td>排單週別</td>
+          <td>製令單別單號</td>
+          <td>品號</td>
+          <td>品名</td>
+          <td>報工人數</td>
+          <td>報工人員</td>
+          <td>製令數量</td>
+          <td>工站</td>
+          <td>類別</td>
+        </tr>
+        <ng-container *ngFor="let item of GridDataOn">
+          <tr>
+            <td>{{item.week}}</td>
+            <td>{{item.WorkOrder}}</td>
+            <td>{{item.PartNo}}</td>
+            <td>{{item.PartDesc}}</td>
+            <td>{{item.ReportWorkerNumber}}</td>
+            <td>{{item.ReportWorker}}</td>
+            <td>{{item.WorkOrderQty}}</td>
+            <td>{{item.WIPProcessType}}</td>
+            <td>{{item.Category}}</td>
+          </tr>
+        </ng-container>
+      </table>
+        <!-- <div id="query" class="row align-items-center mt-2 mb-2">
+          <label class="col-1 text-right">生產線別:</label>
+          <select class="custom-select col-2"  [(ngModel)]="ProdcSelectedOn" >
+            <option value="07A1">敲毛邊/退火/洗砂</option>
+            <option value="08A1">磨毛邊</option>
+            <option value="09A4">噴漆/品管</option>
+          </select>&nbsp;
+          <button class="btn mb-1" [class]="'btn-success'" (click)="queryOn()">查詢</button>&nbsp;
+        </div> -->
+      <!-- <ngx-datatable [headerHeight]="50" [footerHeight]="50"
+      [scrollbarH]="true" [rowHeight]="50" [rows]="GridDataOn">
+      </ngx-datatable> -->
+    </ng-template>
+  </ngb-tab>
+  <ngb-tab title="進出站紀錄">
+    <ng-template ngbTabContent>
+      <ng-container *ngIf="GridData.length > 0">
+        <label class="col-1 text-right">總件數：{{ prodCnt }}</label><br>
+        <button type="button" *ngIf="GridData.length>0" class="btn btn-primary" (click)="exportexcel('excel-table')">
+          <i class="mr-1 fa fa-file-excel-o"></i>匯出Excel
+        </button>
+        <ngx-datatable [headerHeight]="50" [footerHeight]="50"
+        [scrollbarH]="true" [rowHeight]="50" [rows]="GridData">
+          <ngx-datatable-column [width]="30" [sortable]="false" [canAutoResize]="false" [draggable]="false"
+            [resizeable]="false" [headerCheckboxable]="true" [checkboxable]="true" name="V">
+          </ngx-datatable-column>
+          <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="week"
+            name="排單週別" ></ngx-datatable-column>
+          <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="WorkOrder"
+            name="製令單別單號" ></ngx-datatable-column>
+          <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="PartNo"
+            name="品號" ></ngx-datatable-column>
+          <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="InStationQty"
+            name="進站數量" ></ngx-datatable-column>
+          <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="InStationDate"
+            name="進站日期" ></ngx-datatable-column>
+          <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="InStationUser"
+            name="進站人員" ></ngx-datatable-column>
+          <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="OutStationQty"
+            name="出站數量" ></ngx-datatable-column>
+          <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="OutStationDate"
+            name="出站日期" ></ngx-datatable-column>
+          <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="OutStationUser"
+            name="出站人員" ></ngx-datatable-column>
+          <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="UnitWeight"
+            name="單重" ></ngx-datatable-column>
+            <ngx-datatable-column headerClass="d-flex justify-content-center" [canAutoResize]="false" [draggable]="false" cellClass="text-center" prop="PartDesc"
+            name="品名" ></ngx-datatable-column>
+        </ngx-datatable>
+        <table style="visibility: hidden;" id="excel-table">
+          <tr>
+            <td>排單週別</td>
+            <td>製令單別單號</td>
+            <td>品號</td>
+            <td>進站數量</td>
+            <td>進站日期</td>
+            <td>進站人員</td>
+            <td>出站數量</td>
+            <td>出站日期</td>
+            <td>出站人員</td>
+            <td>單重</td>
+            <td>品名</td>
+          </tr>
+          <ng-container *ngFor="let item of GridData">
+            <tr>
+              <td>{{item.week}}</td>
+              <td>{{item.WorkOrder}}</td>
+              <td>{{item.PartNo}}</td>
+              <td>{{item.InStationQty}}</td>
+              <td>{{item.InStationDate}}</td>
+              <td>{{item.InStationUser}}</td>
+              <td>{{item.OutStationQty}}</td>
+              <td>{{item.OutStationDate}}</td>
+              <td>{{item.OutStationUser}}</td>
+              <td>{{item.UnitWeight}}</td>
+              <td>{{item.PartDesc}}</td>
+            </tr>
+          </ng-container>
+        </table>
+      </ng-container>
+    </ng-template>
+  </ngb-tab>
+</ngb-tabset>

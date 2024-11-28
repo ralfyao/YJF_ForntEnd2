@@ -1,0 +1,23 @@
+<div class="pagetitle">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>未領料清單
+</div>
+<div>
+  <ngx-datatable #mydatatable class="material" style="height: calc(100vh - 126px);" [scrollbarV]="true"
+    [headerHeight]="50" [limit]="10" [columnMode]="'force'" [footerHeight]="50" [rowHeight]="50" [rows]="NoPickingList">
+    <ngx-datatable-column name="序號" [width]="40" [sortable]="false" [canAutoResize]="false" [draggable]="false"
+      [resizeable]="false">
+      <ng-template let-rowIndex="rowIndex" let-row="row" ngx-datatable-cell-template>
+        <div>{{ rowIndex+1 }}</div>
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column prop="ItemCode" [width]="150" name="品號"></ngx-datatable-column>
+    <ngx-datatable-column prop="ItemName" [width]="500" name="品名規格"></ngx-datatable-column>
+    <ngx-datatable-column prop="ProductionOrder" [width]="150" name="製令單號"></ngx-datatable-column>
+    <ngx-datatable-column prop="Quantity" [width]="80" name="數量"></ngx-datatable-column>
+    <ngx-datatable-column prop="PouringDate" [width]="100" name="澆注完工日">
+      <ng-template ngx-datatable-cell-template let-value="value">
+        {{DateStringFormat(value)}}
+      </ng-template>
+    </ngx-datatable-column>
+  </ngx-datatable>
+</div>

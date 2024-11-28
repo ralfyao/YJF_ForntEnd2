@@ -1,0 +1,250 @@
+<ngb-tabset>
+  <ngb-tab title="加工">
+    <ng-template ngbTabContent>
+    <div class="p-2">
+      <div class="row mx-0 my-2">
+        <label class="col-1 my-0 text-right">搜尋:</label>
+        <input class="col-3 form-control" type="text" [(ngModel)]="WorkingSearchtxt1" (ngModelChange)="Workingdatafilter()"
+          placeholder="輸入製令單別、製令單號" />
+        <label class="col-1 my-0 text-right">搜尋:</label>
+        <input class="col-3 form-control" type="text" [(ngModel)]="WorkingSearchtxt2" (ngModelChange)="Workingdatafilter()"
+          placeholder="品號、品名、客戶代號、客戶簡稱、廠商..." />
+      </div>
+      <button class="btn btn-info btn-sm ml-2" (click)="openmodal('Working',completemodal,'xl')"><i
+          class="fa  fa-check-square-o mr-1"></i>加工完工</button>
+    </div>
+    <ngx-datatable #mydatatable class="material" [headerHeight]="50" style="height:calc(100vh - 270px);"
+      [columnMode]="'force'" [footerHeight]="50" [rowHeight]="50" [rows]="Workingdata" [selected]="Workingselectdata"
+      [selectionType]="'checkbox'" [reorderable]="true" [selectAllRowsOnPage]="false" [scrollbarV]="true"
+      (select)="onSelect($event)">
+      <ngx-datatable-column [width]="30" [sortable]="false" [canAutoResize]="false" [draggable]="false"
+        [resizeable]="false" [headerCheckboxable]="true" [checkboxable]="true">
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="ProductionHeadCode" name="製令單別" [width]="70" [canAutoResize]="false">
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="ProductionCode" name="製令單號"></ngx-datatable-column>
+      <ngx-datatable-column prop="CustomerCode" name="客戶代號"></ngx-datatable-column>
+      <ngx-datatable-column prop="CustomerName" name="客戶簡稱"></ngx-datatable-column>
+      <ngx-datatable-column prop="ItemCode" name="品號"></ngx-datatable-column>
+      <ngx-datatable-column prop="ItemName" name="品名"></ngx-datatable-column>
+      <ngx-datatable-column prop="Qty" name="預計完成數量"></ngx-datatable-column>
+      <ngx-datatable-column prop="WorkingCompany" name="廠商"></ngx-datatable-column>
+      <ngx-datatable-column prop="WorkingUndoneQty" name="加工可完成數量">
+        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+          {{row.WorkingCompany==""?"":value}}
+        </ng-template>
+      </ngx-datatable-column>
+    </ngx-datatable>
+  </ng-template>
+  </ngb-tab>
+  <ngb-tab title="噴漆">
+    <ng-template ngbTabContent>
+    <div class="p-2">
+      <div class="row mx-0 my-2">
+        <label class="col-1 my-0 text-right">搜尋:</label>
+        <input class="col-3 form-control" type="text" [(ngModel)]="PaintingSearchtxt1" (ngModelChange)="Paintingdatafilter()"
+          placeholder="輸入製令單別、製令單號" />
+        <label class="col-1 my-0 text-right">搜尋:</label>
+        <input class="col-3 form-control" type="text" [(ngModel)]="PaintingSearchtxt2" (ngModelChange)="Paintingdatafilter()"
+          placeholder="品號、品名、客戶代號、客戶簡稱、廠商..." />
+      </div>
+      <button class="btn btn-info btn-sm ml-2" (click)="openmodal('Painting',completemodal,'xl')"><i
+          class="fa  fa-check-square-o mr-1"></i>噴漆完工</button>
+    </div>
+    <ngx-datatable #mydatatable class="material" [headerHeight]="50" style="height:calc(100vh - 270px);"
+      [columnMode]="'force'" [footerHeight]="50" [rowHeight]="50" [rows]="Paintingdata" [selected]="Paintingselectdata"
+      [selectionType]="'checkbox'" [reorderable]="true" [selectAllRowsOnPage]="false" [scrollbarV]="true"
+      (select)="onSelect($event)">
+      <ngx-datatable-column [width]="30" [sortable]="false" [canAutoResize]="false" [draggable]="false"
+        [resizeable]="false" [headerCheckboxable]="true" [checkboxable]="true">
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="ProductionHeadCode" name="製令單別" [width]="70" [canAutoResize]="false">
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="ProductionCode" name="製令單號"></ngx-datatable-column>
+      <ngx-datatable-column prop="CustomerCode" name="客戶代號"></ngx-datatable-column>
+      <ngx-datatable-column prop="CustomerName" name="客戶簡稱"></ngx-datatable-column>
+      <ngx-datatable-column prop="ItemCode" name="品號"></ngx-datatable-column>
+      <ngx-datatable-column prop="ItemName" name="品名"></ngx-datatable-column>
+      <ngx-datatable-column prop="Qty" name="預計完成數量"></ngx-datatable-column>
+
+      <ngx-datatable-column prop="PaintingCompany" name="廠商"></ngx-datatable-column>
+      <ngx-datatable-column prop="PaintingUndoneQty" name="噴漆未完成數量">
+        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+          {{row.PaintingCompany==""?"":value}}
+        </ng-template>
+      </ngx-datatable-column>
+    </ngx-datatable>
+  </ng-template>
+  </ngb-tab>
+  <ngb-tab title="包裝">
+    <ng-template ngbTabContent>
+    <div class="p-2">
+      <div class="row mx-0 my-2">
+        <label class="col-1 my-0 text-right">搜尋:</label>
+        <input class="col-3 form-control" type="text" [(ngModel)]="PackageSearchtxt1" (ngModelChange)="Packagedatafilter()"
+          placeholder="輸入製令單別、製令單號" />
+        <label class="col-1 my-0 text-right">搜尋:</label>
+        <input class="col-3 form-control" type="text" [(ngModel)]="PackageSearchtxt2" (ngModelChange)="Packagedatafilter()"
+          placeholder="品號、品名、客戶代號、客戶簡稱、廠商..." />
+      </div>
+      <button class="btn btn-info btn-sm ml-2" (click)="openmodal('Package',completemodal,'xl')"><i
+          class="fa  fa-check-square-o mr-1"></i>包裝完工</button>
+    </div>
+    <ngx-datatable #mydatatable class="material" [headerHeight]="50" style="height:calc(100vh - 270px);"
+      [columnMode]="'force'" [footerHeight]="50" [rowHeight]="50" [rows]="Packagedata" [selected]="Packageselectdata"
+      [selectionType]="'checkbox'" [reorderable]="true" [selectAllRowsOnPage]="false" [scrollbarV]="true"
+      (select)="onSelect($event)">
+      <ngx-datatable-column [width]="30" [sortable]="false" [canAutoResize]="false" [draggable]="false"
+        [resizeable]="false" [headerCheckboxable]="true" [checkboxable]="true">
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="ProductionHeadCode" name="製令單別" [width]="70" [canAutoResize]="false">
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="ProductionCode" name="製令單號"></ngx-datatable-column>
+      <ngx-datatable-column prop="CustomerCode" name="客戶代號"></ngx-datatable-column>
+      <ngx-datatable-column prop="CustomerName" name="客戶簡稱"></ngx-datatable-column>
+      <ngx-datatable-column prop="ItemCode" name="品號"></ngx-datatable-column>
+      <ngx-datatable-column prop="ItemName" name="品名"></ngx-datatable-column>
+      <ngx-datatable-column prop="Qty" name="預計完成數量"></ngx-datatable-column>
+      <ngx-datatable-column prop="PackageCompany" name="廠商"></ngx-datatable-column>
+      <ngx-datatable-column prop="PackageUndoneQty" name="包裝未完成數量">
+        <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+          {{row.PackageCompany==""?"":value}}
+        </ng-template>
+      </ngx-datatable-column>
+    </ngx-datatable>
+  </ng-template>
+  </ngb-tab>
+</ngb-tabset>
+
+<ng-template #completemodal let-modal>
+  <div class="modal-header">
+    <div>待完工清單</div>
+  </div>
+  <div class="modal-body">
+    <div class="row px-3 mb-3 align-items-center">
+      <div class="mr-2">單價更新:</div><input class="form-control col-4 col-sm-2" type="number"
+        (change)="UpdateCompleteUnitPrice($event)" value="0">
+      <div class="mr-2">日期更新:</div><input class="form-control col-4 col-sm-2" type="date"
+        (change)="UpdateCompleteDate($event)">
+    </div>
+
+    <ngx-datatable #mydatatable class="material" [headerHeight]="50" style="height:calc(100% - 3.25rem - 2px);"
+      [columnMode]="'standard'" [footerHeight]="50" [rowHeight]="50" [rows]="completedata" [selectionType]="'checkbox'"
+      [reorderable]="true" [selectAllRowsOnPage]="false" [scrollbarV]="true">
+      <ngx-datatable-column prop="ProductionHeadCode" name="製令單別" [width]="65" [canAutoResize]="false">
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="ProductionCode" [width]="100" name="製令單號"></ngx-datatable-column>
+      <ngx-datatable-column prop="ItemCode" [width]="110" name="品號"></ngx-datatable-column>
+      <ngx-datatable-column prop="ItemName" [width]="480" name="品名"></ngx-datatable-column>
+      <ngx-datatable-column prop="Qty" [width]="70" name="預計數量"></ngx-datatable-column>
+      <ngx-datatable-column prop="WorkingCompany" *ngIf="CompleteType=='Working'" [width]="80" name="加工廠商">
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="WorkingPutinQty" *ngIf="CompleteType=='Working'" [width]="80" name="已投入數量">
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="WorkingFinishQty" *ngIf="CompleteType=='Working'" [width]="80" name="已完成數量">
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="WorkingUndoneQty" *ngIf="CompleteType=='Working'" [width]="80" name="可完工數量">
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="WorkingTodoQty" *ngIf="CompleteType=='Working'" [width]="80" name="待完工數量">
+        <ng-template ngx-datatable-cell-template let-row="row" let-rowIndex="rowIndex" let-value="value">
+          <input type="number" class="form-control" [min]="1" [max]="row.WorkingUndoneQty"
+            (input)="updateValue($event, 'WorkingTodoQty', rowIndex)" [value]="value" style="height: 24px;">
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="WorkingPrice" *ngIf="CompleteType=='Working'" [width]="100" name="加工單價">
+        <ng-template ngx-datatable-cell-template let-row="row" let-rowIndex="rowIndex" let-value="value">
+          <input type="number" class="form-control" *ngIf="row.WorkingCompany!=''"
+            (input)="updateValue($event, 'WorkingPrice', rowIndex)" [value]="value" style="height: 24px;">
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column *ngIf="CompleteType=='Working'" [width]="80" name="加工總價">
+        <ng-template ngx-datatable-cell-template let-row="row" let-rowIndex="rowIndex" let-value="value">
+          <div>{{row.WorkingTodoQty*row.WorkingPrice}}</div>
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="WorkingFinishData" *ngIf="CompleteType=='Working'" [width]="170" name="加工日期">
+        <ng-template ngx-datatable-cell-template let-row="row" let-rowIndex="rowIndex" let-value="value">
+          <input type="date" class="form-control" *ngIf="row.WorkingCompany!=''"
+            (input)="updateValue($event, 'WorkingFinishData', rowIndex)" [value]="value" style="height: 24px;" />
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="PaintingCompany" *ngIf="CompleteType=='Painting'" [width]="80" name="噴漆廠商">
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="PaintingPutinQty" *ngIf="CompleteType=='Painting'" [width]="80" name="已投入數量">
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="PaintingFinishQty" *ngIf="CompleteType=='Painting'" [width]="80" name="已完成數量">
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="PaintingUndoneQty" *ngIf="CompleteType=='Painting'" [width]="80" name="可完工數量">
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="PaintingTodoQty" *ngIf="CompleteType=='Painting'" [width]="80" name="待完工數量">
+        <ng-template ngx-datatable-cell-template let-row="row" let-rowIndex="rowIndex" let-value="value">
+          <input type="number" class="form-control" [min]="1" [max]="row.PaintingUndoneQty"
+            (input)="updateValue($event, 'PaintingTodoQty', rowIndex)" [value]="value" style="height: 24px;">
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="PaintingPrice" *ngIf="CompleteType=='Painting'" [width]="100" name="噴漆單價">
+        <ng-template ngx-datatable-cell-template let-row="row" let-rowIndex="rowIndex" let-value="value">
+          <input type="number" class="form-control" *ngIf="row.PaintingCompany!=''"
+            (input)="updateValue($event, 'PaintingPrice', rowIndex)" [value]="value" style="height: 24px;">
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column *ngIf="CompleteType=='Painting'" [width]="80" name="噴漆總價">
+        <ng-template ngx-datatable-cell-template let-row="row" let-rowIndex="rowIndex" let-value="value">
+          <div>{{row.PaintingTodoQty*row.PaintingPrice}}</div>
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="PaintingFinishData" *ngIf="CompleteType=='Painting'" [width]="170" name="噴漆日期">
+        <ng-template ngx-datatable-cell-template let-row="row" let-rowIndex="rowIndex" let-value="value">
+          <input type="date" class="form-control" *ngIf="row.PaintingCompany!=''"
+            (input)="updateValue($event, 'PaintingFinishData', rowIndex)" [value]="value" style="height: 24px;" />
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="PackageCompany" *ngIf="CompleteType=='Package'" [width]="80" name="包裝廠商">
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="PackagePutinQty" *ngIf="CompleteType=='Package'" [width]="80" name="已投入數量">
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="PackageFinishQty" *ngIf="CompleteType=='Package'" [width]="80" name="已完成數量">
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="PackageUndoneQty" *ngIf="CompleteType=='Package'" [width]="80" name="可完工數量">
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="PackageTodoQty" *ngIf="CompleteType=='Package'" [width]="80" name="待完工數量">
+        <ng-template ngx-datatable-cell-template let-row="row" let-rowIndex="rowIndex" let-value="value">
+          <input type="number" class="form-control" [min]="1" [max]="row.WorkingUndoneQty"
+            (input)="updateValue($event, 'PackageTodoQty', rowIndex)" [value]="value" style="height: 24px;">
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="PackagePrice" *ngIf="CompleteType=='Package'" [width]="100" name="包裝單價">
+        <ng-template ngx-datatable-cell-template let-row="row" let-rowIndex="rowIndex" let-value="value">
+          <input type="number" class="form-control" *ngIf="row.PackageCompany!=''" [value]="value"
+            (input)="updateValue($event, 'PackagePrice', rowIndex)" style="height: 24px;">
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column *ngIf="CompleteType=='Package'" [width]="80" name="包裝總價">
+        <ng-template ngx-datatable-cell-template let-row="row" let-rowIndex="rowIndex" let-value="value">
+          <div>{{row.PackageTodoQty*row.PackagePrice}}</div>
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="PackageFinishData" *ngIf="CompleteType=='Package'" [width]="170" name="包裝日期">
+        <ng-template ngx-datatable-cell-template let-row="row" let-rowIndex="rowIndex" let-value="value">
+          <input type="date" class="form-control" *ngIf="row.PackageCompany!=''" [value]="value"
+            (input)="updateValue($event, 'PackageFinishData', rowIndex)" style="height: 24px;" />
+        </ng-template>
+      </ngx-datatable-column>
+
+    </ngx-datatable>
+  </div>
+  <div class="modal-footer">
+    <div class="totalPrice">
+      <div>總價:</div>
+      <div>{{CompleteTotalPrice}}元</div>
+      <button type="button" class="btn btn-sm btn-refresh" (click)="CalculateTotalPrice()"><i
+          class="mr-1 fa fa-refresh"></i></button>
+    </div>
+
+
+    <button type="button" class="btn btn-primary" (click)="Complete()"><i class="mr-1 fa fa-check"></i>確定</button>
+    <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')"><i
+        class="mr-1 fa fa-times"></i>取消</button>
+  </div>
+
+</ng-template>

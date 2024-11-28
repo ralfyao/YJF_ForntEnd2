@@ -1,0 +1,272 @@
+<!--右邊內容__標題Start-->
+<div class="pagetitle">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>詢價清單
+</div>
+<!--右邊內容__標題End-->
+
+<!--建立or瀏覽詢價清單Start-->
+<section class="content_data">
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a class="nav-link active" href="#tab_1" data-toggle="tab"><i class="fa fa-search-plus"></i>內容檢視</a>
+    </li>
+  </ul>
+  <div class="tab-content">
+    <h3><i class="fa fa-address-book"></i>源潤豐報價資訊</h3>
+    <table class="table table-bordered table-striped table-hover">
+      <thead>
+        <tr style="background-color: cornsilk">
+          <th>品號</th>
+          <th>報價種類</th>
+          <th>材質</th>
+          <th>重量</th>
+          <th>尺寸</th>
+          <th>預估年量</th>
+          <th>備註</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{QuotationDetail.QuoteItemNumber}}</td>
+          <td>{{QuotationDetail.QuoteTypeName}}</td>
+          <td>{{QuotationDetail.CastingMaterial}}</td>
+          <td>{{QuotationDetail.CastingWeight}}</td>
+          <td>{{QuotationDetail.CastingSize}}</td>
+          <td>{{QuotationDetail.EstimateQuantity}}</td>
+          <td>{{QuotationDetail.QuoteRemark}}</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="7">
+            <div style="width:100%">
+              <label>源潤豐報價附件：</label>
+              <div *ngFor="let YJFlevel of YJFttachLevelShow" style="border-collapse:separate;
+                        border-spacing: 10px">
+                <ng-container *ngFor="let Attach of QuotationAttachList; let i=index">
+                  <ng-container *ngIf="Attach.TextPage==YJFlevel">
+                    <div
+                      style="margin:0px 5px 0px;display: inline-block;padding: 5px;border: 1px solid rgb(144, 206, 224);font-size: 16px;width: fit-content">
+                      <a href="{{rest.APserver}}{{Attach.AnnexURL}}" target="_blank">
+                        <i class="fa fa-file-word-o fa-6"></i>{{Attach.AnnexName}}</a>
+                    </div>
+                  </ng-container>
+                </ng-container>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <h3><i class="fa fa-address-book"></i>{{UserName}}報價資訊</h3>
+    <ng-container [ngSwitch]="SupplierQuotation.Status">
+      <ng-container *ngSwitchCase="3">
+        <button disabled type="button" class="btn btn-outline-info" data-toggle="modal"
+          data-target="#Modal_AddQuoteItem" (click)="selectAddQuoteItem()">
+          <i class="fa fa-file-o"></i>已結案無法修改</button>
+
+      </ng-container>
+      <ng-container *ngSwitchDefault>
+        <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#Modal_AddQuoteAttach">
+          <i class="fa fa-file-text-o"></i>新增附件檔案</button>
+      </ng-container>
+    </ng-container>
+
+
+
+    <table class="table table-bordered table-striped table-hover">
+      <thead>
+        <tr style="background-color: lightcyan" align="center">
+          <th style="width: 80px">項次</th>
+          <th>報價品項</th>
+          <th>數量</th>
+          <th *ngIf="QuotationDetail.SYS_QuoteType_ID=='13'||QuotationDetail.SYS_QuoteType_ID=='15'">鑄件單價</th>
+          <th *ngIf="QuotationDetail.SYS_QuoteType_ID=='13'||QuotationDetail.SYS_QuoteType_ID=='15'">鑄件重量</th>
+          <th *ngIf="QuotationDetail.SYS_QuoteType_ID!='13'&&QuotationDetail.SYS_QuoteType_ID!='15'">單價</th>
+          <th>金額</th>
+          <th style="width: 250px">報價說明</th>
+          <th style="width: min-content">操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="background-color: aliceblue;">
+          <td align="center">新增項目</td>
+          <td style="border: 1px;padding: 0px;height:38px">
+            <input id="newdetailQuoteItem" type="text" [(ngModel)]="newdetail.QuoteItem" placeholder="請輸入報價品項"
+              [ngModelOptions]="{standalone: true}" style="text-align: center;width: 100%;height: 100%;">
+          </td>
+          <td style="border: 1px;padding: 0px;height:38px">
+            <input type="number" [(ngModel)]="newdetail.QuoteQty" [ngModelOptions]="{standalone: true}"
+              placeholder="請輸入數量" style="text-align: center;width: 100%;height: 100%;" (change)="CaculateNewDetail()">
+          </td>
+          <td *ngIf="QuotationDetail.SYS_QuoteType_ID=='13'||QuotationDetail.SYS_QuoteType_ID=='15'"
+            style="border: 1px;padding: 0px;height:38px">
+            <input type="number" [(ngModel)]="newdetail.QuoteWeightPrice" [ngModelOptions]="{standalone: true}"
+              placeholder="請輸入鑄件單價" style="text-align: center;width: 100%;height: 100%;" (change)="CaculateNewDetail()">
+          </td>
+          <td *ngIf="QuotationDetail.SYS_QuoteType_ID=='13'||QuotationDetail.SYS_QuoteType_ID=='15'"
+            style="border: 1px;padding: 0px;height:38px" align="center">
+            {{QuotationDetail.CastingWeight}}KG
+          </td>
+          <td *ngIf="QuotationDetail.SYS_QuoteType_ID!='13'&&QuotationDetail.SYS_QuoteType_ID!='15'"
+            style="border: 1px;padding: 0px;height:38px">
+            <input autosize type="text" [(ngModel)]="newdetail.QuoteUnitPrice" [ngModelOptions]="{standalone: true}"
+              placeholder="請輸入單價" style="text-align: center;width: 100%;height: 100%;" (change)="CaculateNewDetail()">
+          </td>
+          <td style="border: 1px;padding: 0px;height:38px" align="center">
+            {{(newdetail.QuotePrice)}}
+          </td>
+          <td style="border: 1px;padding: 0px;height:38px">
+            <textarea autosize type="text" [(ngModel)]="newdetail.QuoteRemark" [ngModelOptions]="{standalone: true}"
+              placeholder="請輸入報價說明"
+              style="width: 100%;border:0px;padding: 5px;resize: none;vertical-align: bottom;"></textarea>
+          </td>
+          <td style="border: 1px;padding: 0px;height:38px" align="center">
+            <button type="button" class="btn btn-primary" data-dismiss="modal"
+              (click)="AddSupplierQuotationDetail(newdetail)">新增</button>
+          </td>
+        </tr>
+        <tr *ngFor="let log of SupplierQuotationList; let i=index" align="center">
+          <td>{{i+1}}</td>
+          <td>{{log.QuoteItem}}</td>
+          <td>{{log.QuoteQty}}</td>
+          <td *ngIf="QuotationDetail.SYS_QuoteType_ID=='13'||QuotationDetail.SYS_QuoteType_ID=='15'">
+            {{log.QuoteWeightPrice}}</td>
+          <td *ngIf="QuotationDetail.SYS_QuoteType_ID=='13'||QuotationDetail.SYS_QuoteType_ID=='15'">
+            {{QuotationDetail.CastingWeight}}</td>
+          <td *ngIf="QuotationDetail.SYS_QuoteType_ID!='13'&&QuotationDetail.SYS_QuoteType_ID!='15'">
+            {{log.QuoteUnitPrice}}</td>
+          <td>{{log.QuotePrice}}</td>
+          <td style="padding: 0;height: 38px;">
+            <textarea readonly autosize
+              style="width: 100%;border:0px;padding: 5px;resize: none;vertical-align: bottom;">{{log.QuoteRemark}}</textarea>
+          </td>
+          <td style=" width: 150px">
+            <ng-container *ngIf="log.FORM_SupplierQuote_ID==0" [ngSwitch]="SupplierQuotation.Status">
+              <ng-container *ngSwitchCase="3">
+                <button disabled type="button" class="btn btn-primary" data-dismiss="modal"
+                  (click)="DeleteSupplierRecord(log)">已結案</button>
+
+              </ng-container>
+              <ng-container *ngSwitchDefault>
+                <button type="button" class="btn btn-primary" data-dismiss="modal"
+                  (click)="DeleteSupplierRecord(log)">移除</button>
+              </ng-container>
+            </ng-container>
+            <ng-container *ngIf="log.FORM_SupplierQuote_ID>0" [ngSwitch]="SupplierQuotation.Status">
+              <ng-container *ngSwitchCase="3">
+                <button type="button" class="btn btn-primary" disabled>修改報價</button>
+              </ng-container>
+              <ng-container *ngSwitchDefault>
+                <button type="button" class="btn btn-primary" (click)="EditQuotation(log)">修改報價</button>
+              </ng-container>
+            </ng-container>
+          </td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="8">
+            <div style="width:100%">
+              <label>{{UserName}}報價附件：</label>
+              <div *ngFor="let levle of SupplierAttachLevelShow" style="border-collapse:separate;
+                      border-spacing: 10px">
+                <ng-container *ngFor="let Attach of SupplierAttachList; let i=index">
+                  <ng-container *ngIf="Attach.TextPage==levle">
+                    <div
+                      style="margin:0px 5px 0px;display: inline-block;padding: 5px;border: 1px solid rgb(144, 206, 224);font-size: 16px;width: fit-content">
+                      <a href="{{rest.APserver}}{{Attach.AnnexURL}}" target="_blank">
+                        <i class="fa fa-file-word-o fa-6"></i>{{Attach.AnnexName}}</a>
+                      <button *ngIf="SupplierQuotation.Status!='3'" class="btn btn-outline-info"
+                        style="font-size: 16px;border: none;background-color: #00000000"
+                        (click)="SupplierAttachSelect(Attach)" class="btn btn-outline-info" data-toggle="modal"
+                        data-target="#Modal_DeleteSupplierAttach"><i class="fa fa-times">刪除</i></button>
+                    </div>
+                  </ng-container>
+                </ng-container>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tfoot>
+
+    </table>
+  </div>
+</section>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="Modal_AddQuoteAttach">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+      </div>
+      <div class="modal-body">
+        <section class="section-style on">
+          <h3>
+            <i class="fa fa-address-book"></i> 上傳供應商附件檔案
+          </h3>
+          <div class="search_area">
+            <input id="fileupload" type="file" class="btn btn-default" value="選擇檔案"
+              (change)="chooseFile($event.target.files)">
+            <button id="fileupload_btn" type="button" class="btn btn-outline-primary" (click)="uploadReportAttach()"><i
+                class="fa fa-search"></i>
+              上傳檔案</button>
+            <ngb-progressbar id="progressbar" type="warning" [value]="ProgressPercent" [striped]="true" height="25px"
+              style="visibility: hidden;">
+              <i>已上傳{{Uploaded}}，共{{UploadTotal}}---{{ProgressPercent}}%</i>
+            </ngb-progressbar>
+          </div>
+          <div class="search_area">
+            <label>{{UserName}}報價附件：</label>
+            <div *ngFor="let levle of SupplierAttachLevelShow" style="border-collapse:separate;
+                        border-spacing: 10px">
+              <ng-container *ngFor="let Attach of SupplierAttachList; let i=index">
+                <ng-container *ngIf="Attach.TextPage==levle">
+                  <div
+                    style="margin:0px 5px 0px;display: inline-block;padding: 5px;border: 1px solid rgb(144, 206, 224);font-size: 16px;width: fit-content">
+                    <a href="{{rest.APserver}}{{Attach.AnnexURL}}" target="_blank">
+                      <i class="fa fa-file-word-o fa-6"></i>{{Attach.AnnexName}}</a>
+                    <button class="btn btn-outline-info"
+                      style="font-size: 16px;border: none;background-color: #00000000"
+                      (click)="SupplierAttachSelect(Attach)" class="btn btn-outline-info" data-toggle="modal"
+                      data-target="#Modal_DeleteSupplierAttach"><i class="fa fa-times">刪除</i></button>
+                  </div>
+                </ng-container>
+              </ng-container>
+            </div>
+          </div>
+
+
+        </section>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">確定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="Modal_DeleteSupplierAttach">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+      </div>
+      <div class="modal-body">
+        <section class="section-style on">
+          <h3>
+            <i class="fa fa-address-book"></i> 刪除供應商品項
+          </h3>
+          <div class="search_area">
+            <label>是否刪除附件{{SupplierAttach.AnnexName}}</label>
+          </div>
+        </section>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal"
+          (click)="DeleteSupplierAttach(SupplierAttach)">確定</button>
+      </div>
+    </div>
+  </div>
+</div>

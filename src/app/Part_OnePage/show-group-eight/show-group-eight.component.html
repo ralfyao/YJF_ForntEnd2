@@ -1,0 +1,45 @@
+
+<div class="Page p-3" [ngClass]="ActivePage==1?'NextPage':ActivePage==2?'CurrentPage':ActivePage==0?'FirstPage':''" style="width: 100vw;height:100vh;">
+  <div style="width: 100%; display: inline-flex;">
+    <div style="width:50%; padding-right:1%;">
+      <canvas class="v-center" baseChart [datasets]="AsemblingChartData81" [labels]="AsemblingChartLabels"
+      [options]="barChartOptions81" [legend]="ChartLegend" [chartType]="AsemblingChartType" [colors]="barChartColors81">
+    </canvas>
+    </div>
+    <div style="width:50%; padding-left: 1%;">
+      <canvas class="v-center" baseChart [datasets]="AsemblingChartData32" [labels]="AsemblingChartLabels"
+      [options]="barChartOptions32" [legend]="ChartLegend" [chartType]="AsemblingChartType" [colors]="barChartColors32">
+    </canvas>
+    </div>
+  </div>
+</div>
+<div class="Page p-3" [ngClass]="ActivePage==2?'NextPage':ActivePage==1?'CurrentPage':''"  style="width: 100vw;height:100vh;">
+  <div style="width: 100%; display: inline-flex;height: 98%;">
+    <div style="width:50%; padding-right:1%; position: relative;">
+      <canvas class="v-center" baseChart [datasets]="MoldingbarChartData" [labels]="MoldingChartLabels" [options]="ChartOptions"
+      [legend]="ChartLegend" [chartType]="'bar'" [colors]="barChartColors">
+    </canvas>
+    </div>
+    <div style="width:50%; padding-left: 1%; position: relative;">
+      <canvas class="v-center" baseChart [datasets]="todoAsemblingChartData" [labels]="TodoAsemblingChartLabels"
+      [options]="barChartOptions"  [chartType]="'bar'"[colors]="barChartColors">
+    </canvas>
+    </div>
+  </div>
+</div>
+<div class="loading" *ngIf="Loading==true">
+  <div class="lds-spinner">
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+</div>

@@ -1,0 +1,114 @@
+<ng-container *ngIf="!pageSwitch">
+  <div class="pagetitle mb-2 d-flex" style="height: fit-content;">
+    <div class="col">
+      <i class="fa fa-play-circle mr-1" aria-hidden="true"></i>排程結果
+      <button class="btn btn-info mr-1" (click)="pageSwitch = !pageSwitch">試算</button>
+    </div>
+    <div class="col d-flex justify-content-end dateBlock">
+      <div class="col d-flex">
+        <label for="pouringDateStart" class="col" style="white-space:nowrap">開始日期</label>
+        <input id="pouringDateStart" class="col" type="date"
+        [(ngModel)]="pouringDateStart" (ngModelChange)="getLineProductionScheduleList().subscribe()">
+      </div>
+      <div class="col d-flex">
+        <label for="pouringDateEnd" class="col" style="white-space:nowrap">結束日期</label>
+        <input id="pouringDateEnd" type="date" class="col" [(ngModel)]="pouringDateEnd" (ngModelChange)="getLineProductionScheduleList().subscribe()">
+      </div>
+    </div>
+
+  </div>
+  <div class="termsBlock d-flex justify-content-end mb-2">
+    <!-- <ng-container *ngIf="lineCodeList">
+    <select class="form-control" formControlName="lineCode">
+      <option *ngFor="let item of lineCodeList" [value]="item.value">{{item.name}}</option>
+    </select>
+  </ng-container> -->
+  </div>
+
+  <div class="tableBlock">
+    <div class="table table-hover">
+      <thead>
+        <tr>
+          <ng-container *ngFor="let item of theadList">
+            <ng-container *ngIf="dateCols(item);else normolTh">
+              <th colspan="2">
+                <div class="text-center">{{item}}</div>
+                <div>
+                  <span class="col mx-1 text-center">開始</span><span class="col mx-1 text-center">完成</span>
+                </div>
+              </th>
+            </ng-container>
+            <ng-template #normolTh>
+              <th>
+                <p class="text-center" [class]="item=='品號' || item=='品名'?'maxWidth':''">{{item}}</p>
+              </th>
+            </ng-template>
+
+
+          </ng-container>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngIf="tableData;else noData">
+          <ng-container *ngFor="let item of tableData">
+            <tr [ngClass]="{'overCapacity': item.isOverCapacity, 'overDue': item.isOverDue}" [ngbTooltip]="item.toolTipString">
+              <td class="text-center" style="left: 0px">
+                <button (click)="switch(item)" class="btn mb-1" [class]="item.isLocked?'btn-success':'btn-danger'">
+                  {{item.isLocked ?'解除':'鎖定'}}
+                </button>
+
+              </td>
+              <td class="text-center" style="left: 70px">{{item.customerAlias}}</td>
+              <td class="text-center" style="left: 160px">{{item.orderNumber}}</td>
+              <td class="text-center" style="left: 275px">{{item.EstimatedTargetDay}}</td>
+              <td class="text-center" style="left: 370px"><a href="/login_success/ScheduleManagement?workOrder={{item.workOrderNumber}}">{{item.workOrderNumber}}</a></td>
+              <td class="text-center" style="left: 490px">{{item.workOrderWeight}}</td>
+              <td class="text-center" style="left: 550px"><a href="/login_success/ScheduleManagement?partNo={{item.PartNo}}">{{item.PartNo}}</a></td>
+              <td class="text-center" style="left: 650px">{{item.PartDesc}}</td>
+              <td class="text-center" style="left: 750px">{{item.EstimatedWOCompleteDay}}</td>
+              <!-- <td class="text-center" style="left: 850px">{{item.flaskNo}}</td> -->
+              <td class="text-center">{{item.patternStartDay}}</td>
+              <td class="text-center">{{item.patternEndDay}}</td>
+              <td class="text-center">{{item.moldingGroup}}</td>
+              <td class="text-center">{{item.moldingStartDay}}</td>
+              <td class="text-center">{{item.moldingEndDay}}</td>
+              <td class="text-center">{{item.moldClosingGroup}}</td>
+              <td class="text-center">{{item.moldClosingStartDay}}</td>
+              <td class="text-center">{{item.moldClosingEndDay}}</td>
+              <td class="text-center">{{item.pouringStartDay}}</td>
+              <td class="text-center">{{item.pouringEndDay}}</td>
+              <td class="text-center">{{item.unpackStartDay}}</td>
+              <td class="text-center">{{item.unpackEndDay}}</td>
+              <td class="text-center">{{item.annelProcStartDay}}</td>
+              <td class="text-center">{{item.annelProcEndDay}}</td>
+              <td class="text-center">{{item.deRoughEdgeProcStartDay}}</td>
+              <td class="text-center">{{item.deRoughEdgeProcEndDay}}</td>
+              <td class="text-center">{{item.post3ProcStartDay}}</td>
+              <td class="text-center">{{item.post3ProcEndDay}}</td>
+              <td class="text-center">{{item.post4ProcStartDay}}</td>
+              <td class="text-center">{{item.post4ProcEndDay}}</td>
+              <td class="text-center">{{item.post5ProcStartDay}}</td>
+              <td class="text-center">{{item.post5ProcEndDay}}</td>
+            </tr>
+          </ng-container>
+        </ng-container>
+
+
+      </tbody>
+    </div>
+  </div>
+
+</ng-container>
+
+
+<ng-template #noData>
+  <tr>
+    <td colspan="100%">
+      沒有資料
+    </td>
+  </tr>
+</ng-template>
+
+<app-scheduleTrial *ngIf="pageSwitch" [tableData]="tableData" (backRequest)="reloadPage()"
+  (switchRequest)="switch($event)" [pouringDateStart]="pouringDateStart" [pouringDateEnd]="pouringDateEnd"
+  (getCalculateLineProduction)="getCalculateLineProduction($event)"></app-scheduleTrial>

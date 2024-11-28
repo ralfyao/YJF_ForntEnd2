@@ -1,0 +1,6 @@
+<li [routerLinkActive]="'selected'">
+  <a [routerLink]="item.Code" [id]="'nav'+item.Code">
+    <i class="fa" [ngClass]="item.Icon"></i>
+    {{item.Name}}
+  </a>
+</li>

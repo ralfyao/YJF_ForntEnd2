@@ -1,0 +1,204 @@
+<section class="content_data">
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a class="nav-link active" href="#tab_1" data-toggle="tab" role="tab" aria-controls="tab_1"
+        aria-selected="true"><i class="fa fa-user-circle-o"></i>產品紀錄資料</a>
+    </li>
+  </ul>
+  <div class="tab-content">
+    <div class="tab-pane active show active" id="tab_1" role="tabpanel" aria-labelledby="home-tab">
+      <span>
+        <button type="button" class="btn btn-outline-primary" (click)="backPage()"><i class="fa fa-reply"></i>
+          回上頁</button>
+        <button
+          *ngIf="Model.POU_PouringOutRecord_ID==null&&Model.POU_PouringOutRecord_ID==undefined&&MOQTY>=CastingCount"
+          type="submit" class="btn btn-outline-primary" (click)="addProduceRecord()">
+          <i class="fa fa-save"></i>存檔
+        </button>
+        <button
+          *ngIf="Model.POU_PouringOutRecord_ID!==null&&Model.POU_PouringOutRecord_ID!==undefined&&MOQTY>=CastingCount"
+          type="submit" class="btn btn-outline-primary" (click)="updatePouringRecord()">
+          <i class="fa fa-edit"></i>更新
+        </button>
+      </span>
+      <table id="table_ForeData" class="table tab_content_table table-bordered">
+        <!-- <tr class="table-warning">
+            <td colspan="8">存檔後產生紀錄編號</td>
+          </tr> -->
+        <tr>
+          <td colspan="8" class="heading">爐次資料</td>
+        </tr>
+        <tr>
+          <th>選擇日期</th>
+          <td>
+            <mat-form-field appearance="fill">
+              <input matInput [matDatepicker]="dp2" (dateChange)="onStartDateSelect($event)" [(ngModel)]="StartDate"
+                [ngModelOptions]="{standalone: true}">
+              <mat-datepicker-toggle matSuffix [for]="dp2"></mat-datepicker-toggle>
+              <mat-datepicker #dp2></mat-datepicker>
+            </mat-form-field>
+          </td>
+          <th>選擇爐次別</th>
+          <td *ngIf="(FurnaceNumber!=undefined&&FurnaceNumber.length!=0); else NotSelectDate" style="padding: 0px;">
+            <select class="custom-select" [(ngModel)]="selectedFurnaceNumber" style="width: 50%"
+              (change)="onselectedFurnaceNumberChange()">
+              <option value="default" selected>選擇爐號</option>
+              <option *ngFor="let item of FurnaceNumber; let i=index" [value]="item">
+                {{item}}
+              </option>
+            </select>
+            <select class="custom-select" [(ngModel)]="selectedFurnaceCount" (change)="onselectedFurnaceCountChange()"
+              style="width: 50%">
+              <option value="default" selected>選擇爐次</option>
+              <option *ngFor="let item of this.FurnaceCount; let i=index" [value]="item">
+                {{item}}
+              </option>
+            </select>
+          </td>
+          <ng-template #NotSelectDate>
+            <td style="padding: 0px;">
+              <h6>請先選擇日期，必須是有資料的日期</h6>
+            </td>
+          </ng-template>
+          <th>澆注人員</th>
+          <td><input type="text" [(ngModel)]="LoginUserName" readonly>
+          </td>
+          <td rowspan="2">
+            <button type="button" class="btn btn-outline-info" style="height: 100%;width: 100%;"
+              (click)="chooseFurnaceWork()">
+              <i class="fa fa-hand-pointer-o"></i>
+              選用此爐次</button>
+          </td>
+        </tr>
+      </table>
+      <table id="table_OutLog" class="table table-bordered table-striped table-hover">
+        <thead>
+          <tr class="table-primary">
+            <th colspan="5">已選爐次(單爐/併爐)</th>
+          </tr>
+          <tr class="color_th1">
+            <th>爐次編號</th>
+            <th>該爐次總重</th>
+            <th width="90">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of choosedFurnaceList; let i=index">
+            <td>{{item.PDID}}</td>
+            <td>{{item.TotalWeight}}</td>
+            <td class="manage">
+              <button type="button" class="btn btn-outline-info" (click)="deChooseFurnaceWork(item)"><i
+                  class="fa fa-trash"></i>移除</button>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="5" style="text-align: right;">
+              所有爐次加總KG：<span class="badge badge-pill badge-primary"
+                style="font-size: 20px;">{{allSelectFurnaceTotlWeight}}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <table id="table_ProductOutData" class="table tab_content_table table-bordered">
+        <tr>
+          <td colspan="8" class="heading">出水記錄(自動計算)</td>
+        </tr>
+        <tr>
+          <th>出水總重(Kg)</th>
+          <td>
+            <input type="text" [(ngModel)]="TotalWeight_Out" [pattern]="Regular_BigNumber_Pattern"
+              [title]="Regular_BigNumber_Title" readonly>
+          </td>
+          <th>餘重(Kg)</th>
+          <td>
+            <input type="text" [(ngModel)]="TotalWeight_Remaining" [pattern]="Regular_BigNumber_Pattern"
+              [title]="Regular_BigNumber_Title" readonly>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="8" class="heading">產出品項資料</td>
+        </tr>
+        <tr>
+          <th>盆次</th>
+          <td style="width:100px;"><input type="text" [(ngModel)]="BasinCounter">
+          </td>
+          <th>澆注產品</th>
+          <td>
+            <ngx-select [(ngModel)]="selectedoutid" [ngModelOptions]="{standalone: true}"
+              (ngModelChange)="onselectedOutProduce(selectedoutid)" [items]="ProductList" optionValueField="id"
+              optionTextField="ShowName"></ngx-select>
+          </td>
+          <th>數量{{CheckCastingCount3()}}/{{MOQTY}}</th>
+          <td style="width:150px;">
+            <span style="color: red" [hidden]="CheckCastingCount2()">請確認數量</span>
+            <input type="number" [(ngModel)]="CastingCount" [ngModelOptions]="{standalone: true}"
+              [ngStyle]="CheckCastingCount()" [pattern]="Regular_BigNumber_Pattern" [title]="Regular_BigNumber_Title">
+          </td>
+          <th>產品重量(Kg)</th>
+          <td>
+            <input type="text" [(ngModel)]="Production_Weight" [pattern]="Regular_NumberDotNumber_Pattern"
+              [title]="Regular_NumberDotNumber_Title">
+          </td>
+        </tr>
+        <tr>
+          <th>澆注溫度</th>
+          <td>
+            <input type="text" [(ngModel)]="CastingTemp" [pattern]="Regular_BigNumber_Pattern"
+              [title]="Regular_BigNumber_Title">
+          </td>
+          <th>澆注時間(秒)</th>
+          <td>
+            <input type="text" [(ngModel)]="CastingTime" title="可輸入文字">
+          </td>
+        </tr>
+        <tr>
+          <th>出水總重(Kg)</th>
+          <td colspan="2">
+            <input type="text" [(ngModel)]="customOutWeight" [pattern]="Regular_NumberDotNumber_Pattern"
+              [title]="Regular_NumberDotNumber_Title">
+          </td>
+          <td colspan="5" style="text-align:right;align-content:flex-end;">
+            <button type="button" class="btn btn-outline-primary" (click)="addProductToList()"><i
+                class="fa fa-plus"></i>
+              增加產出資料</button>
+            <button type="button" class="btn btn-outline-primary" (click)="resetProductData()"><i
+                class="fa fa-refresh"></i>
+              重設產品資料</button>
+          </td>
+        </tr>
+      </table>
+      <table id="table_OutLog" class="table table-bordered table-striped table-hover">
+        <thead>
+          <tr class="table-primary">
+            <th colspan="10">已產出品</th>
+          </tr>
+          <tr class="color_th1">
+            <th>盆次</th>
+            <th>澆注時間</th>
+            <th>溫度</th>
+            <th>產品</th>
+            <th>產品單重</th>
+            <th>數量</th>
+            <th>總出水重(Kg)</th>
+            <th width="90">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of ProduceOutList; let i=index">
+            <td>{{item.Basin}}</td>
+            <td>{{item.PouringTime}}</td>
+            <td>{{item.PouringTemp}}</td>
+            <td>{{item.ItemNumber}}</td>
+            <td>{{item.Weight}}</td>
+            <td>{{item.Quantity}}</td>
+            <td>{{item.PouringOutWeight}}</td>
+            <td class="manage">
+              <button type="button" class="btn btn-outline-info" (click)="removeProductFromList(item)"><i
+                  class="fa fa-trash"></i>移除</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

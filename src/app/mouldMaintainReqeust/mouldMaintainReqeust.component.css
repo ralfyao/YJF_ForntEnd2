@@ -1,0 +1,27 @@
+.form-check
+{
+  display: inline-block;
+}
+.form-check .form-check-input{
+  margin-top: 0.1rem;
+  margin-left: -1rem;
+}
+
+label.text-center,label.labelTitle{
+  font-weight: 600;
+}
+textarea.form-control{
+    max-height: 200px;
+    height: 150px;
+}
+.palceHolder{
+    color:rgb(85, 85, 85);
+}
+
+.error{
+  border-color: #dc3545;
+}
+
+textarea{
+  resize: none;
+}

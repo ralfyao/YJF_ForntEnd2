@@ -1,0 +1,189 @@
+<div class="row align-items-center my-2 mx-0">
+
+  <label class="text-right mx-2 mb-0">材質:</label>
+  <ng-container *ngFor="let item of MaterialList;index as i">
+    <div class="form-check">
+      <input type="checkbox" [id]="'Material'+i" (ngModelChange)="MaterialSelectChange($event, item)"
+        [(ngModel)]="item.selected" [value]="item.value" name="ProductionState" class="form-check-input">
+      <label class="form-check-label" [for]="'Material'+i">{{item.value}}</label>
+    </div>
+  </ng-container>
+</div>
+<div class="row align-items-center my-2 mx-0">
+  <label class="mx-2 mb-0">生產線別:</label>
+  <div class="form-check">
+    <input type="radio" id="all" [(ngModel)]="AsemblingProductionLine" (ngModelChange)="FilterData()" name="Asembling"
+      class="form-check-input" value="全部">
+    <label class="form-check-label" for="all">全部</label>
+  </div>
+  <div class="form-check" *ngFor="let item of AsemblingList;index as i">
+    <input type="radio" [id]="'Asembling'+i" [(ngModel)]="AsemblingProductionLine" (ngModelChange)="FilterData()"
+      name="Asembling" class="form-check-input" [value]="item">
+    <label class="form-check-label" [for]="'Asembling'+i">{{item}}</label>
+  </div>
+  <label class="ml-4 mb-0">合模完工日:</label>
+  <div class="row ml-2">
+    <input class="mr-2 form-control" [(ngModel)]="AsemblingStartDate" (ngModelChange)="FilterData()" type="date" />
+    <div class="mr-2">~</div>
+    <input class="form-control" [(ngModel)]="AsemblingEndDate" (ngModelChange)="FilterData()" type="date" />
+  </div>
+</div>
+<button class="btn btn-info btn-sm m-2" (click)="ExportPouringTodo()"><i class="fa fa-file-excel-o mr-1" ></i>Excel匯出</button>
+<button class="btn btn-secondary btn-sm m-2" (click)="openmodal(modalcontent,'xl');"><i
+    class="fa fa-free-code-camp  mr-1"></i>澆注報工</button>
+<div>
+  <ngx-datatable #mydatatable class="material" style="height: calc(100vh - 230px - 2.5rem);" [scrollbarV]="true"
+    [headerHeight]="50" [limit]="10" [columnMode]="'force'" [footerHeight]="50" [rowHeight]="50" [rows]="GridData">
+    <ngx-datatable-footer>
+      <ng-template ngx-datatable-footer-template let-rowCount="rowCount" let-pageSize="pageSize"
+        let-selectedCount="selectedCount" let-curPage="curPage">
+        <div class="mx-2"><strong>合模完成總重量:{{MatchTotal}}KG</strong></div>
+        <datatable-pager [pagerLeftArrowIcon]="'datatable-icon-left'" [pagerRightArrowIcon]="'datatable-icon-right'"
+          [pagerPreviousIcon]="'datatable-icon-prev'" [pagerNextIcon]="'datatable-icon-skip'" [page]="curPage"
+          [size]="pageSize" [count]="rowCount" [hidden]="!((rowCount / pageSize) > 1)"
+          (change)="mydatatable.onFooterPage($event)">
+        </datatable-pager>
+      </ng-template>
+    </ngx-datatable-footer>
+    <ngx-datatable-column name="序號" [width]="40" [sortable]="false" [canAutoResize]="false" [draggable]="false"
+      [resizeable]="false">
+      <ng-template let-rowIndex="rowIndex" let-row="row" ngx-datatable-cell-template>
+        <div>{{ rowIndex+1 }}</div>
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column prop="AsemblingStatus" name="合模狀態"></ngx-datatable-column>
+    <ngx-datatable-column prop="PouringStatus" name="澆注狀態"></ngx-datatable-column>
+    <ngx-datatable-column prop="ProductionOrderCode" [canAutoResize]="false" [width]="150" name="製令單號"></ngx-datatable-column>
+    <ngx-datatable-column prop="AsemblingLineName" name="組別"></ngx-datatable-column>
+    <ngx-datatable-column prop="" name="鐵斗">
+      <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+        {{row["BottomFlask"]==""?row["TopFlask"]:row["TopFlask"]+"/"+row["BottomFlask"]}}
+      </ng-template>
+    </ngx-datatable-column>
+
+    <ngx-datatable-column prop="CustomerName" name="客戶"></ngx-datatable-column>
+    <ngx-datatable-column prop="ItemCode" [canAutoResize]="false" [width]="150" name="品號"></ngx-datatable-column>
+    <ngx-datatable-column prop="ItemName" [canAutoResize]="false" [width]="500" name="品名規格"></ngx-datatable-column>
+    <ngx-datatable-column prop="Qty" name="數量"></ngx-datatable-column>
+    <ngx-datatable-column prop="UnitWeight" name="單重"></ngx-datatable-column>
+    <ngx-datatable-column prop="MaterialType" name="材料"></ngx-datatable-column>
+    <ngx-datatable-column prop="AsemblingFinishDate" name="合模完工日">
+      <ng-template ngx-datatable-cell-template let-value="value">
+        {{DateStringFormat(value)}}
+      </ng-template>
+    </ngx-datatable-column>
+  </ngx-datatable>
+</div>
+<ng-template #modalcontent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title my-0">澆注報工</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')" [attr.disabled]="TodoSelected.length>0?true:null">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div>
+      <ngb-tabset>
+        <ngb-tab title="未澆注">
+          <ng-template ngbTabContent>
+            <div class="p-3">
+              <button type="button" class="btn btn-primary mb-2" (click)="openmodal(ChooseDate,'');ReportType='in';OrderDate=MaxDate">進站</button>
+              <ngx-datatable class="material" style="height:60vh;" [headerHeight]="50" [scrollbarV]="true"
+                [footerHeight]="50" [rowHeight]="50" [rows]="TodoList" [selectionType]="'checkbox'" [reorderable]="true"
+                [selectAllRowsOnPage]="false"  [selected]="TodoSelected" (select)="onSelect($event,TodoSelected)">
+
+                <ngx-datatable-column [width]="30" [sortable]="false" [canAutoResize]="false" [draggable]="false"
+                  [resizeable]="false" [headerCheckboxable]="true" [checkboxable]="true">
+                </ngx-datatable-column>
+                <ngx-datatable-column prop="ProductionOrderCode" [width]="150" name="製令單號"></ngx-datatable-column>
+                <ngx-datatable-column prop="AsemblingLineName" [width]="90" name="組別"></ngx-datatable-column>
+                <ngx-datatable-column prop="" [width]="80" name="鐵斗">
+                  <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                    {{row["BottomFlask"]==""?row["TopFlask"]:row["TopFlask"]+"/"+row["BottomFlask"]}}
+                  </ng-template>
+                </ngx-datatable-column>
+
+                <ngx-datatable-column prop="CustomerName" name="客戶"></ngx-datatable-column>
+                <ngx-datatable-column prop="ItemCode" [canAutoResize]="false" [width]="150" name="品號">
+                </ngx-datatable-column>
+                <ngx-datatable-column prop="ItemName" [canAutoResize]="false" [width]="500" name="品名規格">
+                </ngx-datatable-column>
+                <ngx-datatable-column prop="Qty" [width]="50" name="數量"></ngx-datatable-column>
+                <ngx-datatable-column prop="UnitWeight" [width]="90" name="單重"></ngx-datatable-column>
+                <ngx-datatable-column prop="MaterialType" [width]="90" name="材料"></ngx-datatable-column>
+                <ngx-datatable-column prop="AsemblingFinishDate" [width]="90" name="合模完工日">
+                  <ng-template ngx-datatable-cell-template let-value="value">
+                    {{DateStringFormat(value)}}
+                  </ng-template>
+                </ngx-datatable-column>
+              </ngx-datatable>
+            </div>
+          </ng-template>
+        </ngb-tab>
+        <ngb-tab title="澆注中">
+          <ng-template ngbTabContent>
+            <div class="p-3">
+              <button type="button" class="btn btn-primary mb-2" (click)="openmodal(ChooseDate,'');ReportType='out'">出站</button>
+              <ngx-datatable class="material" style="height:60vh;" [headerHeight]="50" [scrollbarV]="true"
+                [footerHeight]="50" [rowHeight]="50" [rows]="DoingList" [selectionType]="'checkbox'"
+                [reorderable]="true" [selectAllRowsOnPage]="false" [selected]="DoingSelected" (select)="onSelect($event,DoingSelected)">
+
+                <ngx-datatable-column [width]="30" [sortable]="false" [canAutoResize]="false" [draggable]="false"
+                [resizeable]="false" [headerCheckboxable]="true" [checkboxable]="true">
+              </ngx-datatable-column>
+              <ngx-datatable-column prop="ProductionOrderCode" [width]="150" name="製令單號"></ngx-datatable-column>
+              <ngx-datatable-column prop="AsemblingLineName" [width]="90" name="組別"></ngx-datatable-column>
+              <ngx-datatable-column prop="" [width]="80" name="鐵斗">
+                <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+                  {{row["BottomFlask"]==""?row["TopFlask"]:row["TopFlask"]+"/"+row["BottomFlask"]}}
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column prop="CustomerName" name="客戶"></ngx-datatable-column>
+              <ngx-datatable-column prop="ItemCode" [canAutoResize]="false" [width]="150" name="品號">
+              </ngx-datatable-column>
+              <ngx-datatable-column prop="ItemName" [canAutoResize]="false" [width]="500" name="品名規格">
+              </ngx-datatable-column>
+              <ngx-datatable-column prop="Qty" [width]="50" name="數量"></ngx-datatable-column>
+              <ngx-datatable-column prop="UnitWeight" [width]="90" name="單重"></ngx-datatable-column>
+              <ngx-datatable-column prop="MaterialType" [width]="90" name="材料"></ngx-datatable-column>
+              <ngx-datatable-column prop="AsemblingFinishDate" [width]="90" name="合模完工日">
+                <ng-template ngx-datatable-cell-template let-value="value">
+                  {{DateStringFormat(value)}}
+                </ng-template>
+              </ngx-datatable-column>
+
+              </ngx-datatable>
+            </div>
+          </ng-template>
+        </ngb-tab>
+      </ngb-tabset>
+
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')"><i
+        class="mr-1 fa fa-times"></i>Close</button>
+  </div>
+</ng-template>
+<ng-template #ChooseDate let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title my-0">報工</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body" style="display:inline-flex">
+    <label class="text-right my-0 mx-2">單據日期:</label>
+    <div class="row mx-2">
+      <input class="mr-2" type="date" [(ngModel)]="OrderDate" [max]="MaxDate" [min]="MinDate" />
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="  Transfer($event);modal.close('Close click');"><i
+        class="mr-1 fa fa-file-excel-o"></i>確定</button>
+    <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')"><i
+        class="mr-1 fa fa-times"></i>Close</button>
+  </div>
+</ng-template>
+

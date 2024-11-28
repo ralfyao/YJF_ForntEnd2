@@ -1,0 +1,277 @@
+<!--建立or瀏覽資料Start-->
+<form [formGroup]="form" ngNativeValidate>
+  <section class="content_data">
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a class="nav-link active" href="#tab_1" data-toggle="tab" role="tab" aria-controls="tab_1"
+          aria-selected="true"><i class="fa fa-user-circle-o"></i>爐前管制資料</a>
+      </li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane active show active" id="tab_1" role="tabpanel" aria-labelledby="home-tab">
+        <div>
+          <div class="row">
+            <div class="col border-bottom pb-2">
+              <span>
+                <button type="button" class="btn btn-outline-primary mr-2" (click)="backPage()">
+                  <i class="fa fa-reply"></i>
+                  回上頁</button>
+                <button
+                  *ngIf="Model.PDID==''"
+                  type="submit" class="btn btn-outline-primary" (click)="addMeltLog()">
+                  <i class="fa fa-save"></i>存檔
+                </button>
+                <button
+                  *ngIf="Model.PDID!=''"
+                  type="submit" class="btn btn-outline-primary mr-2" (click)="updateMeltLog()">
+                  <i class="fa fa-edit"></i>更新
+                </button>
+                <button
+                  *ngIf="Model.PDID!=''"
+                  type="button" class="btn btn-outline-primary" (click)="deleteMeltLog()">
+                  <i class="fa fa-trash"></i>刪除
+                </button>
+              </span>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <table id="table_OnforeSetting" class="table tab_content_table table-bordered">
+                <tr class="table-warning">
+                  <td colspan="8">紀錄編號：{{Model.PDID}}</td>
+                </tr>
+                <tr>
+                  <td colspan="8" class="heading">開爐設置&材料配比設置</td>
+                </tr>
+                <tr>
+                  <th>澆注人員</th>
+                  <td><input formControlName="LoginUserName" type="text" [(ngModel)]="LoginUserName" required>
+                  </td>
+                  <th>澆注日期</th>
+                  <td>
+                    <input class="mr-2 form-control" type="date" [(ngModel)]="SelectDate" [ngModelOptions]="{standalone: true}">
+
+      <!--               <mat-form-field appearance="fill">
+                      <input matInput [matDatepicker]="dp2" [(ngModel)]="date" [ngModelOptions]="{standalone: true}">
+                      <mat-datepicker-toggle matSuffix [for]="dp2"></mat-datepicker-toggle>
+                      <mat-datepicker #dp2></mat-datepicker>
+                    </mat-form-field> -->
+                  </td>
+                  <th>材料</th>
+                  <td>
+                    <select class="custom-select custom-select-sm" name="" formControlName="MaterialType"
+                      (ngModelChange)="materialTypeChange($event)" [(ngModel)]="Model.MaterialType" required>
+                      <option value="" disabled selected>選擇材料種類</option>
+                      <option [ngValue]="materialType" *ngFor="let materialType of materialTypes">{{materialType}}
+                      </option>
+                    </select>
+                  </td>
+                  <th>爐號</th>
+                  <td style="padding: 0px;">
+                    <select class="custom-select custom-select-sm" name="" formControlName="PouringContainer"
+                      (ngModelChange)="pouringContainerChange($event)" [(ngModel)]="Model.PouringContainer" required>
+                      <option value="" disabled selected>選擇爐號</option>
+                      <option [ngValue]="name" *ngFor="let name of PouringContainerNames">{{name}}
+                      </option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <th>開始時間</th>
+                  <td>
+                    <input [ngxMatTimepicker]="picker1"   [(ngModel)]="StartTime" [ngModelOptions]="{standalone: true}">
+                    <ngx-mat-timepicker [editableHintTmpl] #picker1></ngx-mat-timepicker>
+                    <!-- <input formControlName="StartTime" type="time" [(value)]="StartTime" (click)="startTimerOpen()" /> -->
+                  </td>
+                  <th>結束時間</th>
+                  <td>
+                    <input [ngxMatTimepicker]="picker2"   [(ngModel)]="EndTime" [ngModelOptions]="{standalone: true}">
+                    <ngx-mat-timepicker [editableHintTmpl] #picker2></ngx-mat-timepicker>
+                    <!-- <input formControlName="EndTime" type="time" [(value)]="EndTime" (click)="endTimerOpen()" /> -->
+                  </td>
+                  <th>出水溫度</th>
+                  <td>
+                    <input formControlName="PouringTemp" type="text" [(ngModel)]="Model.PouringTemp" required
+                      [pattern]="Regular_BigNumber_Pattern" [title]="Regular_BigNumber_Title">
+                  </td>
+                  <th>CE值%</th>
+                  <td>
+                    <input formControlName="CE" type="text" required [pattern]="Regular_NumberDotNumber_Pattern"
+                      [title]="Regular_NumberDotNumber_Title" [(ngModel)]="Model.CE">
+                  </td>
+                </tr>
+                <tr>
+                  <th>組成契值</th>
+                  <td>
+                    <input formControlName="Wedge1" type="text" required [pattern]="Regular_BigNumber_Pattern"
+                      [title]="Regular_BigNumber_Title" [(ngModel)]="Model.Wedge1">
+                  </td>
+                  <th>處理契值</th>
+                  <td>
+                    <input formControlName="Wedge2" type="text" required [pattern]="Regular_BigNumber_Pattern"
+                      [title]="Regular_BigNumber_Title" [(ngModel)]="Model.Wedge2">
+                  </td>
+                  <th>C%</th>
+                  <td>
+                    <input formControlName="CEC" type="text" required [pattern]="Regular_NumberDotNumber_Pattern"
+                      [title]="Regular_NumberDotNumber_Title" [(ngModel)]="Model.CEC">
+                  </td>
+                  <th>Si%</th>
+                  <td>
+                    <input formControlName="CESi" type="text" required [pattern]="Regular_NumberDotNumber_Pattern"
+                      [title]="Regular_NumberDotNumber_Title" [(ngModel)]="Model.CESi">
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+          <div id="MaterialTable" class="row"
+            style="height: 330px;overflow-y: scroll;overflow-x: hidden; width: 100%; margin-left: 0px;margin-right: 0px;">
+            <div *ngFor="let sourcematerial of ChooseMaterialDataList; let i=index;trackBy: tracktest"
+              class="group-material" style="width: 12.4%;">
+              <div>
+                {{sourcematerial.MaterialName}}
+              </div>
+              <div>
+                <input style="width: 100%" type="text" required [(ngModel)]="sourcematerial.MaterialWeight"
+                  [ngModelOptions]="{standalone: true}" (change)="checkvalue(sourcematerial.MaterialWeight,i)">
+              </div>
+              <div class="StockQuantity">庫存:{{sourcematerial.StockQuantity.toLocaleString('en-US')}}</div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <div class="alert alert-primary text-right mb-0" role="alert">
+                目前總重：{{caculateWeight()}} KG
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <table id="table_BeforeMeltdata" class="table tab_content_table table-bordered">
+                <tr>
+                  <td colspan="20" class="heading">爐前分光檢查</td>
+                </tr>
+                <tr>
+                  <th>C%</th>
+                  <td>
+                    <input formControlName="B_C" type="text" required [pattern]="Regular_NumberDotNumber_Pattern"
+                      [title]="Regular_NumberDotNumber_Title" [(ngModel)]="Model.B_C">
+                  </td>
+                  <th>Si%</th>
+                  <td>
+                    <input formControlName="B_Si" type="text" required [pattern]="Regular_NumberDotNumber_Pattern"
+                      [title]="Regular_NumberDotNumber_Title" [(ngModel)]="Model.B_Si">
+                  </td>
+                  <th>Mn%</th>
+                  <td>
+                    <input formControlName="B_Mn" type="text" required [pattern]="Regular_NumberDotNumber_Pattern"
+                      [title]="Regular_NumberDotNumber_Title" [(ngModel)]="Model.B_Mn">
+                  </td>
+                  <th>P%</th>
+                  <td>
+                    <input formControlName="B_P" type="text" required [pattern]="Regular_NumberDotNumber_Pattern"
+                      [title]="Regular_NumberDotNumber_Title" [(ngModel)]="Model.B_P">
+                  </td>
+                  <th>S%</th>
+                  <td>
+                    <input formControlName="B_S" type="text" required [pattern]="Regular_NumberDotNumber_Pattern"
+                      [title]="Regular_NumberDotNumber_Title" [(ngModel)]="Model.B_S">
+                  </td>
+                  <th>Cu%</th>
+                  <td>
+                    <input formControlName="B_Cu" type="text" required [pattern]="Regular_NumberDotNumber_Pattern"
+                      [title]="Regular_NumberDotNumber_Title" [(ngModel)]="Model.B_Cu">
+                  </td>
+                  <th>Sn%</th>
+                  <td>
+                    <input formControlName="B_Sn" type="text" required [pattern]="Regular_NumberDotNumber_Pattern"
+                      [title]="Regular_NumberDotNumber_Title" [(ngModel)]="Model.B_Sn">
+                  </td>
+                  <th>Ti%</th>
+                  <td>
+                    <input formControlName="B_Ti" type="text" required [pattern]="Regular_NumberDotNumber_Pattern"
+                      [title]="Regular_NumberDotNumber_Title" [(ngModel)]="Model.B_Ti">
+                  </td>
+                  <th>Cr%</th>
+                  <td>
+                    <input formControlName="B_Cr" type="text" required [pattern]="Regular_NumberDotNumber_Pattern"
+                      [title]="Regular_NumberDotNumber_Title" [(ngModel)]="Model.B_Cr">
+                  </td>
+                  <th>Mg%</th>
+                  <td>
+                    <input formControlName="B_Mg" type="text" required [pattern]="Regular_NumberDotNumber_Pattern"
+                      [title]="Regular_NumberDotNumber_Pattern" [(ngModel)]="Model.B_Mg">
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <table id="table_AfterMeltdata" class="table tab_content_table table-bordered">
+                <tr>
+                  <td colspan="20" class="heading">爐後分光檢查</td>
+                </tr>
+                <tr>
+                  <th>C%</th>
+                  <td>
+                    <input formControlName="A_C" type="text" required [pattern]="Regular_NumberDotNumber_Pattern"
+                      [title]="Regular_NumberDotNumber_Pattern" [(ngModel)]="Model.A_C">
+                  </td>
+                  <th>Si%</th>
+                  <td>
+                    <input formControlName="A_Si" type="text" required [pattern]="Regular_NumberDotNumber_Pattern"
+                      [title]="Regular_NumberDotNumber_Pattern" [(ngModel)]="Model.A_Si">
+                  </td>
+                  <th>Mn%</th>
+                  <td>
+                    <input formControlName="A_Mn" type="text" required [pattern]="Regular_NumberDotNumber_Pattern"
+                      [title]="Regular_NumberDotNumber_Pattern" [(ngModel)]="Model.A_Mn">
+                  </td>
+                  <th>P%</th>
+                  <td>
+                    <input formControlName="A_P" type="text" required [pattern]="Regular_NumberDotNumber_Pattern"
+                      [title]="Regular_NumberDotNumber_Pattern" [(ngModel)]="Model.A_P">
+                  </td>
+                  <th>S%</th>
+                  <td>
+                    <input formControlName="A_S" type="text" required [pattern]="Regular_NumberDotNumber_Pattern"
+                      [title]="Regular_NumberDotNumber_Pattern" [(ngModel)]="Model.A_S">
+                  </td>
+                  <th>Cu%</th>
+                  <td>
+                    <input formControlName="A_Cu" type="text" required [pattern]="Regular_NumberDotNumber_Pattern"
+                      [title]="Regular_NumberDotNumber_Pattern" [(ngModel)]="Model.A_Cu">
+                  </td>
+                  <th>Sn%</th>
+                  <td>
+                    <input formControlName="A_Sn" type="text" required [pattern]="Regular_NumberDotNumber_Pattern"
+                      [title]="Regular_NumberDotNumber_Pattern" [(ngModel)]="Model.A_Sn">
+                  </td>
+                  <th>Ti%</th>
+                  <td>
+                    <input formControlName="A_Ti" type="text" required [pattern]="Regular_NumberDotNumber_Pattern"
+                      [title]="Regular_NumberDotNumber_Pattern" [(ngModel)]="Model.A_Ti">
+                  </td>
+                  <th>Cr%</th>
+                  <td>
+                    <input formControlName="A_Cr" type="text" required [pattern]="Regular_NumberDotNumber_Pattern"
+                      [title]="Regular_NumberDotNumber_Pattern" [(ngModel)]="Model.A_Cr">
+                  </td>
+                  <th>Mg%</th>
+                  <td>
+                    <input formControlName="A_Mg" type="text" required [pattern]="Regular_NumberDotNumber_Pattern"
+                      [title]="Regular_NumberDotNumber_Pattern" [(ngModel)]="Model.A_Mg">
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</form>
+<!--建立or瀏覽資料End-->
+<!--Content End-->

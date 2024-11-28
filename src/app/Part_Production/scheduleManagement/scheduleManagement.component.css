@@ -1,0 +1,42 @@
+.tableBlock {
+    overflow-y: auto;
+    overflow-x: auto;
+    height: calc(100vh - 150px);
+}
+
+/* td:first-child { */
+td:nth-child(n):nth-child(-n+10){
+    position: sticky;
+    /* left: 0; */
+    z-index: 0;
+    background-color: #f8f8f8;
+    overflow:hidden;
+}
+
+thead tr th {
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    background-color: #f8f8f8;
+    z-index: 11;
+}
+
+th>div+div {
+    border-top: 1px solid rgba(0, 0, 0, 0.4);
+}
+
+.maxWidth {
+    width: 100px;
+}
+
+.pagetitle .dateBlock {
+    font-size: 14px;
+}
+
+.overCapacity {
+    background-color: white;
+    color: red;
+}
+.overDue{
+  font-weight: bold;
+}

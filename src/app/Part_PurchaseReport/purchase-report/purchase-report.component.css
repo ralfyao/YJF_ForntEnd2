@@ -1,0 +1,18 @@
+.panel{
+  height: calc(100vh - 7.25rem - 120px);
+  overflow-y: scroll;
+  margin: 1rem 0 0 0;
+}
+table{
+  margin:2em auto;
+  font-size: 18px;
+  border: solid 2px #000000;
+}
+table>thead>tr>th {
+  text-align: center;
+}
+table>thead>tr>th,
+table>tbody>tr>td {
+  border: solid 1px #000000;
+  padding: 4px 4px;
+}

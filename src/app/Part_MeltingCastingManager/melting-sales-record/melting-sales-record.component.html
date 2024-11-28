@@ -1,0 +1,101 @@
+<div>
+  <div class="d-flex">
+    <div class="mt-2 mb-2">
+      <button class="btn btn-info btn-sm active m-2" (click)="ExportData()"><i
+          class="fa fa-file-excel-o m-2"></i>Excel匯出</button>
+      <button class="btn btn-info btn-sm active m-2" (click)="openmodal(searchPopup)">
+        <i class="fa fa-search m-2"></i>查詢</button>
+    </div>
+    <div class="searchTerms d-flex">
+      <span *ngIf="searchStartDay && !searchEndDay">
+        自&nbsp;{{searchStartDay}}起&nbsp;
+      </span>
+      <span *ngIf="!searchStartDay && searchEndDay">
+        至&nbsp;{{searchEndDay}}為止&nbsp;
+      </span>
+      <span *ngIf="searchStartDay && searchEndDay">
+        於&nbsp;{{searchStartDay}} ~ {{searchEndDay}} 間&nbsp;
+      </span>
+      <span *ngIf="custName">
+        客戶 {{custName}}&nbsp;
+      </span>
+      <span>
+        {{patternStatus?patternStatus:'全部'}}&nbsp;
+      </span>
+      <span>的資料</span>
+    </div>
+
+  </div>
+
+  <ngx-datatable #myTable class="material expandable" [columnMode]="'force'" [headerHeight]="50" [footerHeight]="50"
+    [scrollbarV]="true" [scrollbarH]="false" [rowHeight]="50" [limit]="10" [rows]="MeltRecordData"
+    style="height: calc(100vh - 150px - 2.5rem);" [messages]="noDataMessages">
+
+    <ngx-datatable-column [width]="90" prop="CusName" name="客戶名稱">
+    </ngx-datatable-column>
+    <ngx-datatable-column [width]="90" prop="PNum" name="品號">
+    </ngx-datatable-column>
+    <ngx-datatable-column [width]="90" prop="PName" name="品名">
+    </ngx-datatable-column>
+    <ngx-datatable-column [width]="90" prop="Sday" name="最後交易日">
+    </ngx-datatable-column>
+    <ngx-datatable-column [width]="90" prop="DiffYear" name="多久沒交易(年)">
+    </ngx-datatable-column>
+    <ngx-datatable-column [width]="90" prop="UDF05" name="木模狀態">
+    </ngx-datatable-column>
+    <ngx-datatable-column [width]="90" prop="UDF02" name="木模位置" >
+    </ngx-datatable-column>
+    <ngx-datatable-column [width]="90" prop="UDF04" name="砂心位置" >
+    </ngx-datatable-column>
+    <ngx-datatable-column [width]="90" prop="UDF03" name="最後異動時間">
+    </ngx-datatable-column>
+  </ngx-datatable>
+</div>
+<ng-template #searchPopup let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title my-0">搜尋</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="container">
+      <div class="row d-flex justify-content-center">
+        <p class="font-weight-bold">最後交易日</p>
+      </div>
+      <div class="row">
+        <div class="col">
+          <label for="startDate">開始日期</label>
+          <input class="mx-2" type="date" name="startDate" [max]="maxDate" [(ngModel)]="searchTermStartDay">
+        </div>
+        <div class="col">
+          <label for="endDate">截止日期</label>
+          <input class="mx-2" type="date" name="endDate" [max]="maxDate" [(ngModel)]="searchTermEndDay">
+        </div>
+      </div>
+      <div class="row my-2">
+        <div class="col-6">
+          <label for="custName">
+            客戶名稱
+          </label>
+          <input class="ml-2 search" type="text" placeholder="請搜尋客戶名稱" [(ngModel)]="custNameSearchTerm"
+            [ngModelOptions]="{standalone: true}">
+        </div>
+        <div class="col-6">
+          <label for="patternStatus">木模狀態</label>
+          <select class="col-12 mx-2" name="patternStatus" [(ngModel)]="patternStatusSearchTerm">
+            <ng-container *ngFor="let item of patternStatusGroup;index as idx">
+              <option [value]="idx == 0 ? '':item">{{item}}</option>
+            </ng-container>
+
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="onSearch();"><i
+        class="mr-1 fa fa-file-excel-o"></i>確定</button>
+    <button type="button" class="btn btn-secondary" (click)="onClear()"><i class="mr-1 fa fa-times"></i>清除</button>
+  </div>
+</ng-template>

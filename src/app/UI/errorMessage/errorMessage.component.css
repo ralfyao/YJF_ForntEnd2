@@ -1,0 +1,7 @@
+.col.error{
+    color: #dc3545;
+    display: block;
+}
+.col{
+    display: none;
+}

@@ -1,0 +1,70 @@
+<div class="pagetitle" style="height: fit-content;">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>磨毛邊生產明細表
+</div>
+<br>
+<div class="col d-flex justify-content-end dateBlock">
+  <div class="col d-flex">
+    <label class="col-9 text-right" for="InStationDateStart">月份:</label><br>
+    <input id="InStationDateStart" type="month" class="col-1" [(ngModel)]="InStationDateStart" (ngModelChange)="GetData()">
+    <button class="btn btn-primary col-1" (click)="exportExcel()">Excel匯出</button><br>
+    <label class="col-1 text-left">總重：{{TotalGrandWeightSum | number: '3.0-2'}}KG</label>
+  </div>
+  <div class="row d-flex">
+  </div>
+</div>
+<ngb-tabset>
+  <ng-container *ngFor="let name of posWorkerNames">
+    <ngb-tab [title]="name">
+      <ng-template ngbTabContent>
+        <table class="table table-bordered table-striped table-hover">
+            <tr>
+              <td colspan="3">開始</td>
+              <td colspan="3">完成</td>
+              <td colspan="4"></td>
+              <td colspan="2">工時</td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>月</td>
+              <td>日</td>
+              <td>時間</td>
+              <td>月</td>
+              <td>日</td>
+              <td>時間</td>
+              <td>品名</td>
+              <td>數量</td>
+              <td>單重</td>
+              <td>總重</td>
+              <td>實際工時</td>
+              <td>平均工時</td>
+              <td>達成率</td>
+              <td>外出/支援時間</td>
+              <td>主管簽核</td>
+            </tr>
+            <ng-container *ngFor="let item of GridData[name]">
+              <tr>
+                <td>{{item.StartMonth}}</td><!--月-->
+                <td>{{item.StartDay}}</td><!--日-->
+                <td>{{item.StartHour+item.StartMinute}}</td><!--時間-->
+                <td>{{item.EndMonth}}</td><!--月-->
+                <td>{{item.EndDay}}</td><!--日-->
+                <td>{{item.EndHour+item.EndMinute}}</td><!--時間-->
+                <td>{{item.Product}}</td><!--品名-->
+                <td>{{item.Quantity}}</td><!--數量-->
+                <td>{{item.Weight}}</td><!--單重-->
+                <td>{{item.TotalWeight}}</td><!--總重-->
+                <td>{{item.TotalValidHour}}</td><!--實際工時-->
+                <td>{{item.TotalValidHour / item.Quantity}}</td><!--平均工時-->
+                <td>0</td><!--達成率-->
+                <td>{{item.InvalidHourVal}}</td><!--外出/支援時間-->
+                <td></td><!--主管簽核-->
+              </tr>
+            </ng-container>
+        </table>
+      </ng-template>
+    </ngb-tab>
+  </ng-container>
+</ngb-tabset>
+

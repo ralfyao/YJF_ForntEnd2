@@ -1,0 +1,10 @@
+<li>
+  <div class="Menugroup" (click)="GroupClick()"><i class="fa mr-2" [ngClass]="group.GroupIcon"></i>{{group.GroupName}}
+    <i class="CollapseIcon fa" [ngClass]="group.IsHidden==false?'fa-angle-down':'fa-angle-right'"></i>
+  </div>
+  <ul>
+    <ng-container *ngIf="group.IsHidden==false">
+      <app-nav-item *ngFor="let item of group.Children" [item]="item" (targetId)="targetId.emit($event)"></app-nav-item>
+    </ng-container>
+  </ul>
+</li>

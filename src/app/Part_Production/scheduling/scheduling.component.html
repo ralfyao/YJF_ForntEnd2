@@ -1,0 +1,665 @@
+<div class="w3-sidebar w3-bar-block w3-border-right" style="display: none;width: 25%;" id="mySidebar">
+  <button (click)="W3close()" class="btn btn-primary btn-sm active" style="width: 100%;text-align: left;">Close
+    X</button>
+  <div style="margin: 30px;">
+    <h5>{{'品號：'+CurrentPOstatus.PartNO}}</h5>
+  </div>
+  <table class="table tab_content_table table-bordered">
+    <tr style="height: 60px;border:black 2px solid">
+      <th style="width: 60px;text-align: center;vertical-align: middle">倉別</th>
+      <th style="border:black 2px solid;text-align: center;vertical-align: middle">站別</th>
+      <th style="border:black 2px solid;text-align: center;vertical-align: middle">進站日期</th>
+      <th style="border:black 2px solid;text-align: center;vertical-align: middle">進站數量</th>
+      <th style="border:black 2px solid;text-align: center;vertical-align: middle">總數量</th>
+    </tr>
+    <ng-container *ngIf="CurrentPOstatus.CastingPurchaseList.length>0">
+      <tr *ngFor="let item of CurrentPOstatus.CastingPurchaseList;let i = index" style="border:black 2px solid">
+        <td *ngIf="i==0" [attr.rowSpan]="CurrentPOstatus.CastingPurchaseList.length"
+          style="text-align: center;vertical-align: middle;border:black 2px solid">
+          採購倉
+        </td>
+        <td style="text-align: center;vertical-align: middle;border:black 2px solid">
+          {{item.SupplierName}}
+        </td>
+        <td style="text-align: center;vertical-align: middle;border:black 2px solid">
+          {{item.PurchaseDate + '/' + item.OrderFinDate}}
+        </td>
+        <td style="text-align: center;vertical-align: middle;border:black 2px solid">
+          {{item.FinQTY + '/' +item.PurQTY}}
+        </td>
+        <td *ngIf="i==0" [attr.rowSpan]="CurrentPOstatus.CastingPurchaseList.length"
+          style="text-align: center;vertical-align: middle;border:black 2px solid">
+          {{CaculatePurQty(CurrentPOstatus)}}
+        </td>
+      </tr>
+    </ng-container>
+    <ng-container *ngIf="CurrentPOstatus.WIPProcessList.length>0">
+      <tr *ngFor="let item of CurrentPOstatus.WIPProcessList;let i = index" style="border:black 2px solid">
+        <td *ngIf="i==0" [attr.rowSpan]="CurrentPOstatus.WIPProcessList.length"
+          style="text-align: center;vertical-align: middle;border:black 2px solid">
+          半成品
+        </td>
+        <td style="text-align: center;vertical-align: middle;border:black 2px solid">
+          {{item.WIPProcessName}}
+        </td>
+        <td style="text-align: center;vertical-align: middle;border:black 2px solid">
+          {{item.WIPProcessStartDate}}
+        </td>
+        <td style="text-align: center;vertical-align: middle;border:black 2px solid">
+          {{item.WIPQTY}}
+        </td>
+        <td *ngIf="i==0" [attr.rowSpan]="CurrentPOstatus.WIPProcessList.length"
+          style="text-align: center;vertical-align: middle;border:black 2px solid">
+          {{CurrentPOstatus.WIPQTY}}
+        </td>
+      </tr>
+    </ng-container>
+    <ng-container *ngIf="CurrentPOstatus.OutSourceList.length>0">
+      <tr *ngFor="let item of CurrentPOstatus.OutSourceList;let i = index" style="border:black 2px solid">
+        <td *ngIf="i==0" [attr.rowSpan]="CurrentPOstatus.OutSourceList.length+ CurrentPOstatus.StockQTY"
+          style="text-align: center;vertical-align: middle;border:black 2px solid">
+          成品倉
+        </td>
+        <td style="text-align: center;vertical-align: middle;border:black 2px solid">
+          {{item.WIPProcessName}}
+        </td>
+        <td style="text-align: center;vertical-align: middle;border:black 2px solid">
+          {{item.WIPProcessStartDate}}
+        </td>
+        <td style="text-align: center;vertical-align: middle;border:black 2px solid">
+          {{item.WIPQTY}}
+        </td>
+        <td *ngIf="i==0" [attr.rowSpan]="CurrentPOstatus.OutSourceList.length+ CurrentPOstatus.StockQTY"
+          style="text-align: center;vertical-align: middle;border:black 2px solid">
+          {{CurrentPOstatus.StockQTY + OutsourceSum(CurrentPOstatus)}}
+        </td>
+      </tr>
+    </ng-container>
+    <ng-container *ngIf="CurrentPOstatus.StockQTY>0">
+      <tr>
+        <td *ngIf="CurrentPOstatus.OutSourceList.length==0"
+          style="text-align: center;vertical-align: middle;border:black 2px solid">
+          成品倉
+        </td>
+        <td style="text-align: center;vertical-align: middle;border:black 2px solid">
+          完成品
+        </td>
+        <td style="text-align: center;vertical-align: middle;border:black 2px solid">
+
+        </td>
+        <td style="text-align: center;vertical-align: middle;border:black 2px solid">
+          {{CurrentPOstatus.StockQTY}}
+        </td>
+        <td *ngIf="CurrentPOstatus.OutSourceList.length==0"
+          style="text-align: center;vertical-align: middle;border:black 2px solid">
+          {{CurrentPOstatus.StockQTY}}
+        </td>
+      </tr>
+    </ng-container>
+  </table>
+  <!-- <div *ngIf="DistinctWIP.length>0" style="font-size: 1.25rem;">
+    <img src="assets/images/Loading.gif" style="width: 70px;margin: 30px;">半成品
+  </div>
+  <div *ngFor="let Process of DistinctWIP">
+    <h5>{{Process.WIPProcessName + '(數量：'+Process.WIPQTY+')'}} </h5>
+    <ng-container *ngFor="let item of CurrentPOstatus.WIPProcessList">
+      <ng-container *ngIf="Process.WIPProcessName==item.WIPProcessName">
+        <h5>{{'進站日期：'+item.WIPProcessStartDate+'*'+item.WIPQTY}} </h5>
+      </ng-container>
+    </ng-container>
+  </div>
+  <ng-container *ngIf="DistinctFinished.length>0||CurrentPOstatus.StockQTY>0">
+    <img src="assets/images/SandMixer.png" style="width: 70px;margin: 30px;">成品倉
+  </ng-container>
+  <div *ngFor="let Process of DistinctFinished">
+    <h5>{{Process.WIPProcessName + '(數量：'+Process.WIPQTY+')'}} </h5>
+    <ng-container *ngFor="let item of CurrentPOstatus.OutSourceList">
+      <ng-container *ngIf="Process.WIPProcessName==item.WIPProcessName">
+        <h5>{{'進站日期：'+item.WIPProcessStartDate+'*'+item.WIPQTY}} </h5>
+      </ng-container>
+    </ng-container>
+  </div>
+  <ng-container *ngIf="CurrentPOstatus.StockQTY>0">
+    <h5>{{'成品庫存倉：'+CurrentPOstatus.StockQTY}} </h5>
+  </ng-container>
+
+  <div *ngIf="CurrentPOstatus.CastingPurchaseList.length>0">
+    <img src="assets/images/SandMixer.png" style="width: 70px;margin: 30px;">
+    <h5>{{CurrentPOstatus.CastingPurchaseList[0].SupplierName + '(數量：'+CaculatePurQty(CurrentPOstatus)+')'}} </h5>
+    <ng-container *ngFor="let item of CurrentPOstatus.CastingPurchaseList">
+      <h5>{{'採購數量：'+ item.FinQTY + '/' +item.PurQTY + '(' + item.PurchaseDate + '/' +item.OrderFinDate + ')'}} </h5>
+      <ng-container *ngFor="let finpur of item.PurchaseFinishedList">
+        <h5>{{'已完成：'+ finpur.FinQTY + '(' + finpur.FinDate + ')'}} </h5>
+      </ng-container>
+    </ng-container>
+  </div> -->
+</div>
+
+<div style="height: 100%;">
+  <div style="height: 200px;">
+    <div class="title" style="height: fit-content;">
+      <div class="float_left path">
+        <a><i class="fa fa-arrow-circle-right"></i>排程結果</a>
+        <!--修改時上方會顯示員工姓名，新增時不會顯示-->
+      </div>
+    </div>
+    <table class="table tab_content_table table-bordered">
+      <thead>
+        <tr>
+          <th style="text-align: center;width: 150px;">生產狀態</th>
+          <td>
+            總訂單噸數：{{totalorderweight}}噸，{{ShowGroup}}可生產噸數：{{CheckTotlaWeight()}}噸，共{{ShowScheduleTable!=null&&ShowScheduleTable.length>0?ShowScheduleTable.length:0}}筆
+          </td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th style="text-align: center;width: 150px;">
+            組別：
+          </th>
+          <td>
+            <button *ngIf="ShowGroup!='全部排程'" class="btn btn-primary btn-sm active" role="button"
+              (click)="filtertable('全部排程',SearchString)">全部排程</button>
+            <button *ngIf="ShowGroup=='全部排程'" class="btn btn-info btn-sm active" role="button"
+              (click)="filtertable('全部排程',SearchString)">全部排程</button>
+            <ng-container *ngFor="let item of ProductionLineList">
+              <button *ngIf="ShowGroup!=item" class="btn btn-primary btn-sm active" role="button"
+                (click)="filtertable(item,SearchString)">{{item}}</button>
+              <button *ngIf="ShowGroup==item" class="btn btn-info btn-sm active" role="button"
+                (click)="filtertable(item,SearchString)">{{item}}</button>
+            </ng-container>
+          </td>
+        </tr>
+        <tr>
+          <th style="text-align: center;width: 150px;">
+            操作
+          </th>
+          <td>
+            <button class="button1" role="button" (click)="Scheduling();">進行排程</button>
+            <button *ngIf="problemcheck()>0" class="button1" role="button" (click)="filtertable('問題排除',SearchString)"><i
+                class="fa fa-bell" aria-hidden="true"></i>({{problemcheck()}})問題排除</button>
+            <button *ngIf="CheckOrderStatus()>0" class="button1" role="button"
+              (click)="filtertable('木模問題',SearchString)"><i class="fa fa-bell"
+                aria-hidden="true"></i>({{patternProblem()}})木模問題</button>
+            <button *ngIf="CheckOrderStatus()>0" class="button1" role="button"
+              (click)="filtertable('訂單問題',SearchString)"><i class="fa fa-bell"
+                aria-hidden="true"></i>({{CheckOrderStatus()}})訂單問題</button>
+            <button *ngIf="CheckOrderStatus()>0&&!HideStopOrder" class="button1" role="button"
+              (click)="HideStopOrder=!HideStopOrder;filtertable(ShowGroup,SearchString)"><i class="fa fa-filter"
+                aria-hidden="true"></i>隱藏暫停</button>
+            <button *ngIf="CheckOrderStatus()>0&&HideStopOrder" class="button1" role="button"
+              (click)="HideStopOrder=!HideStopOrder;filtertable(ShowGroup,SearchString)"><i class="fa fa-filter"
+                aria-hidden="true"></i>顯示暫停</button>
+            <button *ngIf="CheckOrderStatus()>0&&!HideStockOrder" class="button1" role="button"
+              (click)="HideStockOrder=!HideStockOrder;filtertable(ShowGroup,SearchString)"><i class="fa fa-filter"
+                aria-hidden="true"></i>顯示庫存單</button>
+            <button *ngIf="CheckOrderStatus()>0&&HideStockOrder" class="button1" role="button"
+              (click)="HideStockOrder=!HideStockOrder;filtertable(ShowGroup,SearchString)"><i class="fa fa-filter"
+                aria-hidden="true"></i>隱藏庫存單</button>
+            <button class="button1" role="button" data-toggle="modal" data-target="#Modal_Limitation"
+              data-backdrop="static" (click)="checkLimit()"><i class="fa fa-cog" aria-hidden="true"></i>生產條件設定</button>
+
+          </td>
+        </tr>
+        <tr align="left">
+          <th style="text-align: center;width: 150px;">
+
+          </th>
+          <td>
+            <input type="text" style="background-color: honeydew;width: 500px;" placeholder="全文關鍵字搜尋"
+              [(ngModel)]="SearchString" [ngModelOptions]="{standalone: true}"
+              (input)="filtertable(ShowGroup,SearchString)">
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="fitdiv" class="fitwindow">
+
+    <!--全部可生產訂單-->
+    <table class="table-fixed">
+      <thead>
+        <tr>
+          <th style="border: black;background-color: cornsilk;text-align: center;">狀態</th>
+          <th style="border: black;background-color: cornsilk;text-align: center;">預警</th>
+          <th style="border: black;background-color: cornsilk;text-align: center;">客戶</th>
+          <th style="border: black;background-color: cornsilk;text-align: center;">品號</th>
+          <th style="border: black;background-color: cornsilk;text-align: center;">品名</th>
+          <th style="border: black;background-color: cornsilk;text-align: center;">客單</th>
+          <th style="border: black;background-color: cornsilk;text-align: center;">製令</th>
+          <th style="border: black;background-color: cornsilk;text-align: center;">數量</th>
+          <th style="border: black;background-color: cornsilk;text-align: center;">在製</th>
+          <th style="border: black;background-color: cornsilk;text-align: center;">庫存</th>
+          <th style="border: black;background-color: cornsilk;text-align: center;">單重</th>
+          <th style="border: black;background-color: cornsilk;text-align: center;">線別</th>
+          <th style="border: black;background-color: cornsilk;text-align: center;">模具設定</th>
+          <th style="border: black;background-color: cornsilk;text-align: center;">預交日</th>
+          <th style="border: black;background-color: cornsilk;text-align: center;">出貨地</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!--廠內製程-->
+        <tr id="ScheduleTable{{i}}"
+          (click)="TableRowColorChange('ScheduleTable',ShowScheduleTable,i);LeadTimeQuery(item);" style="height: 65px;"
+          *ngFor="let item of ShowScheduleTable;let i = index">
+          <td class="fullsizetd">
+            <ng-container *ngIf="item.OrderStop=='N'">
+              <div style="width: 100%;height: 100%;color: lightgreen;cursor: pointer;"
+                (click)="item.OrderStop='Y';ChangePOstatus(item)"><i class="fa fa-play fa-2x" aria-hidden="true"></i>
+              </div>
+            </ng-container>
+            <ng-container *ngIf="item.OrderStop=='Y'">
+              <div style="width: 100%;height: 100%;color: red;cursor: pointer;" (click)="item.OrderStop='Y'"
+                (click)="item.OrderStop='N';ChangePOstatus(item)"><i class="fa fa-stop fa-2x" aria-hidden="true"></i>
+              </div>
+            </ng-container>
+          </td>
+          <td class="fullsizetd" style="width: 50px;">
+            <ng-container *ngIf="item.Weight==0 && item.QualityRecordList.length==0">
+              <button class="fullsizebutton" [ngStyle]="{'background-color': QualityCheck(item)}">首件</button>
+            </ng-container>
+            <ng-container *ngIf="item.QualityRecordList.length>0">
+              <button class="fullsizebutton" [ngStyle]="{'background-color': QualityCheck(item)}" data-toggle="modal"
+                data-target="#Modal_QualityRecord" data-backdrop="static"
+                (click)="CurrentQualityRecordList=item.QualityRecordList">監看</button>
+            </ng-container>
+            <ng-container *ngIf="item.QualityRecordList.length==0 && item.Weight>0">
+              正常
+            </ng-container>
+          </td>
+          <td class="fullsizetd">{{item.CusName}}</td>
+          <td class="fullsizetd">
+            {{item.PartNO}}
+          </td>
+          <td class="fullsizetd" title="{{item.PartDesc}}">
+            {{item.PartDesc.length>20?item.PartDesc.substring(0,20)+"...":item.PartDesc}}</td>
+          <td class="fullsizetd">
+            {{item.CusOrder+(item.TC027.toLowerCase()=='v'?'(廢止)':'')+(item.TD016=='Y'?'(結案)':'')}}</td>
+          <td class="fullsizetd">{{item.TA002}}</td>
+          <td class="fullsizetd" title="預計生產數量(含未全部完成生產)/訂單數量">{{item.PlanProductionQTY*item.BatchQTY + '/'
+            +item.OrderQTY}}</td>
+          <td class="fullsizetd" style="width: 80px;" title="庫存：{{item.StockQTY}},在製：{{item.WIPQTY}}">
+            <button class="btn btn-primary btn-sm active" (click)="w3open();LeadTimeQuery(item);" role="button"><i
+                class="fa fa-info-circle" aria-hidden="true"></i>
+              {{item.WIPQTY}}</button>
+          </td>
+          <td class="fullsizetd" style="width: 80px;" title="庫存：{{item.StockQTY}},在製：{{item.WIPQTY}}">
+            <button class="btn btn-primary btn-sm active" (click)="w3open();LeadTimeQuery(item);" role="button"><i
+                class="fa fa-info-circle" aria-hidden="true"></i>
+              {{item.StockQTY + OutsourceSum(item)}}</button>{{item.runnungqty}}
+          </td>
+          <td class="fullsizetd">
+            <input *ngIf="item.MoldingLine!=''" (change)="ChangePOstatus(item)" class="inputfull" type="text"
+              style="background-color:transparent;" [ngModelOptions]="{standalone: false}" [(ngModel)]="item.Weight">
+            <input *ngIf="item.MoldingLine==''" disabled class="inputfull" type="text"
+              style="background-color:transparent;" [ngModelOptions]="{standalone: false}" [(ngModel)]="item.Weight">
+          </td>
+          <td class="fullsizetd" style="width:220px">
+            <button *ngIf="item.MoldingLine!=''" class="btn  btn-outline-primary" data-toggle="modal"
+              data-target="#Modal_LeadTime" data-backdrop="static"
+              (click)="filtertable(ShowGroup,SearchString);LeadTimeQuery(item)"><i class="fa fa-industry"
+                aria-hidden="true"></i>
+              {{item.MoldingLine+'+'+item.AsemblingLine}}</button>
+            <button *ngIf="item.MoldingLine==''" class="btn  btn-outline-primary" data-backdrop="static"><i
+                class="fa fa-industry" aria-hidden="true"></i>
+              尚未設定</button>
+          </td>
+          <td class="fullsizetd">
+            <ng-container *ngIf="item.PatternLength>0">
+              <button style="color:deeppink;" class="btn btn-outline-primary" data-toggle="modal"
+                data-target="#Modal_FlaskMatch" data-backdrop="static"
+                (click)="FlaskMatch(item);FlaskListQuery(item,'')">{{item.flaskMatches.length}}組</button>
+            </ng-container>
+            <ng-container *ngIf="item.PatternLength==0">
+              <button class="btn btn-outline-primary" data-toggle="modal" data-target="#Modal_FlaskMatch"
+                data-backdrop="static"
+                (click)="FlaskMatch(item);FlaskListQuery(item,'')">{{item.flaskMatches.length}}組</button>
+            </ng-container>
+          </td>
+          <td class="fullsizetd">
+            <input (change)="ChangePOstatus(item)" class="inputfull" type="text" style="background-color:transparent;"
+              [ngModelOptions]="{standalone: false}" [(ngModel)]="item.OrderFinDate">
+          </td>
+          <td class="fullsizetd">
+            <input (change)="ChangePOstatus(item)" class="inputfull" type="text" style="background-color:transparent;"
+              [ngModelOptions]="{standalone: false}" [(ngModel)]="item.ShipLoc">
+          </td>
+
+        </tr>
+        <!--鑄件外包-->
+        <tr *ngFor="let item of ShowCastingOutSouceList" style="height: 65px;">
+          <td class="fullsizetd">
+            <ng-container *ngIf="item.OrderStop=='N'">
+              <div style="width: 100%;height: 100%;color: lightgreen;cursor: pointer;"
+                (click)="item.OrderStop='Y';ChangePOstatus(item)"><i class="fa fa-play fa-2x" aria-hidden="true"></i>
+              </div>
+            </ng-container>
+            <ng-container *ngIf="item.OrderStop=='Y'">
+              <div style="width: 100%;height: 100%;color: red;cursor: pointer;" (click)="item.OrderStop='Y'"
+                (click)="item.OrderStop='N';ChangePOstatus(item)"><i class="fa fa-stop fa-2x" aria-hidden="true"></i>
+              </div>
+            </ng-container>
+          </td>
+          <td class="fullsizetd">
+            外包
+          </td>
+          <td class="fullsizetd">{{item.CusNO}}</td>
+          <td class="fullsizetd">{{item.PartNO}}</td>
+          <td class="fullsizetd">{{item.PartDesc}}</td>
+          <td class="fullsizetd">{{item.CusOrder}}</td>
+          <td class="fullsizetd"></td>
+          <td class="fullsizetd" title="已交/訂單數量">{{item.QTYString}}</td>
+          <td class="fullsizetd">
+            <button class="btn btn-primary btn-sm active" (click)="w3open();LeadTimeQuery(item);" role="button"><i
+                class="fa fa-info-circle" aria-hidden="true"></i>{{CaculatePurQty(item)}}</button>
+          </td>
+          <td class="fullsizetd">
+            <button class="btn btn-primary btn-sm active" (click)="w3open();LeadTimeQuery(item);" role="button"><i
+                class="fa fa-info-circle" aria-hidden="true"></i>
+              {{item.StockQTY + OutsourceSum(item)}}</button>
+          </td>
+          <td class="fullsizetd">{{item.Weight}}</td>
+          <td class="fullsizetd">
+            <button class="btn  btn-outline-primary" data-toggle="modal" data-target="#Modal_LeadTime"
+              data-backdrop="static" (click)="filtertable(ShowGroup,SearchString);LeadTimeQuery(item)"><i
+                class="fa fa-industry" aria-hidden="true"></i>
+              尚未設定</button>
+          </td>
+          <td class="fullsizetd">
+            <button class="btn btn-outline-primary" data-toggle="modal" data-target="#Modal_FlaskMatch"
+              data-backdrop="static" (click)="FlaskMatch(item);FlaskListQuery(item,'')">設定</button>
+          </td>
+          <td class="fullsizetd">{{item.OrderFinDate}}</td>
+          <td class="fullsizetd">外包</td>
+        </tr>
+      </tbody>
+      <tfoot>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="Modal_Limitation">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div align="left" style="padding: 10px">
+        <h3>
+          <i class="fa fa-address-book"></i> 生產條件設定
+        </h3>
+      </div>
+      <div class="modal-body" style="overflow: auto;height: 70vh;padding: 0px;">
+        <table class="table-fixed" style="width: 100%;">
+          <thead>
+            <tr style="height:50px">
+              <th style="border: black 1px solid;background-color: cornsilk;text-align: center;">ID</th>
+              <th style="border: black 1px solid;background-color: cornsilk;text-align: center;">組別</th>
+              <th style="border: black 1px solid;background-color: cornsilk;text-align: center;">產線編號</th>
+              <th style="border: black 1px solid;background-color: cornsilk;text-align: center;">每日噸數限制(噸)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of ProductionLimits">
+              <td style="height: 45px;padding: 0px;">
+                <input class="inputfull" type="text" [(ngModel)]="item.ProductionLimitation_ID"
+                  [ngModelOptions]="{standalone: true}" disabled>
+              </td>
+              <td style="height: 45px;padding: 0px;">
+                <input class="inputfull" type="text" [(ngModel)]="item.ProcessName"
+                  [ngModelOptions]="{standalone: true}" disabled>
+              </td>
+              <td style="height: 45px;padding: 0px;">
+                <input class="inputfull" type="text" [(ngModel)]="item.ProcessCode"
+                  [ngModelOptions]="{standalone: true}" disabled>
+              </td>
+              <td style="height: 45px;padding: 0px;">
+                <input class="inputfull" type="number" [(ngModel)]="item.Limit" [ngModelOptions]="{standalone: true}"
+                  (ngModelChange)="AddLimit(item)">
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+
+          </tfoot>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">確認</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" tabindex="-1" role="dialog" id="Modal_LeadTime">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div align="left" style="padding: 10px">
+        <h3>
+          <i class="fa fa-address-book"></i> 生產參數修正
+        </h3>
+      </div>
+      <div class="modal-body">
+        <div>
+          <select class="select_search" [(ngModel)]="CurrentPOstatus.MoldingLine" [ngModelOptions]="{standalone: true}"
+            (change)="ChangePOstatus(CurrentPOstatus)">
+            <option *ngFor="let item of moldinglist;let i=index" [value]="item.ProductiongLineName">
+              {{item.ProductiongLineName}}</option>
+          </select>
+          <select class="select_search" [(ngModel)]="CurrentPOstatus.AsemblingLine"
+            [ngModelOptions]="{standalone: true}" (change)="ChangePOstatus(CurrentPOstatus)">
+            <option *ngFor="let item of asemblinglist;let i=index" [value]="item.ProductiongLineName">
+              {{item.ProductiongLineName}}</option>
+          </select>
+          <label>生產批量</label>
+          <input style="widows: 100px;" [(ngModel)]="CurrentPOstatus.BatchQTY" [ngModelOptions]="{standalone: true}"
+            (change)="ChangePOstatus(CurrentPOstatus)">
+        </div>
+        <table class="table table-bordered table-responsive-md table-striped text-center">
+          <thead>
+            <tr>
+              <th class="fullsizetd">品號</th>
+              <th class="fullsizetd">造模時間</th>
+              <th class="fullsizetd">合模時間</th>
+              <th class="fullsizetd">冷卻時間</th>
+              <th class="fullsizetd">拆箱時間</th>
+              <th class="fullsizetd">退火時間</th>
+              <th class="fullsizetd">毛邊、出貨</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="fullsizetd">{{CurrentPOstatus.PartNO}}</td>
+              <td class="fullsizetd"><input class="inputfull" type="text" [ngModelOptions]="{standalone: false}"
+                  [(ngModel)]="CurrentPOstatus.MoldingTime"></td>
+              <td class="fullsizetd"><input class="inputfull" type="text" [ngModelOptions]="{standalone: false}"
+                  [(ngModel)]="CurrentPOstatus.AsemblingTime"></td>
+              <td class="fullsizetd"><input class="inputfull" type="text" [ngModelOptions]="{standalone: false}"
+                  [(ngModel)]="CurrentPOstatus.PouringTime"></td>
+              <td class="fullsizetd"><input class="inputfull" type="text" [ngModelOptions]="{standalone: false}"
+                  [(ngModel)]="CurrentPOstatus.DeflaskTime"></td>
+              <td class="fullsizetd"><input class="inputfull" type="text" [ngModelOptions]="{standalone: false}"
+                  [(ngModel)]="CurrentPOstatus.StressFuranceTime"></td>
+              <td class="fullsizetd"><input class="inputfull" type="text" [ngModelOptions]="{standalone: false}"
+                  [(ngModel)]="CurrentPOstatus.DeburringTime" (change)="LeadTimeChange(CurrentPOstatus)"></td>
+            </tr>
+          </tbody>
+          <tfoot>
+
+          </tfoot>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal"
+          (click)="LeadTimeChange(CurrentPOstatus);POStatusListUpdate().subscribe();">確認</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="Modal_QualityRecord">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div align="left" style="padding: 10px">
+        <h3>
+          <i class="fa fa-address-book"></i> 品質紀錄
+        </h3>
+      </div>
+      <div class="modal-body">
+        <table class="table table-bordered table-responsive-md table-striped text-center">
+          <tr>
+            <th>單別</th>
+            <th>單號</th>
+            <th>發生時間</th>
+            <th>發生原因</th>
+          </tr>
+          <tr *ngFor="let item of CurrentQualityRecordList">
+            <td>{{item.TA001}}</td>
+            <td>{{item.TA002}}</td>
+            <td>{{item.QualityIssuseDate}}</td>
+            <td>{{item.ProblemRemark}}</td>
+          </tr>
+
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">確認</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="Modal_FlaskMatch">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div align="left" style="padding: 10px">
+        <h3>
+          <i class="fa fa-address-book"></i> 鐵斗配對
+        </h3>
+      </div>
+      <div class="modal-body">
+        <div>
+          <label style="font-size: large;">{{CurrentPOstatus.PartNO}}木模尺寸紀錄：</label>
+        </div>
+        <div>
+          <label>長度</label>
+          <input style="width: 100px;" type="number" [ngModelOptions]="{standalone: false}"
+            [(ngModel)]="CurrentPOstatus.PatternLength" (change)="FlaskListQuery(CurrentPOstatus,'')">
+          <label>寬度</label>
+          <input style="width: 100px;" type="number" [ngModelOptions]="{standalone: false}"
+            [(ngModel)]="CurrentPOstatus.PatternWidth" (change)="FlaskListQuery(CurrentPOstatus,'')">
+          <label>上模高度</label>
+          <input style="width: 100px;" type="number" [ngModelOptions]="{standalone: false}"
+            [(ngModel)]="CurrentPOstatus.PatternUHeight" (change)="FlaskListQuery(CurrentPOstatus,'')">
+          <label>下模高度</label>
+          <input style="width: 100px;" type="number" [ngModelOptions]="{standalone: false}"
+            [(ngModel)]="CurrentPOstatus.PatternDHeight" (change)="FlaskListQuery(CurrentPOstatus,'')">
+          <label>模具置放位置</label>
+          <input style="width: 100px;" type="text" [ngModelOptions]="{standalone: false}"
+            [(ngModel)]="CurrentPOstatus.PatternLocation" (change)="FlaskListQuery(CurrentPOstatus,'')">
+          <label>體積</label>
+          <label>{{CaculateFlask(CurrentPOstatus)}}m2</label>
+        </div>
+        <div style="height: 500px;overflow:auto">
+          <table class="table table-bordered table-responsive-md table-striped text-center">
+            <thead>
+              <tr style="background-color: bisque;">
+                <th colspan="9">
+                  <label style="font-size: large;">已配對鐵斗</label>
+                </th>
+              </tr>
+              <tr>
+                <th>操作</th>
+                <th>鐵斗編號</th>
+                <th>長度</th>
+                <th>寬度</th>
+                <th>上模高度</th>
+                <th>中模高度</th>
+                <th>下模高度</th>
+                <th style="width: 150px;">鐵斗位置</th>
+                <th>體積</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of CurrentPOstatus.flaskMatches;let i = index">
+                <td>
+                  <button class="btn btn-primary btn-sm active" (click)="flaskremove(item)" role="button"><i
+                      class="fa fa-trash" aria-hidden="true"></i>
+                    移除</button>
+                </td>
+                <td>{{item.FlaskId}}</td>
+                <td>{{item.FLength}}</td>
+                <td>{{item.FWidth}}</td>
+                <td>{{item.FUpHeight}}</td>
+                <td>{{item.FMHeight}}</td>
+                <td>{{item.FDHeight}}</td>
+                <td style="text-align: left;">
+                  <input id="{{'Locationid'+i}}" [(ngModel)]="item.FlaskLocation" [ngModelOptions]="{standalone: true}"
+                    (onblur)="togglediv()" (click)="togglediv(i)">
+                  <div id="{{'FlaskList'+i}}" class="FlaskList" style="display: none;">
+                    <div style="height: 30px;cursor: pointer;" *ngFor="let flask of FlaskLocationList"
+                      (click)="setflasklocation(item,flask)">{{flask}}</div>
+                  </div>
+                </td>
+                <td>
+                  <label [ngStyle]="SetColor(item,CurrentPOstatus)">
+                    {{setval(item,CurrentPOstatus)}}</label>
+                </td>
+              </tr>
+              <tr>
+                <th style="background-color: bisque;" colspan="9">
+                  <div>
+                    <div>
+                      <label style="font-size: large;">可使用鐵斗列表</label>
+                      <input placeholder="搜尋鐵斗" style="width: 100px; margin: 5px" type="text" [(ngModel)]="SearchText"
+                        [ngModelOptions]="{standalone: true}" (input)="FlaskListQuery(CurrentPOstatus,SearchText)"
+                        (change)="FlaskListQuery(CurrentPOstatus,SearchText)">
+                    </div>
+                  </div>
+                </th>
+              </tr>
+              <ng-container *ngIf="FlaskSelectList.length>0">
+                <tr *ngFor="let item of FlaskSelectList">
+                  <td align="center">
+                    <input type="checkbox" class="form-check-input" id="item+{{item.FlaskId}}" value="item.Choice"
+                      [(ngModel)]="item.Choice" [ngModelOptions]="{standalone: true}">
+                    <label class="form-check-label" style="font-size: 20px;" for="item+{{item.FlaskId}}">選擇</label>
+                  </td>
+                  <td>{{item.FlaskId}}</td>
+                  <td>{{item.FLength}}</td>
+                  <td>{{item.FWidth}}</td>
+                  <td>{{item.FUpHeight}}</td>
+                  <td>{{item.FMHeight}}</td>
+                  <td>{{item.FDHeight}}</td>
+                  <td>
+                    {{item.FlaskLocation}}
+                  </td>
+                  <td [ngStyle]="SetColor(item,CurrentPOstatus)">
+                    <label [ngStyle]="SetColor(item,CurrentPOstatus)">
+                      {{setval(item,CurrentPOstatus)}}</label>
+                  </td>
+                </tr>
+              </ng-container>
+              <ng-container *ngIf="FlaskSelectList.length==0">
+                <tr>
+                  <td colspan="8">未輸入木模尺寸資訊</td>
+                </tr>
+              </ng-container>
+            </tbody>
+            <tfoot>
+
+            </tfoot>
+          </table>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal"
+          (click)="FlaskAddList(CurrentPOstatus,FlaskSelectList)">確認</button>
+      </div>
+    </div>
+  </div>
+</div>

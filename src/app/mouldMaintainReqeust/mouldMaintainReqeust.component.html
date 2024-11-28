@@ -1,0 +1,98 @@
+<div class="pagetitle">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>模具叫修單
+</div>
+<div class="container" [formGroup]="form">
+  <div class="row my-1">
+    <div class="col-5">
+      <label class="text-center">模具類型：</label>
+      <div class="col flex-column">
+        <div class="form-check mx-2">
+          <input type="radio" class="form-check-input" id="woodMould" formControlName="patFlasType" value="2">
+          <label class="form-check-label" for="woodMould">木模</label>
+        </div>
+        <div class="form-check">
+          <input type="radio" class="form-check-input" id="ironCast" formControlName="patFlasType" value="1">
+          <label class="form-check-label" for="ironCast">鐵斗</label>
+        </div>
+      </div>
+      <app-errorMessage [enable]="fS.isControlError(form,'patFlasType')"></app-errorMessage>
+    </div>
+  </div>
+  <div class="row my-2 ">
+    <div class="col-5">
+      <label class="text-center" for="lineCode">產線類別：</label>
+      <select formControlName="lineCode" name="lineCode" id="lineCode" class="form-control"
+        [ngClass]="{'error': fS.isControlError(form,'lineCode')}">
+        <option value="" class="palceHolder">請選擇產線別</option>
+        <ng-container *ngFor="let item of lineList">
+          <option [value]="item.lineCode">{{item.lineName}}</option>
+        </ng-container>
+      </select>
+      <app-errorMessage [enable]="fS.isControlError(form,'lineCode')"></app-errorMessage>
+    </div>
+    <div class="col-5" *ngIf="form.get('patFlasType').value == 1">
+      <label class="text-center" for="mouldType">上模/下模：</label>
+      <select formControlName="mouldType" id="mouldType" class="form-control"
+        [ngClass]="{'error': fS.isControlError(form,'mouldType')}">
+        <option value="" class="palceHolder">請選擇上模/下模</option>
+        <option value="Top">
+          上模
+        </option>
+        <option value="Bottom">
+          下模
+        </option>
+      </select>
+      <app-errorMessage [enable]="fS.isControlError(form,'mouldType')"></app-errorMessage>
+    </div>
+  </div>
+  <div class="row my-2">
+    <div class="col-5">
+      <label class="text-center">模具編號：</label>
+      <input type="text" class="form-control" name="patFlasNo" id="patFlasNo" placeholder="請輸入模具編號"
+        formControlName="patFlasNo" [ngClass]="{'error': fS.isControlError(form,'patFlasNo')}" [matAutocomplete]="auto">
+      <mat-autocomplete #auto="matAutocomplete">
+        <ng-container *ngFor="let option of filteredOptions | async">
+          <mat-option [value]="option">{{option}}</mat-option>
+        </ng-container>
+      </mat-autocomplete>
+      <app-errorMessage [enable]="fS.isControlError(form,'patFlasNo') && fS.getErrorType(form,'patFlasNo','required')">
+      </app-errorMessage>
+      <app-errorMessage [enable]="fS.isControlError(form,'patFlasNo') && fS.getErrorType(form,'patFlasNo','pattern')"
+        [message]="'編號格式錯誤'">
+      </app-errorMessage>
+    </div>
+    <div class="col-5">
+      <label class="text-center">製令單號：</label>
+      <input type="text" class="form-control" name="workOrder" id="workOrder" placeholder="請輸入製令單號"
+        formControlName="workOrder">
+      <app-errorMessage [enable]="fS.isControlError(form,'workOrder') && fS.getErrorType(form,'workOrder','pattern')"
+        [message]="'編號格式錯誤'">
+      </app-errorMessage>
+    </div>
+  </div>
+  <div class="row my-2">
+    <div class="col-9">
+      <label class="text-center">損壞狀況：</label>
+      <textarea class="form-control" name="description" id="description" placeholder="請輸入損壞狀況"
+        formControlName="description" [ngClass]="{'error': fS.isControlError(form,'description')}"></textarea>
+      <app-errorMessage [enable]="fS.isControlError(form,'description')"></app-errorMessage>
+    </div>
+
+  </div>
+  <div class="row my-2">
+    <div class="col-5 d-flex flex-column justify-content-center">
+      <label class="labelTitle">上傳損壞圖片：</label>
+      <input #fileInput type="file" name="pics" id="pics" placeholder="請選擇圖片" accept="image/png, image/jpeg" multiple
+        (change)="getFiles($event)">
+    </div>
+  </div>
+</div>
+
+
+<div class="row">
+  <div class="col-12 d-flex justify-content-center">
+    <button type="button" class="btn btn-primary mr-2" (click)="onDeliver()"><i
+        class="mr-1 fa fa-file-excel-o"></i>確定</button>
+    <button type="button" class="btn btn-secondary" (click)="onClear()"><i class="mr-1 fa fa-times"></i>清除</button>
+  </div>
+</div>

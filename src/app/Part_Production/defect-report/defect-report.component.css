@@ -1,0 +1,106 @@
+::-webkit-scrollbar {
+
+  width:8px;
+
+  height:8px;
+
+  }
+
+  /*滾動條裡面小方塊樣式*/
+
+::-webkit-scrollbar-thumb {
+  border-radius:8px;
+  -webkit-box-shadow:inset 0 0 5px rgba(0,0,0,0.2);
+  background:#c9d2df;
+  }
+
+  /*滾動條裡面軌道樣式*/
+::-webkit-scrollbar-track {
+  -webkit-box-shadow:inset 0 0 5px rgba(0,0,0,0.2);
+  border-radius:8px;
+  background:#c4cfdd54;
+  }
+
+
+.searchbar{
+  width: 90%;
+  margin: 15px auto;
+}
+.tabs{
+  width: 90%;
+  margin: auto;
+}
+.tab{
+  cursor: pointer;
+  padding:10px 20px;
+  margin:0px 2px;
+  background:#004096;
+  display:inline-block;
+  color:#fff;
+  border-radius:3px 3px 0px 0px;
+  box-shadow: 0.25rem -0.3rem 0.5rem #00000080;
+}
+.tab.active{
+  background:#b1d2ff;
+  color:#000;
+
+}
+.panels{
+  background:#dfebfb;
+  box-shadow: 0 1.5rem 2rem #00000047;
+  width: 90%;
+  margin: auto;
+  height: calc(100% - 170px - 1.4em);
+  border-radius:3px;
+  overflow:hidden;
+  padding:20px;
+}
+.panel{
+  /*display:none;*/
+  animation: fadein .8s;
+  height:calc(100% - 30px);
+  overflow-y: auto;
+}
+.panel.active{
+  display:block;
+  animation: fadein .8s;
+}
+.panel table{
+  margin: 20px auto;
+  width: 90%;
+  border: 2px solid;
+}
+
+.panel table th,.panel table td{
+  min-width: 80px;
+  border: 1px solid;
+  padding: 5px;
+}
+
+.subTitle{
+  text-align: right;
+}
+.subTitle div{
+  display:inline;
+  margin: 0 10px;
+}
+.subtotal{
+  width: 90%;
+  margin: 10px auto;
+  font-weight: 600;
+  font-size: 1.2em;
+  text-align: right;
+}
+.subtotal div,.total div{
+  display:inline;
+  margin: 0 10px;
+}
+.total{
+  width: 79%;
+  margin: 10px auto;
+  margin-top: 40px;
+  font-weight: 900;
+  font-size: 1.4em;
+  text-align: right;
+}
+

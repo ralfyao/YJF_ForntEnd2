@@ -1,0 +1,155 @@
+<div class="my-2">
+  <button class="btn btn-info btn-sm mx-2" (click)="SetQrCode()">
+    <i class="fa fa-file-pdf-o mx-1"></i>匯出派車單</button>
+</div>
+<ngb-tabset>
+  <ngb-tab title="備模清單">
+    <ng-template ngbTabContent>
+      <div class="row align-items-center my-2 mx-0">
+        <label class="col-1 text-right">生產線別:</label>
+        <select class="custom-select col-1" [(ngModel)]="SelectLine" [ngModelOptions]="{standalone: true}">
+          <option value="全部">全部</option>
+          <option *ngFor="let item of LineList" [value]="item">{{item}}</option>
+        </select>
+        <label class="col-1 text-right">排單日期:</label>
+        <div class="col row">
+          <input class="mr-2 form-control" type="date" [(ngModel)]="StartDate"
+            [ngModelOptions]="{standalone: true}" />
+          <div class="mr-2">~</div>
+          <input class="form-control" type="date" [(ngModel)]="EndDate" [ngModelOptions]="{standalone: true}" />
+        </div>
+      </div>
+
+      <ngx-datatable #todotable class="material" style="height:calc(100vh - 210px - 2rem) ;" [headerHeight]="50"
+        [columnMode]="'force'" [footerHeight]="50" [rowHeight]="50" [rows]="PrepareMoldList" [scrollbarV]="true">
+        <ngx-datatable-column name="木模" [width]="35" [sortable]="false" [canAutoResize]="false" [draggable]="false"
+          [resizeable]="false">
+          <ng-template ngx-datatable-cell-template let-row="row" let-rowIndex="rowIndex">
+            <input type="checkbox" id="PrintMold{{ rowIndex }}" [(ngModel)]="row.PrintMold" />
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="砂心" [width]="35" [sortable]="false" [canAutoResize]="false" [draggable]="false"
+          [resizeable]="false">
+          <ng-template  ngx-datatable-cell-template let-row="row" let-rowIndex="rowIndex">
+            <input *ngIf="row.CoreQty>0" type="checkbox" id="PrintCore{{ rowIndex }}" [(ngModel)]="row.PrintCore" />
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column prop="SchedulingDate" name="排單日期" [width]="100" [canAutoResize]="false">
+          <ng-template ngx-datatable-cell-template let-value="value">
+            {{DateStringFormat(value)}}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column prop="CustomerName" name="客戶" [width]="80"></ngx-datatable-column>
+        <ngx-datatable-column prop="ItemCode" name="品號" [width]="150"></ngx-datatable-column>
+        <ngx-datatable-column prop="PartDesc" name="品名" [width]="400"></ngx-datatable-column>
+        <ngx-datatable-column prop="ProductWeight" name="單重" [width]="40"></ngx-datatable-column>
+        <ngx-datatable-column prop="MaterialType" name="材質" [width]="70"></ngx-datatable-column>
+        <ngx-datatable-column name="木模尺寸" [width]="100">
+          <ng-template ngx-datatable-cell-template let-row="row">
+            {{row['PatternLength']+'/'+row['PatternWidth']+'/'+row['PatternUHeight']+'/'+row['PatternDHeight']}}
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column prop="MoldingLineName" name="造模組別" [width]="80"></ngx-datatable-column>
+        <ngx-datatable-column prop="MoldHouse" name="木模位置" [width]="40"></ngx-datatable-column>
+        <ngx-datatable-column prop="OuterPatternRemark" name="外模資訊" [width]="100"></ngx-datatable-column>
+        <ngx-datatable-column prop="CoreLineName" name="砂心組別" [width]="100"></ngx-datatable-column>
+        <ngx-datatable-column prop="CoreHouse" name="砂心位置" [width]="40"></ngx-datatable-column>
+        <ngx-datatable-column prop="SandCoreRemark" name="砂心資訊" [width]="100"></ngx-datatable-column>
+
+
+      </ngx-datatable>
+    </ng-template>
+  </ngb-tab>
+  <ngb-tab title="待入庫清單">
+    <ng-template ngbTabContent>
+      <div class="row align-items-center my-2 mx-0">
+        <label class="col-1 text-right">生產線別:</label>
+        <select class="custom-select col-1" [(ngModel)]="SelectWarehouse" [ngModelOptions]="{standalone: true}">
+          <option value="全部">全部</option>
+          <option *ngFor="let item of WarehouseList" [value]="item">{{item}}</option>
+        </select>
+      </div>
+      <ngx-datatable #todotable class="material" style="height:calc(100vh - 207px - 2rem) ;" [headerHeight]="50"
+        [selected]="" [selectionType]="'checkbox'" [columnMode]="'force'" [footerHeight]="50" [rowHeight]="50" [rows]="ReturnMoldList"
+        [scrollbarV]="true">
+        <ngx-datatable-column name="木模" [width]="35" [sortable]="false" [canAutoResize]="false" [draggable]="false"
+          [resizeable]="false">
+          <ng-template ngx-datatable-cell-template let-row="row" let-rowIndex="rowIndex">
+            <input type="checkbox" id="PrintMold{{ rowIndex }}" [(ngModel)]="row.PrintMold" />
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column prop="ItemCode" name="品號" [width]="120"></ngx-datatable-column>
+        <ngx-datatable-column prop="ItemName" name="品名" [width]="200"></ngx-datatable-column>
+        <ngx-datatable-column prop="MoldType" name="類別" [width]="70"></ngx-datatable-column>
+        <ngx-datatable-column prop="WarehouseName" name="組別" [width]="100"></ngx-datatable-column>
+        <ngx-datatable-column prop="MainWarehouseName" name="歸還倉庫" [width]="80"></ngx-datatable-column>
+        <ngx-datatable-column prop="MainLocation" name="歸還庫位" [width]="70"></ngx-datatable-column>
+        <ngx-datatable-column prop="MoldQty" name="數量" [width]="70"></ngx-datatable-column>
+        <ngx-datatable-column prop="Remark" name="備註" [width]="70"></ngx-datatable-column>
+      </ngx-datatable>
+    </ng-template>
+  </ngb-tab>
+</ngb-tabset>
+<div id="printpdf">
+  <div class="text-center my-5" style="font-size:150px;line-height: 230px; font-weight: 600;">木型/鑄件派車單</div>
+  <div class="row my-5">
+    <div class="col-2">載送人員:</div>
+    <div class="col-8 text-center"><i class="fa fa-exclamation-triangle"></i> 請配合入廠戴安全帽<i class="fa fa-exclamation-triangle mx-5"></i>木模需歸定位、未完成須回報。</div>
+    <div class="col-2">開單日期: {{Today}}</div>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th [width]="200"></th>
+        <th [width]="200">順序</th>
+        <th [width]="700">產品代碼</th>
+        <th [width]="1000">品名</th>
+        <th [width]="200">類別</th>
+        <th [width]="180">數量</th>
+        <th [width]="350">起始區</th>
+        <th [width]="350">迄點區</th>
+        <th [width]="500">備註</th>
+        <th [width]="360">完成時間</th>
+        <th [width]="350">載送人</th>
+        <th [width]="350">確認人</th>
+        <th width="650"></th>
+        <th width="650"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of PrintPrepare;let firstRecord = first;let even=even">
+        <td *ngIf="firstRecord" [attr.rowspan]="PrintPrepare.length" [width]="60">Ａ：進廠優先處理</td>
+        <td></td>
+        <td>{{item.ItemCode}}</td>
+        <td>{{item.PartDesc}}</td>
+        <td>{{item.Type}}</td>
+        <td class="text-center">{{item.Qty}}</td>
+        <td class="text-center">{{item.StartLocation}}</td>
+        <td class="text-center">{{item.EndLocation}}</td>
+        <td>{{item.Remark}}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td><img *ngIf="even" class="qrcodeimg p-0" width="650px" height="650" [attr.src]="item.ImgUrl" /></td>
+        <td><img *ngIf="!even" class="qrcodeimg p-0" width="650px" height="650" [attr.src]="item.ImgUrl" /></td>
+      </tr>
+      <tr *ngFor="let item of PrintReturn;let firstRecord = first;let index=index">
+        <td *ngIf="firstRecord" [attr.rowspan]="PrintReturn.length" [width]="60">Ｂ：出廠次要處理</td>
+        <td></td>
+        <td>{{item.ItemCode}}</td>
+        <td>{{item.PartDesc}}</td>
+        <td>{{item.Type}}</td>
+        <td class="text-center">{{item.Qty}}</td>
+        <td class="text-center">{{item.StartLocation}}</td>
+        <td class="text-center">{{item.EndLocation}}</td>
+        <td>{{item.Remark}}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td><img *ngIf="(index+PrintPrepare.length)%2===0" class="qrcodeimg" width="650px" height="650" [attr.src]="item.ImgUrl" /></td>
+        <td><img *ngIf="(index+PrintPrepare.length)%2!==0" class="qrcodeimg" width="650px" height="650" [attr.src]="item.ImgUrl" /></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="Page">{{PrintPage}}</div>
+</div>

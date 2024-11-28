@@ -1,0 +1,18 @@
+.card-title {
+  font-size: 36px;
+  font-weight: 600;
+}
+
+.modaltable{
+  max-height: 50vh;
+  overflow: auto;
+}
+.table-fixed thead
+{
+  overflow: auto; height: 40px;
+
+}
+.thfixed{
+  position: sticky; top: 0; z-index: 1;
+  background-color: aliceblue;
+}

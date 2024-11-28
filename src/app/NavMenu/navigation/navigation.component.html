@@ -1,0 +1,24 @@
+<div class="TopArea">
+  <div class="left" (click)="MenuClick()"><i class="fa fa-bars"></i></div>
+  <div class="title"><img class="page-img" src="/assets/images/YJF-logo-Blue.png" />YJF進階管理系統</div>
+  <div class="right logout" (click)="Logout()"><i class="fa fa-sign-out  mr-1"></i>登出</div>
+  <div class="right"><i class="fa fa-user mr-1"></i>{{LoginUserName}}</div>
+</div>
+<!--側選單Start-->
+<ng-container>
+  <div class="LeftArea" [ngClass]="MenuIsHidden==true?'Hidden':''">
+    <ul>
+      <app-nav-group *ngFor="let item of GroupList" [group]="item" (targetId)="targetId($event)">
+      </app-nav-group>
+    </ul>
+  </div>
+</ng-container>
+<div class="RightArea" [ngClass]="MenuIsHidden==true?'MenuHidden':''">
+  <router-outlet></router-outlet>
+</div>
+<!-- <footer>
+  <div>鑄手造藝 勝勇堅實</div>
+</footer> -->
+<ngx-spinner bdColor="rgba(57,186,235,0.8)" size="medium" color="#fff" type="square-jelly-box" [fullScreen]="true">
+  <p style="color: white"> Loading... </p>
+</ngx-spinner>

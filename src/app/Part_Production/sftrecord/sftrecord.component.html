@@ -1,0 +1,604 @@
+<div style="height: 100%;">
+  <div class="mt-2 mb-2">
+    <div class="d-flex">
+      <div class="col-6">
+        <!-- <button class="btn btn-outline-info btn-sm mx-2" (click)="table.rowDetail.expandAllRows()">
+          <i class="fa fa-expand mx-1"></i>全部展開</button>
+        <button class="btn btn-outline-info btn-sm mx-2" (click)="table.rowDetail.collapseAllRows()">
+          <i class="fa fa-compress mx-1"></i>全部收合</button> -->
+        <button class="btn btn-info btn-sm active m-2" (click)="ExportData('')"><i
+            class="fa fa-file-excel-o mr-1"></i>Excel匯出</button>
+        <button class="btn btn-info btn-sm active m-2" (click)="openmodal(searchPopup)"><i
+            class="fa fa-search m-1"></i>查詢</button>
+        <button class="btn btn-primary btn-sm active m-2" (click)="sendmail()"><i
+            class="fa fa-compress m-1"></i>發送mail</button>
+        <button class="btn btn-info btn-sm active m-2" (click)="openmodal(lightsDesc)"><i
+            class="fa fa-search m-1"></i>訂單狀態燈號說明</button>
+        <button class="btn btn-info btn-sm active m-2" (click)="openmodal(lightsDescWO)"><i
+            class="fa fa-search m-1"></i>生產狀態燈號說明</button>
+      </div>
+    </div>
+  </div>
+  <ngb-tabset>
+    <ngb-tab title="訂單列表">
+      <ng-template ngbTabContent>
+        <div class="col-6 d-flex justify-content-end align-items-end">
+          <span>
+            總重{{totalWeight | number:''}}噸&nbsp;&nbsp;|&nbsp;&nbsp;總筆數{{GridData.length}}筆
+          </span>
+        </div>
+        <ng-container *ngFor="let key of GridDataMapKeys">
+          <div><h1>客戶：{{ key }}</h1></div>
+          <button class="btn btn-outline-info btn-sm mx-2" (click)="myTable.rowDetail.expandAllRows()">
+            <i class="fa fa-expand mx-1"></i>全部展開</button>
+          <button class="btn btn-outline-info btn-sm mx-2" (click)="myTable.rowDetail.collapseAllRows()">
+            <i class="fa fa-compress mx-1"></i>全部收合</button>
+          <button class="btn btn-info btn-sm active m-2" (click)="ExportData(key)">
+            <i class="fa fa-file-excel-o mr-1"></i>Excel匯出</button>
+            <br>
+          <ngx-datatable #myTable class="material expandable" [columnMode]="'force'" [headerHeight]="50" [footerHeight]="50"
+          [scrollbarV]="true" [scrollbarH]="true" [rowHeight]="50" [rows]="GridDataMap.get(key)" (page)="onPage($event)"
+          [messages]="noDataMessages"  [limit]="10" [selectAllRowsOnPage]="false"  style="height: calc(100vh - 230px - 4rem);">
+          <!-- Row Detail Template -->
+          <ngx-datatable-row-detail [rowHeight]="150" #myDetailRow (toggle)="onDetailToggle($event, myTable)">
+            <ng-template let-row="row" let-expanded="expanded"  ngx-datatable-row-detail-template>
+              <table class="detailtable">
+                <tr>
+                  <th width="60"></th>
+                  <th width="120"></th>
+                </tr>
+                <tr>
+                  <th width="60">工站</th>
+                  <th width="120" *ngFor="let item of row.Details">{{item.LineName}}</th>
+                </tr>
+                <tr>
+                  <th width="60">預計開始</th>
+                  <th width="120" *ngFor="let item of row.Details">{{utilityService.DateStringFormat(item.PlanStartDate)}}</th>
+                </tr>
+                <tr>
+                  <td>實際開始</td>
+                  <td *ngFor="let item of row.Details">{{utilityService.DateStringFormat(item.StartDate)}}</td>
+                </tr>
+                <tr>
+                  <td>開始時間</td>
+                  <td *ngFor="let item of row.Details">{{item.StartTime}}</td>
+                </tr>
+                <tr>
+                  <td>實際完成</td>
+                  <td *ngFor="let item of row.Details">{{utilityService.DateStringFormat(item.FinishDate)}}</td>
+                </tr>
+                <tr>
+                  <td>完成時間</td>
+                  <td *ngFor="let item of row.Details">{{item.EndTime}}</td>
+                </tr>
+              </table>
+            </ng-template>
+          </ngx-datatable-row-detail>
+          <!-- Column Templates -->
+          <ngx-datatable-column frozenLeft="true" [width]="30" [resizeable]="false" [sortable]="false" [draggable]="false"
+          [canAutoResize]="false">
+            <ng-template let-row="row" let-expanded="expanded" ngx-datatable-cell-template>
+              <input type="checkbox" [(ngModel)]="row['MailFlag']" (click)="addWorkOrderInMailList(row['MailFlag'], row['ProductionHead'].trim()+'-'+row['ProductionOrder'])" />
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column frozenLeft="true" [width]="30" [resizeable]="false" [sortable]="false" [draggable]="false"
+            [canAutoResize]="false">
+            <ng-template let-row="row" let-expanded="expanded" ngx-datatable-cell-template>
+              <button class="btn-expand " title="Expand/Collapse Row" (click)="toggleExpandRow(row, myTable)">
+                <i class="fa" [class.fa-chevron-circle-right]="!expanded" [class.fa-chevron-circle-down]="expanded"></i>
+              </button>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column frozenLeft="true" name="訂單狀態燈號" [width]="55" [sortable]="true" [canAutoResize]="false" [draggable]="false"
+            [resizeable]="false">
+            <ng-template let-rowIndex="rowIndex" let-row="row" ngx-datatable-cell-template>
+              <div class="d-flex justify-content-center align-items-center">
+                <div class="round" [class]="getSOLights(row)">
+
+                </div>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column frozenLeft="true" name="生產狀態燈號" [width]="55" [sortable]="true" [canAutoResize]="false" [draggable]="false"
+            [resizeable]="false">
+            <ng-template let-rowIndex="rowIndex" let-row="row" ngx-datatable-cell-template>
+              <div class="d-flex justify-content-center align-items-center">
+                <div class="round" [class]="getLights(row)">
+
+                </div>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column frozenLeft="true" [width]="90" prop="SchedulingDate" name="排單日期">
+            <ng-template ngx-datatable-cell-template let-value="value">
+              {{utilityService.DateStringFormat(value)}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column frozenLeft="true" [width]="90" prop="ETD" name="預交日">
+            <ng-template ngx-datatable-cell-template let-value="value">
+              {{utilityService.DateStringFormat(value)}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column frozenLeft="true" [canAutoResize]="true" [resizeable]="true" [width]="100" prop="CusOrder" name="客戶訂單號碼">
+          </ngx-datatable-column>
+          <ngx-datatable-column frozenLeft="true" [canAutoResize]="true" [resizeable]="true" [width]="100" prop="ProductionHead" name="製令單別">
+          </ngx-datatable-column>
+          <ngx-datatable-column frozenLeft="true" [canAutoResize]="true" [resizeable]="true" [width]="100" prop="ProductionOrder" name="製令單號">
+          </ngx-datatable-column>
+          <ngx-datatable-column frozenLeft="true" [canAutoResize]="true" [resizeable]="true" [width]="100" prop="OrdererrStatus" name="製令現狀">
+          </ngx-datatable-column>
+          <ngx-datatable-column frozenLeft="true" [canAutoResize]="true" [resizeable]="true" [width]="100" prop="ShutDownName" name="製令停止原因">
+          </ngx-datatable-column>
+          <ngx-datatable-column frozenLeft="true" [canAutoResize]="true" [resizeable]="true" [width]="100" prop="ShutDownTime" name="製令停止次數" >
+          </ngx-datatable-column>
+          <ngx-datatable-column frozenLeft="true" [canAutoResize]="true" [resizeable]="true" [width]="130" prop="ItemCode" name="品號">
+          </ngx-datatable-column>
+          <ngx-datatable-column [canAutoResize]="true" [resizeable]="true" [width]="270" prop="ItemName" name="品名規格">
+          </ngx-datatable-column>
+          <ngx-datatable-column [canAutoResize]="true" [resizeable]="true" [width]="90" prop="BillingDate" name="開單日期">
+            <ng-template ngx-datatable-cell-template let-value="value">
+              {{utilityService.DateStringFormat(value)}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column [canAutoResize]="true" [resizeable]="true" [width]="90" prop="PlanFinDate" name="預計完工">
+            <ng-template ngx-datatable-cell-template let-value="value">
+              {{utilityService.DateStringFormat(value)}}
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column [canAutoResize]="true" [resizeable]="true" [width]="50" prop="Quantity" name="數量">
+          </ngx-datatable-column>
+          <ngx-datatable-column [canAutoResize]="true" [resizeable]="true" [width]="50" prop="Weight" name="單重">
+          </ngx-datatable-column>
+          <ngx-datatable-column [canAutoResize]="true" [resizeable]="true" [width]="50" name="總重">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <div>{{ row.Quantity*row.Weight }}</div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column [canAutoResize]="true" [resizeable]="true" [width]="100" prop="MaterialType" name="材質">
+          </ngx-datatable-column>
+          <ngx-datatable-column [canAutoResize]="true" [resizeable]="true" [width]="100" prop="AsemblingLineName" name="生產線別">
+          </ngx-datatable-column>
+          <ngx-datatable-column [canAutoResize]="true" [resizeable]="true" [width]="100" prop="Flask"
+            name="鐵斗號碼">
+          </ngx-datatable-column>
+          <ngx-datatable-column [canAutoResize]="true" [resizeable]="true" [width]="100" prop="Remark"
+            name="原因">
+          </ngx-datatable-column>
+          </ngx-datatable>
+          <br>
+        </ng-container>
+      </ng-template>
+    </ngb-tab>
+    <ngb-tab title="磨毛邊完成未出貨">
+      <ng-template ngbTabContent>
+        <div class="col-6 d-flex justify-content-end align-items-end">
+          <span>
+            總重{{totalWeightPostProc | number:''}}噸&nbsp;&nbsp;|&nbsp;&nbsp;總筆數{{GridDataPostProc.length}}筆
+          </span>
+        </div>
+        <ng-container *ngFor="let key of GridDataMapKeysPostProc">
+          <div><h1>客戶：{{ key }}</h1></div>
+          <button class="btn btn-outline-info btn-sm mx-2" (click)="myTable.rowDetail.expandAllRows()">
+            <i class="fa fa-expand mx-1"></i>全部展開</button>
+          <button class="btn btn-outline-info btn-sm mx-2" (click)="myTable.rowDetail.collapseAllRows()">
+            <i class="fa fa-compress mx-1"></i>全部收合</button>
+          <button class="btn btn-info btn-sm active m-2" (click)="ExportData(key)">
+            <i class="fa fa-file-excel-o mr-1"></i>Excel匯出</button>
+            <br>
+          <ngx-datatable #myTable class="material expandable" [columnMode]="'force'" [headerHeight]="50" [footerHeight]="50"
+          [scrollbarV]="true" [scrollbarH]="true" [rowHeight]="50" [rows]="GridDataMapPostProc.get(key)" (page)="onPage($event)"
+          [messages]="noDataMessages"  [limit]="10" style="height: calc(100vh - 230px - 4rem);">
+          <!-- Row Detail Template -->
+          <ngx-datatable-row-detail [rowHeight]="150" #myDetailRow (toggle)="onDetailToggle($event, myTable)">
+            <ng-template let-row="row" let-expanded="expanded" ngx-datatable-row-detail-template>
+              <table class="detailtable">
+                <tr>
+                  <th width="60"></th>
+                  <th width="120"></th>
+                </tr>
+                <tr>
+                  <th width="60">工站</th>
+                  <th width="120" *ngFor="let item of row.Details">{{item.LineName}}</th>
+                </tr>
+                <tr>
+                  <th width="60">預計開始</th>
+                  <th width="120" *ngFor="let item of row.Details">{{utilityService.DateStringFormat(item.PlanStartDate)}}</th>
+                </tr>
+                <tr>
+                  <td>實際開始</td>
+                  <td *ngFor="let item of row.Details">{{utilityService.DateStringFormat(item.StartDate)}}</td>
+                </tr>
+                <tr>
+                  <td>開始時間</td>
+                  <td *ngFor="let item of row.Details">{{item.StartTime}}</td>
+                </tr>
+                <tr>
+                  <td>實際完成</td>
+                  <td *ngFor="let item of row.Details">{{utilityService.DateStringFormat(item.FinishDate)}}</td>
+                </tr>
+                <tr>
+                  <td>完成時間</td>
+                  <td *ngFor="let item of row.Details">{{item.EndTime}}</td>
+                </tr>
+              </table>
+            </ng-template>
+          </ngx-datatable-row-detail>
+          <!-- Column Templates -->
+          <ngx-datatable-column frozenLeft="true" [width]="30" [resizeable]="false" [sortable]="false" [draggable]="false"
+          [canAutoResize]="false">
+            <ng-template let-row="row" let-expanded="expanded" ngx-datatable-cell-template>
+              <input type="checkbox" [(ngModel)]="row['MailFlag']" (click)="addWorkOrderInMailList(row['MailFlag'], row['ProductionHead'].trim()+'-'+row['ProductionOrder'])" />
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column frozenLeft="true" [width]="30" [resizeable]="false" [sortable]="false" [draggable]="false"
+            [canAutoResize]="false">
+            <ng-template let-row="row" let-expanded="expanded" ngx-datatable-cell-template>
+              <button class="btn-expand " title="Expand/Collapse Row" (click)="toggleExpandRow(row, myTable)">
+                <i class="fa" [class.fa-chevron-circle-right]="!expanded" [class.fa-chevron-circle-down]="expanded"></i>
+              </button>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column frozenLeft="true" name="訂單狀態燈號" [width]="55" [sortable]="true" [canAutoResize]="false" [draggable]="false"
+            [resizeable]="false">
+            <ng-template let-rowIndex="rowIndex" let-row="row" ngx-datatable-cell-template>
+              <div class="d-flex justify-content-center align-items-center">
+                <div class="round" [class]="getSOLights(row)">
+
+                </div>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column frozenLeft="true" name="生產狀態燈號" [width]="55" [sortable]="true" [canAutoResize]="false" [draggable]="false"
+            [resizeable]="false">
+            <ng-template let-rowIndex="rowIndex" let-row="row" ngx-datatable-cell-template>
+              <div class="d-flex justify-content-center align-items-center">
+                <div class="round" [class]="getLights(row)">
+
+                </div>
+              </div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column frozenLeft="true" [width]="90" prop="SchedulingDate" name="排單日期">
+            <ng-template ngx-datatable-cell-template let-value="value">
+              {{utilityService.DateStringFormat(value)}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column frozenLeft="true" [width]="90" prop="ETD" name="預交日">
+            <ng-template ngx-datatable-cell-template let-value="value">
+              {{utilityService.DateStringFormat(value)}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column frozenLeft="true" [canAutoResize]="true" [resizeable]="true" [width]="100" prop="CusOrder" name="客戶訂單號碼">
+          </ngx-datatable-column>
+          <ngx-datatable-column frozenLeft="true" [canAutoResize]="true" [resizeable]="true" [width]="100" prop="ProductionHead" name="製令單別">
+          </ngx-datatable-column>
+          <ngx-datatable-column frozenLeft="true" [canAutoResize]="true" [resizeable]="true" [width]="100" prop="ProductionOrder" name="製令單號">
+          </ngx-datatable-column>
+          <ngx-datatable-column frozenLeft="true" [canAutoResize]="true" [resizeable]="true" [width]="100" prop="OrdererrStatus" name="製令現狀">
+          </ngx-datatable-column>
+          <ngx-datatable-column frozenLeft="true" [canAutoResize]="true" [resizeable]="true" [width]="100" prop="ShutDownName" name="製令停止原因">
+          </ngx-datatable-column>
+          <ngx-datatable-column frozenLeft="true" [canAutoResize]="true" [resizeable]="true" [width]="100" prop="ShutDownTime" name="製令停止次數" >
+          </ngx-datatable-column>
+          <ngx-datatable-column frozenLeft="true" [canAutoResize]="true" [resizeable]="true" [width]="130" prop="ItemCode" name="品號">
+          </ngx-datatable-column>
+          <ngx-datatable-column [canAutoResize]="true" [resizeable]="true" [width]="270" prop="ItemName" name="品名規格">
+          </ngx-datatable-column>
+          <ngx-datatable-column [canAutoResize]="true" [resizeable]="true" [width]="90" prop="BillingDate" name="開單日期">
+            <ng-template ngx-datatable-cell-template let-value="value">
+              {{utilityService.DateStringFormat(value)}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column [canAutoResize]="true" [resizeable]="true" [width]="90" prop="PlanFinDate" name="預計完工">
+            <ng-template ngx-datatable-cell-template let-value="value">
+              {{utilityService.DateStringFormat(value)}}
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-column [canAutoResize]="true" [resizeable]="true" [width]="50" prop="Quantity" name="數量">
+          </ngx-datatable-column>
+          <ngx-datatable-column [canAutoResize]="true" [resizeable]="true" [width]="50" prop="Weight" name="單重">
+          </ngx-datatable-column>
+          <ngx-datatable-column [canAutoResize]="true" [resizeable]="true" [width]="50" name="總重">
+            <ng-template let-row="row" ngx-datatable-cell-template>
+              <div>{{ row.Quantity*row.Weight }}</div>
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column [canAutoResize]="true" [resizeable]="true" [width]="100" prop="MaterialType" name="材質">
+          </ngx-datatable-column>
+          <ngx-datatable-column [canAutoResize]="true" [resizeable]="true" [width]="100" prop="AsemblingLineName" name="生產線別">
+          </ngx-datatable-column>
+          <ngx-datatable-column [canAutoResize]="true" [resizeable]="true" [width]="100" prop="Flask"
+            name="鐵斗號碼">
+          </ngx-datatable-column>
+          <ngx-datatable-column [canAutoResize]="true" [resizeable]="true" [width]="100" prop="Remark"
+            name="原因">
+          </ngx-datatable-column>
+          </ngx-datatable>
+          <br>
+        </ng-container>
+      </ng-template>
+    </ngb-tab>
+  </ngb-tabset>
+
+</div>
+<ng-template #searchPopup let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title my-0">搜尋</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="container" [formGroup]="form">
+      <div class="row">
+        <div class="col">
+          <label class="col">搜尋:</label>
+          <input class="col form-control" type="text" formControlName="searchTxt"
+            placeholder="輸入製令單、客戶、品號、品名、客戶訂單號碼、業務人員...">
+        </div>
+        <div class="col">
+          <label class="col">生產線別:</label>
+          <select class="custom-select" formControlName="productionLine">
+            <option selected value="全部">全部</option>
+            <ng-container *ngFor="let item of ProductionList">
+              <option value="{{item.lineName}}">
+                {{item.lineCode}}</option>
+            </ng-container>
+          </select>
+        </div>
+      </div>
+
+      <div class="row justify-content-center align-items-center">
+        <label class="col-12 text-center">排單日期:</label>
+      </div>
+      <div class="row justify-content-center">
+        <input class="col-5 form-control" type="date" formControlName="scheduleStartday">
+        <div class="col-1 text-center">~
+        </div>
+        <input class="col-5 form-control" type="date" formControlName="scheduleEndday">
+      </div>
+      <div class="row justify-content-center align-items-center my-2">
+        <label class="col-12 text-center">開單日期:</label>
+      </div>
+      <div class="row justify-content-center align-items-center">
+        <input class="col-5 form-control" type="date" formControlName="billingStartday">
+        <div class="col-1 text-center">~</div>
+        <input class="co l-5 form-control" type="date" formControlName="billingEndday">
+      </div>
+      <div class="row my-2">
+        <div class="col">
+          <label class="text-center">生產狀態:</label>
+          <div formArrayName="statusList">
+            <ng-container *ngFor="let item of statusListArray;index as idx">
+              <div class="form-check">
+                <input type="checkbox" [formControl]="item" [id]="'status'+idx" class="form-check-input">
+                <label class="form-check-label" [for]="'status'+idx">{{StatusList[idx].text}}</label>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+        <div class="col">
+          <label class="text-center">訂單狀態:</label>
+          <div class="row">
+            <div class="form-check">
+              <input type="radio" id="orderall" name="orderStatus" formControlName="orderStatus" value="ALL"
+                class="form-check-input">
+              <label class="form-check-label" for="orderall">全部</label>
+            </div>
+            <div class="form-check">
+              <input type="radio" id="orderN" name="orderStatus" formControlName="orderStatus" value="N"
+                class="form-check-input">
+              <label class="form-check-label" for="orderN">未結案</label>
+            </div>
+            <div class="form-check">
+              <input type="radio" id="orderY" name="orderStatus" formControlName="orderStatus" value="Y"
+                class="form-check-input">
+              <label class="form-check-label" for="orderY">已結案</label>
+            </div>
+            <div class="form-check">
+              <input type="radio" id="order" name="orderStatus" formControlName="orderStatus" value=""
+                class="form-check-input">
+              <label class="form-check-label" for="order">無制令訂單</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row my-2">
+        <div class="col">
+          <label class="text-center">是否工單停止中:</label>
+          <div formArrayName="shutDownStatus">
+            <ng-container *ngFor="let item of shutDownStatusArray; index as idx">
+              <div class="form-check">
+                <input type="checkbox" [id]="'ChkShut'+ShutDownStatusList[idx].value"
+                  [value]="ShutDownStatusList[idx].value" name="OrdererrStatus" class="form-check-input"
+                  [formControl]="item">
+                <label class="form-check-label"
+                  [for]="'ChkShut'+ShutDownStatusList[idx].value">{{ShutDownStatusList[idx].text}}</label>
+              </div>
+            </ng-container>
+          </div>
+
+        </div>
+        <div class="col">
+          <label class="text-center">制令排單狀態:</label>
+          <div class="row">
+            <div class="form-check">
+              <input type="radio" id="woSchStatus1" name="woSchStatus" formControlName="woSchStatus" value="1">
+              <label class="form-check-label" for="woSchStatus1">已排</label>
+            </div>
+            <div class="form-check">
+              <input type="radio" id="woSchStatus2" name="woSchStatus" formControlName="woSchStatus" value="2">
+              <label class="form-check-label" for="woSchStatus2">未排</label>
+            </div>
+            <div class="form-check">
+              <input type="radio" id="woSchStatus3" name="woSchStatus" formControlName="woSchStatus" value="3">
+              <label class="form-check-label" for="woSchStatus3">全部</label>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <div class="row my-2">
+        <div class="col">
+          <label class="text-center">訂單狀態燈號:</label><br>
+          <div formArrayName="soLightArray">
+            <ng-container *ngFor="let item of soLightArrays; index as idx">
+              <div class="form-check">
+                <input type="checkbox" [id]="'ChkSOLight'+soLightArrays[idx].text"
+                    [checked]="soLightArrays[idx].value" name="soLights" class="form-check-input"
+                    [formControl]="item">
+                <div class="round" [class]="soLights[idx].text"></div>&nbsp;&nbsp;
+              </div>
+            </ng-container>
+          </div>
+        </div>
+        <div class="col">
+          <label class="text-center">製令狀態燈號:</label>
+          <div formArrayName="woLightArray">
+            <ng-container *ngFor="let item of woLightArrays; index as idx">
+              <div class="form-check">
+                <input type="checkbox" [id]="'ChkWOLight'+woLightArrays[idx].text"
+                    [checked]="woLightArrays[idx].value" name="woLights" class="form-check-input"
+                    [formControl]="item">
+                <div class="round" [class]="woLights[idx].text"></div>&nbsp;&nbsp;
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="onSearch();"><i
+        class="mr-1 fa fa-file-excel-o"></i>確定</button>
+    <button type="button" class="btn btn-secondary" (click)="onClear()"><i class="mr-1 fa fa-times"></i>清除</button>
+  </div>
+</ng-template>
+<ng-template #lightsDesc let-modal>
+  <div class="modal-header">
+    <div class="container">
+      <h2>訂單燈號說明</h2>
+    </div>
+  </div>
+  <div class="modal-body">
+    <table width="100%" border="1">
+      <tr class="justify-content-center">
+        <td>
+          <h2>燈號</h2>
+        </td>
+        <td>
+          <h2>燈號說明</h2>
+        </td>
+      </tr>
+      <tr class="justify-content-center">
+        <td>
+          <div class="round" [class]="'red'"></div>
+        </td>
+        <td>
+          <h2>訂單預交日已逾期，但仍未出貨</h2>
+        </td>
+      </tr>
+      <tr class="justify-content-center">
+        <td>
+          <div class="round" [class]="'orange'"></div>
+        </td>
+        <td>
+          <h2>訂單預交日兩週內逾期，但仍未投產</h2>
+        </td>
+      </tr>
+      <tr class="justify-content-center">
+        <td>
+          <div class="round" [class]="'green'"></div>
+        </td>
+        <td>
+          <h2>訂單預交日兩週內逾期，但已投產</h2>
+        </td>
+      </tr>
+      <tr class="justify-content-center">
+        <td>
+          <div class="round" [class]="'lightpurple'"></div>
+        </td>
+        <td>
+          <h2>暫停</h2>
+        </td>
+      </tr>
+      <tr class="justify-content-center">
+        <td>
+          <div class="round" [class]="'blue'"></div>
+        </td>
+        <td>
+          <h2>庫存單</h2>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <div class="round" [class]="'gray'"></div>
+        </td>
+        <td>
+          <h2>其他</h2>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <div class="modal-footer">
+
+  </div>
+</ng-template>
+
+<ng-template #lightsDescWO let-modal>
+  <div class="modal-header">
+    <div class="container">
+      <h2>製令燈號說明</h2>
+    </div>
+  </div>
+  <div class="modal-body">
+    <table width="100%" border="1">
+      <tr class="justify-content-center">
+        <td>
+          <h2>燈號</h2>
+        </td>
+        <td>
+          <h2>燈號說明</h2>
+        </td>
+      </tr>
+      <tr class="justify-content-center">
+        <td>
+          <div class="round" [class]="'red'"></div>
+        </td>
+        <td>
+          <h2>未投產、未排單</h2>
+        </td>
+      </tr>
+      <tr class="justify-content-center">
+        <td>
+          <div class="round" [class]="'orange'"></div>
+        </td>
+        <td>
+          <h2>生產進度delay</h2>
+        </td>
+      </tr>
+      <tr class="justify-content-center">
+        <td>
+          <div class="round" [class]="'green'"></div>
+        </td>
+        <td>
+          <h2>生產進度提早或正常</h2>
+        </td>
+      </tr>
+
+      <tr>
+        <td>
+          <div class="round" [class]="'gray'"></div>
+        </td>
+        <td>
+          <h2>暫停</h2>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <div class="modal-footer">
+
+  </div>
+</ng-template>

@@ -1,0 +1,120 @@
+<div>
+  <div class="area" style="width: 33%;">
+    <button type="button" class="btn btn-info my-2" (click)="GroupEdit(null,EditGroup)"><i class="fa fa-plus mr-2" aria-hidden="true"></i>新增</button>
+    <ngx-datatable #mydatatable class="material" [headerHeight]="50" style="height:calc(100% - 70px);"
+      selectionType="single" [columnMode]="'force'" [footerHeight]="50" [rowHeight]="50" [rows]="MenuGroupList"
+      [selected]="SelectGroup"  (select)="GroupSelected()" [reorderable]="true" [scrollbarV]="true">
+      <ngx-datatable-column prop="GroupName" name="選單群組名稱"></ngx-datatable-column>
+      <ngx-datatable-column prop="GroupIndex" name="群組順序" [width]="70" [canAutoResize]="false"></ngx-datatable-column>
+      <ngx-datatable-column prop="GroupIcon" name="選單群組Icon">
+        <ng-template ngx-datatable-cell-template let-value="value">
+          <i class="fa mr-2" [ngClass]="value" aria-hidden="true"></i>{{value}}
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column name="" [sortable]="false" [width]="160" [canAutoResize]="false">
+        <ng-template ngx-datatable-cell-template let-row="row">
+          <button type="button" class="btn btn-outline-info btn-sm mx-1" (click)="GroupEdit(row,EditGroup)">
+            <i class="fa fa-pencil mr-2" aria-hidden="true"></i>編輯</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm mx-1" [swal]="{ title: '該群組下的選單將一並刪除\r\n確定刪除嗎?', confirmButtonText:'確定',showCancelButton: true,cancelButtonText:'取消' }"
+          (confirm)="GroupDelete(row.SYS_MenuGroupId)">
+          <i class="fa fa-trash-o mr-2" aria-hidden="true"></i>刪除</button>
+        </ng-template>
+      </ngx-datatable-column>
+    </ngx-datatable>
+  </div>
+  <div class="area" style="width: 63%;">
+    <button type="button" class="btn btn-info my-2" (click)="MenuEdit(null,EditMenu)"><i class="fa fa-plus mr-2" aria-hidden="true"></i>新增</button>
+    <ngx-datatable #mydatatable class="material" [headerHeight]="50" style="height:calc(100% - 70px);"
+      [columnMode]="'force'" [footerHeight]="50" [rowHeight]="50" [rows]="MenuData" [selected]="" [reorderable]="true"
+      [scrollbarV]="true">
+      <ngx-datatable-column prop="Name" name="選單名稱" [width]="120"></ngx-datatable-column>
+      <ngx-datatable-column prop="GroupName" name="選單群組" [width]="120"></ngx-datatable-column>
+      <ngx-datatable-column prop="MenuIndex" name="選單順序" [width]="70" [canAutoResize]="false"></ngx-datatable-column>
+      <ngx-datatable-column prop="Code" name="頁面名稱" [width]="130"></ngx-datatable-column>
+      <ngx-datatable-column prop="Icon" name="選單Icon" [width]="130">
+        <ng-template ngx-datatable-cell-template let-value="value">
+          <i class="fa mr-2" [ngClass]="value" aria-hidden="true"></i>{{value}}
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column name="" [sortable]="false" [width]="160" [canAutoResize]="false">
+        <ng-template ngx-datatable-cell-template let-row="row">
+          <button type="button" class="btn btn-outline-info btn-sm mx-1" (click)="MenuEdit(row,EditMenu)"><i class="fa fa-pencil mr-2"
+              aria-hidden="true"></i>編輯</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm mx-1" [swal]="{ title: '確定要刪除該選單嗎?', confirmButtonText:'確定',showCancelButton: true,cancelButtonText:'取消' }"
+          (confirm)="MenuDelete(row.SYS_MenuId)"><i class="fa fa-trash-o mr-2"
+              aria-hidden="true"></i>刪除</button>
+        </ng-template>
+      </ngx-datatable-column>
+    </ngx-datatable>
+  </div>
+</div>
+<ng-template #EditGroup let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title my-0">群組編輯</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row mx-2">
+      <label class="text-right mx-2 col-3">群組名稱:</label>
+      <input class="mr-2" type="text" [(ngModel)]="GroupModalData.GroupName" />
+    </div>
+    <div class="row mx-2">
+      <label class="text-right mx-2 col-3">群組順序:</label>
+      <input class="mr-2" type="number" [(ngModel)]="GroupModalData.GroupIndex" />
+    </div>
+    <div class="row mx-2">
+     <label class="text-right  mx-2 col-3">群組Icon:</label>
+      <input class="mr-2" type="text" [(ngModel)]="GroupModalData.GroupIcon"/>
+      <i class="fa mr-2 my-2" [ngClass]="GroupModalData.GroupIcon" aria-hidden="true"></i>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="GroupSave();modal.close('Close click')"><i
+        class="mr-1 fa fa-floppy-o"></i>儲存</button>
+    <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')"><i
+        class="mr-1 fa fa-times"></i>取消</button>
+  </div>
+</ng-template>
+<ng-template #EditMenu let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title my-0">選單編輯</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row mx-2">
+      <label class="text-right mx-2 col-3">選單名稱:</label>
+      <input class="mr-2 col-7" type="text" [(ngModel)]="MenuModalData.Name" />
+    </div>
+    <div class="row mx-2">
+      <label class="text-right mx-2 col-3">選單群組:</label>
+      <select class="custom-select col-7" [(ngModel)]="MenuModalData.GroupId" [ngModelOptions]="{standalone: true}">
+        <option *ngFor="let item of MenuGroupList" [value]="item.SYS_MenuGroupId">{{item.GroupName}}</option>
+      </select>
+    </div>
+    <div class="row mx-2">
+      <label class="text-right mx-2 col-3">選單順序:</label>
+      <input class="mr-2 col-7" type="number" [(ngModel)]="MenuModalData.MenuIndex" />
+    </div>
+    <div class="row mx-2">
+      <label class="text-right mx-2 col-3">選單頁面:</label>
+      <select class="custom-select col-7" [(ngModel)]="MenuModalData.PageId" [ngModelOptions]="{standalone: true}">
+        <option *ngFor="let item of PageList" [value]="item.SYS_PageId">{{item.PageUrl}}</option>
+      </select>
+    </div>
+    <div class="row mx-2">
+     <label class="text-right  mx-2 col-3">選單Icon:</label>
+      <input class="mr-2 col-7" type="text" [(ngModel)]="MenuModalData.Icon"/>
+      <i class="fa mr-2 my-2" [ngClass]="MenuModalData.Icon" aria-hidden="true"></i>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="MenuSave();modal.close('Close click')"><i
+        class="mr-1 fa fa-floppy-o"></i>儲存</button>
+    <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')"><i
+        class="mr-1 fa fa-times"></i>Close</button>
+  </div>
+</ng-template>

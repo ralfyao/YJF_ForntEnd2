@@ -1,0 +1,16 @@
+.button1 {
+  display: inline-block;
+  padding: 5px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  outline: none;
+  background-color: orange;
+  border: 3px black;
+  border-radius: 5px;
+  margin: 3px;
+}
+.button1:hover {
+  background-color: wheat;
+  border: 3px black;
+}

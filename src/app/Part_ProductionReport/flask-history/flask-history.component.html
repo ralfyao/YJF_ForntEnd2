@@ -1,0 +1,101 @@
+<div class="pagetitle" style="height: fit-content;">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>鐵斗使用歷程記錄
+</div>
+<br>
+<div class="col d-flex dateBlock">
+  <div class="col d-flex">
+    <label class="col-8 text-left" for="workOrder">製令單別-單號:</label>
+    <input id="workOrder" class="col-11" [(ngModel)]="workOrder" />
+  </div>
+
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+</div>
+<br>
+<div class="col d-flex dateBlock">
+  <div class="col d-flex">
+    <label class="col-8 text-left" for="workOrder">鐵斗編號:</label>
+    <input id="flaskId" class="col-11" [(ngModel)]="flaskId" />
+  </div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+</div>
+<br>
+<div class="col d-flex dateBlock">
+  <div class="col-5 d-flex">
+    <label class="col-2 text-left" for="workOrder">站點:</label>
+    <div class="col-2"><input type="radio" value="mold" [(ngModel)]="flaskType" text="造模" (click)="setValue('mold')"/>造模</div>
+    <div class="col-2"><input type="radio" value="asem" [(ngModel)]="flaskType" text="合模" (click)="setValue('asem')"/>合模</div>
+    <div class="col-2"><input type="radio" value="pour" [(ngModel)]="flaskType" text="澆注" (click)="setValue('pour')"/>澆注</div>
+  </div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+</div>
+<div class="col d-flex dateBlock">
+  <div class="col d-flex">
+
+  </div>
+  <div class="col d-flex text-left">
+    <button class="btn btn-info btn-sm active m-2" (click)="query()">
+      <i class="fa fa-search m-1"></i>查詢</button>
+      <button class="btn btn-primary btn-sm active m-2" (click)="exportexcel()">
+        <i class="fa fa-play-circle m-1"></i>匯出</button>
+  </div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+  <div class="col d-flex"></div>
+</div>
+<ng-container *ngIf="GridData != undefined && GridData.length > 0">
+  <table id="excel-table" class="table tab_content_table table-bordered">
+    <tr>
+      <td>鐵斗是否有差異</td>
+      <td>製令單別-單號</td>
+      <td>品號</td>
+      <td>品名</td>
+      <td>造模使用鐵斗</td>
+      <td>造模報工日期</td>
+      <td>合模使用鐵斗</td>
+      <td>合模報工日期</td>
+      <td>澆注使用鐵斗</td>
+      <td>澆注報工日期</td>
+    </tr>
+    <ng-container *ngFor="let item of GridData">
+      <tr>
+        <td>{{(item.IsDiffFlask?"是":"否")}}</td>
+        <td>{{item.ProdOrderHead}}-{{item.ProdOrder}}</td>
+        <td>{{item.ItemCode}}</td>
+        <td>{{item.ItemDesc}}</td>
+        <td>{{item.MoldingBottomInFlask}}</td>
+        <td>{{(item.MoldTrackinTime != undefined && item.MoldTrackinTime != null && item.MoldTrackinTime != '' ? item.MoldTrackinTime.split('T')[0] :'')}}</td>
+        <td>{{item.AssemBottomInFlask}}</td>
+        <td>{{(item.AssemTrackinTime != undefined && item.AssemTrackinTime != null && item.AssemTrackinTime != '' ? item.AssemTrackinTime.split('T')[0] : '')}}</td>
+        <td>{{item.PouringBottomInFlask}}</td>
+        <td>{{(item.PouringTrackinTime != undefined && item.PouringTrackinTime != null && item.PouringTrackinTime != '' ? item.PouringTrackinTime.split('T')[0] : '')}}</td>
+      </tr>
+    </ng-container>
+  </table>
+</ng-container>

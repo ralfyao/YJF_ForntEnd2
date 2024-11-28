@@ -1,0 +1,221 @@
+<div class="pagetitle">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>組別生產計畫一覽表
+</div>
+<div>
+  <table class="table tab_content_table table-bordered">
+    <tr style="height: 30px;border:black 2px solid">
+      <th style="text-align: center;width: 150px;">製令狀態</th>
+      <td></td>
+    </tr>
+    <tr style="height: 30px;border:black 2px solid">
+      <th style="text-align: center;width: 150px;">工序組別</th>
+      <td></td>
+    </tr>
+    <tr style="height: 30px;border:black 2px solid">
+      <th style="text-align: center;width: 150px;">排單日期</th>
+      <td>
+         <div class="row mx-2">
+          <input class="mr-2" type="date" [(ngModel)]="SearchStartday" [max]="SearchEndday" (ngModelChange)="SetData()"/>
+          <div class="mr-2">~
+          </div><input type="date" [(ngModel)]="SearchEndday" [min]="SearchStartday" (ngModelChange)="SetData()"/>
+        </div>
+      </td>
+    </tr>
+    <tr style="height: 30px;border:black 2px solid">
+      <th style="text-align: center;width: 150px;">進階搜尋</th>
+      <td>
+        <button class="btn btn-primary btn-sm active" (click)="exportexcel()"><i
+            class="fa fa-file-excel-o mr-1"></i>Excel匯出</button>
+        <button class="btn btn-secondary btn-sm ml-2" (click)="openmodal(woodenmodal,'')">
+          <i class="fa fa-file-excel-o mr-1"></i>木模排程匯出</button>
+      </td>
+    </tr>
+  </table>
+</div>
+<div>
+  <table id="excel-table" class="table-fixed" style="border: 2px black solid; width: 100%;">
+    <thead>
+      <tr>
+        <th class="tablehead">預計開工</th>
+        <th class="tablehead">預交日</th>
+        <th class="tablehead">單號</th>
+        <th class="tablehead">合模</th>
+        <th class="tablehead">客戶</th>
+        <th class="tablehead">品號</th>
+        <th class="tablehead">品名</th>
+        <th class="tablehead">單重</th>
+        <th class="tablehead">材質</th>
+        <th class="tablehead">木模尺寸</th>
+        <th class="tablehead">外模位置</th>
+        <th class="tablehead">砂心位置</th>
+        <th class="tablehead">鐵斗編號</th>
+        <th class="tablehead">鐵斗位置</th>
+        <th class="tablehead">預計拆箱日</th>
+      </tr>
+      <ng-container *ngFor="let line of LineList">
+        <tr>
+          <td colspan="15" class="titleOrder">{{line}}週排程計畫</td>
+        </tr>
+        <ng-container *ngFor="let sdate of PlanDate">
+          <ng-container *ngIf="FilterDate(sdate,line,done).length>0">
+            <tr>
+              <td colspan="15" class="titleOrder">{{line}}生產日期：{{sdate}}</td>
+            </tr>
+            <ng-container *ngFor="let item of FilterDate(sdate,line,done)">
+              <tr>
+                <td [attr.rowspan]="(item.FlaskInfoList.length == 0 ? 1 : item.FlaskInfoList.length)">{{DateStringFormat(item.MoldingPlanStartDate)}}</td>
+                <td [attr.rowspan]="(item.FlaskInfoList.length == 0 ? 1 : item.FlaskInfoList.length)">{{DateStringFormat(item.ETD)}}</td>
+                <td [attr.rowspan]="(item.FlaskInfoList.length == 0 ? 1 : item.FlaskInfoList.length)">{{item.ProductionHeadCode.trim()+'-'+item.ProductionOrderCode}}</td>
+                <td [attr.rowspan]="(item.FlaskInfoList.length == 0 ? 1 : item.FlaskInfoList.length)">{{item.AsemblingLineName}}</td>
+                <td [attr.rowspan]="(item.FlaskInfoList.length == 0 ? 1 : item.FlaskInfoList.length)">{{item.CustomerName}}</td>
+                <td [attr.rowspan]="(item.FlaskInfoList.length == 0 ? 1 : item.FlaskInfoList.length)">{{item.ItemCode}}</td>
+                <td [attr.rowspan]="(item.FlaskInfoList.length == 0 ? 1 : item.FlaskInfoList.length)" style="max-width: 400px;">{{item.PartDesc}}</td>
+                <td [attr.rowspan]="(item.FlaskInfoList.length == 0 ? 1 : item.FlaskInfoList.length)">{{item.ProductWeight}}</td>
+                <td [attr.rowspan]="(item.FlaskInfoList.length == 0 ? 1 : item.FlaskInfoList.length)">{{item.MaterialType}}</td>
+                <td [attr.rowspan]="(item.FlaskInfoList.length == 0 ? 1 : item.FlaskInfoList.length)" style="max-width: 150px;">
+                  {{item.PatternLength + '/' + item.PatternWidth+ '/' + item.PatternUHeight+'/' + item.PatternDHeight}}
+                </td>
+                <td [attr.rowspan]="(item.FlaskInfoList.length == 0 ? 1 : item.FlaskInfoList.length)">{{item.OuterPatternRemark}}</td>
+                <td [attr.rowspan]="(item.FlaskInfoList.length == 0 ? 1 : item.FlaskInfoList.length)" style="max-width: 150px;">{{item.SandCoreRemark}}</td>
+                <!-- <ng-container *ngif="item.FlaskInfoList.length>0;else empty" > -->
+                  <ng-container *ngFor="let sItem of item.FlaskInfoList; let i = index">
+                    <ng-container *ngIf="i == 0">
+                      <td>{{sItem.FlaskNo}}</td>
+                      <td>{{sItem.FlaskOrderNumber}}</td>
+                      <td>{{sItem.UnBoxExpectedDate}}</td>
+                    </ng-container>
+                  </ng-container>
+                <!-- </ng-container> -->
+                <!-- <ng-template #empty>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                </ng-template> -->
+              </tr>
+              <!-- <ng-container *ngIf="item.FlaskInfoList.length>1"> -->
+                <ng-container *ngFor="let sItem of item.FlaskInfoList; let i = index">
+                  <ng-container *ngIf="i > 0; else empty">
+                    <tr>
+                      <td >{{sItem.FlaskNo}}</td>
+                      <td >{{sItem.FlaskOrderNumber}}</td>
+                      <td >{{sItem.UnBoxExpectedDate}}</td>
+                    </tr>
+                  </ng-container>
+
+                </ng-container>
+              <!-- </ng-container> -->
+            </ng-container>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+    </thead>
+    <tbody>
+    </tbody>
+    <tfoot>
+    </tfoot>
+  </table>
+  <!--匯出Excel用的table，在畫面上是看不到的-->
+  <table id="excel-table-hidden" class="table-fixed" style="border: 2px black solid; width: 100%; visibility: hidden;">
+    <thead>
+      <tr>
+        <th class="tablehead">預計開工</th>
+        <th class="tablehead">預交日</th>
+        <th class="tablehead">單號</th>
+        <th class="tablehead">合模</th>
+        <th class="tablehead">品號</th>
+        <th class="tablehead">品名</th>
+        <th class="tablehead">單重</th>
+        <th class="tablehead">材質</th>
+        <th class="tablehead">木模尺寸</th>
+        <th class="tablehead">外模位置</th>
+        <th class="tablehead">砂心位置</th>
+        <th class="tablehead">鐵斗編號</th>
+        <th class="tablehead">鐵斗位置</th>
+        <th class="tablehead">預計拆箱日</th>
+      </tr>
+      <ng-container *ngFor="let line of LineList">
+        <tr>
+          <td colspan="15" class="titleOrder">{{line}}週排程計畫</td>
+        </tr>
+        <ng-container *ngFor="let sdate of PlanDate">
+          <ng-container *ngIf="FilterDate(sdate,line,done).length>0">
+            <tr>
+              <td colspan="15" class="titleOrder">{{line}}生產日期：{{sdate}}</td>
+            </tr>
+            <ng-container *ngFor="let item of FilterDate(sdate,line,done)">
+              <tr>
+                <td [attr.rowspan]="(item.FlaskInfoList.length == 0 ? 1 : item.FlaskInfoList.length)">{{DateStringFormat(item.MoldingPlanStartDate)}}</td>
+                <td [attr.rowspan]="(item.FlaskInfoList.length == 0 ? 1 : item.FlaskInfoList.length)">{{DateStringFormat(item.ETD)}}</td>
+                <td [attr.rowspan]="(item.FlaskInfoList.length == 0 ? 1 : item.FlaskInfoList.length)">{{item.ProductionHeadCode.trim()+'-'+item.ProductionOrderCode}}</td>
+                <td [attr.rowspan]="(item.FlaskInfoList.length == 0 ? 1 : item.FlaskInfoList.length)">{{item.AsemblingLineName}}</td>
+                <td [attr.rowspan]="(item.FlaskInfoList.length == 0 ? 1 : item.FlaskInfoList.length)">{{item.ItemCode}}</td>
+                <td [attr.rowspan]="(item.FlaskInfoList.length == 0 ? 1 : item.FlaskInfoList.length)" style="max-width: 400px;">{{item.PartDesc}}</td>
+                <td [attr.rowspan]="(item.FlaskInfoList.length == 0 ? 1 : item.FlaskInfoList.length)">{{item.ProductWeight}}</td>
+                <td [attr.rowspan]="(item.FlaskInfoList.length == 0 ? 1 : item.FlaskInfoList.length)">{{item.MaterialType}}</td>
+                <td [attr.rowspan]="(item.FlaskInfoList.length == 0 ? 1 : item.FlaskInfoList.length)" style="max-width: 150px;">
+                  {{item.PatternLength + '/' + item.PatternWidth+ '/' + item.PatternUHeight+'/' + item.PatternDHeight}}
+                </td>
+                <td [attr.rowspan]="(item.FlaskInfoList.length == 0 ? 1 : item.FlaskInfoList.length)">{{item.OuterPatternRemark}}</td>
+                <td [attr.rowspan]="(item.FlaskInfoList.length == 0 ? 1 : item.FlaskInfoList.length)" style="max-width: 150px;">{{item.SandCoreRemark}}</td>
+                <!-- <ng-container *ngif="item.FlaskInfoList.length>0;else empty" > -->
+                  <ng-container *ngFor="let sItem of item.FlaskInfoList; let i = index">
+                    <ng-container *ngIf="i == 0">
+                      <td>{{sItem.FlaskNo}}</td>
+                      <td>{{sItem.FlaskOrderNumber}}</td>
+                      <td>{{sItem.UnBoxExpectedDate}}</td>
+                    </ng-container>
+                  </ng-container>
+                <!-- </ng-container> -->
+                <!-- <ng-template #empty>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                </ng-template> -->
+              </tr>
+              <!-- <ng-container *ngIf="item.FlaskInfoList.length>1"> -->
+                <ng-container *ngFor="let sItem of item.FlaskInfoList; let i = index">
+                  <ng-container *ngIf="i > 0; else empty">
+                    <tr>
+                      <td >{{sItem.FlaskNo}}</td>
+                      <td >{{sItem.FlaskOrderNumber}}</td>
+                      <td >{{sItem.UnBoxExpectedDate}}</td>
+                    </tr>
+                  </ng-container>
+
+                </ng-container>
+              <!-- </ng-container> -->
+            </ng-container>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+    </thead>
+    <tbody>
+    </tbody>
+    <tfoot>
+    </tfoot>
+  </table>
+</div>
+
+
+<ng-template #woodenmodal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title my-0">匯出木模排程</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <label class="text-right mx-2">排單日期:</label>
+    <div class="row mx-2">
+      <input class="mr-2" type="date" [(ngModel)]="WoodenStartday" />
+      <div class="mr-2">~
+      </div><input type="date" [(ngModel)]="WoodenEndday" />
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="ExportWoodenExcel()"><i
+        class="mr-1 fa fa-file-excel-o"></i>匯出Excel</button>
+    <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')"><i
+        class="mr-1 fa fa-times"></i>Close</button>
+  </div>
+</ng-template>

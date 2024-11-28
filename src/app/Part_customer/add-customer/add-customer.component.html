@@ -1,0 +1,176 @@
+<!-- <app-errorMessage [enable]="fS.isControlError(form,'patFlasType')"></app-errorMessage> -->
+
+<!--右邊內容__標題Start-->
+<div class="pagetitle">
+  <a [routerLink]="['../CustomerManage']"><i class="fa fa-arrow-circle-left"></i> 回列表</a>
+</div>
+<!--右邊內容__標題End-->
+
+<!--文件狀態Start-->
+<p id="alertstate" class="alertinfo">
+  <ngb-alert id="alertmsg" [type]="'warning'" (close)="alertclose()">
+    您的帳號或密碼有誤。
+  </ngb-alert>
+</p>
+<!--文件狀態End-->
+
+<!--建立or瀏覽資料Start-->
+<form>
+  <section class="content_data">
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a class="nav-link active" href="#tab_1" data-toggle="tab" role="tab" aria-controls="tab_1"
+          aria-selected="true"><i class="fa fa-user-circle-o"></i>客戶基本資料</a>
+      </li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane active show active" id="tab_1" role="tabpanel" aria-labelledby="home-tab">
+        <span *ngIf="premanager.GetPermission(Permission, 'CustomerManage', 'IsCanAdd',LoginUserAccount);">
+          <button type="button" class="btn btn-info btn-sm active m-2" [routerLink]="['../CustomerManage']"><i
+              class="fa fa-reply"></i>
+            回上頁</button>
+          <ng-container
+            *ngIf="premanager.GetPermission(Permission, 'CustomerManage', 'IsCanEdit',LoginUserAccount); else NoEditPermission">
+            <button type="button" class="btn btn-info btn-sm active m-2" (click)="updateCustomer()"
+              *ngIf="customer!=null">
+              <i class="fa fa-save"></i>存檔
+            </button>
+            <button *ngIf="customer==null" type="button" class="btn btn-info btn-sm active m-2"
+              (click)="addCustomer()"><i class="fa fa-plus-circle" aria-hidden="true"></i>
+              新增</button>
+          </ng-container>
+
+          <ng-template #NoEditPermission>
+
+          </ng-template>
+
+        </span>
+        <table class="table tab_content_table table-bordered" [formGroup]="form">
+          <tr>
+            <td colspan="4" class="heading">客戶建檔</td>
+          </tr>
+          <tr>
+            <th>ERP系統編號</th>
+            <td><input type="text" formControlName="YJFCustomerNumber"></td>
+            <th>國別代號</th>
+            <td><input type="text" formControlName="CountryCode"></td>
+          </tr>
+          <tr>
+            <th>建檔者</th>
+            <td><input type="text" readonly="readonly" placeholder="系統將自動帶出" formControlName="LoginUserName"></td>
+            <th>建檔日期</th>
+            <td><input type="text" readonly="readonly" placeholder="系統將自動帶出" formControlName="CreateDate"></td>
+          </tr>
+          <tr>
+            <th>客戶編號</th>
+            <td><input type="text" readonly="readonly" placeholder="系統將自動帶出" formControlName="CustomerNumber"></td>
+            <th><span>用戶簡稱</span></th>
+            <td>
+              <input type="text" formControlName="Nickname">
+              <app-errorMessage [enable]="fS.isControlError(form,'Nickname')"></app-errorMessage>
+            </td>
+          </tr>
+          <tr>
+            <th><span>客戶狀態</span></th>
+            <td>
+              <select class="select_form" formControlName="Status">
+                <option *ngFor="let item of StatusAry;let i=index" [value]=i>{{item}}</option>
+              </select>
+              <app-errorMessage [enable]="fS.isControlError(form,'Status')"></app-errorMessage>
+            </td>
+            <th>員工人數</th>
+            <td>
+              <input type="text" formControlName="EmployeeCount">
+            </td>
+          </tr>
+          <tr>
+            <th><span>聯絡人</span></th>
+            <td>
+              <input type="text" formControlName="ContactPerson">
+              <app-errorMessage [enable]="fS.isControlError(form,'ContactPerson')"></app-errorMessage>
+            </td>
+            <th><span>公司全名</span></th>
+            <td>
+              <input type="text" formControlName="UserName">
+              <app-errorMessage [enable]="fS.isControlError(form,'UserName')"></app-errorMessage>
+            </td>
+          </tr>
+          <tr>
+            <th>統一編號</th>
+            <td>
+              <input type="text" formControlName="TaxIDNumber">
+              <ng-container *ngIf="fS.isControlError(form,'TaxIDNumber')">
+                <app-errorMessage [enable]="fS.getErrorType(form,'TaxIDNumber','pattern')"
+                  [message]="'格式錯誤'"></app-errorMessage>
+              </ng-container>
+            </td>
+            <th>傳真電話</th>
+            <td><input type="tel" formControlName="Fax"></td>
+          </tr>
+          <tr>
+            <th>連絡電話1</th>
+            <td><input type="tel" formControlName="TEL"></td>
+            <th>連絡電話2</th>
+            <td><input type="tel" formControlName="TEL2"></td>
+          </tr>
+          <tr>
+            <th><span>E-mail</span></th>
+            <td colspan="3">
+              <input type="text" style="width:580px" placeholder="請輸入E-mail" formControlName="Email">
+              <ng-container *ngIf="fS.isControlError(form,'Email')">
+                <app-errorMessage [enable]="fS.getErrorType(form,'Email','required')"></app-errorMessage>
+                <app-errorMessage [enable]="fS.getErrorType(form,'Email','email')"
+                  [message]="'格式錯誤'"></app-errorMessage>
+              </ng-container>
+
+
+            </td>
+          </tr>
+          <tr>
+            <th>資本額</th>
+            <td>
+              <input type="number" formControlName="Capital">
+            </td>
+            <th>年營業額</th>
+            <td>
+              <input type="number" formControlName="Revenue">
+            </td>
+          </tr>
+          <tr>
+            <th><span>匯率</span></th>
+            <td>
+              <select formControlName="Currency" style="width: 100%">
+                <option></option>
+                <option>TWD</option>
+                <option>EUR</option>
+                <option>USD</option>
+                <option>JPY</option>
+              </select>
+              <app-errorMessage [enable]="fS.isControlError(form,'Currency')"></app-errorMessage>
+            </td>
+            <th><span>交易條件</span></th>
+            <td>
+              <select style="width: 100%;height: 35px;padding: 0px;margin: 0px;font-size: 20px"
+                formControlName="DeliveryTerm">
+                <option></option>
+                <option>Ex-Work</option>
+                <option>FOB</option>
+                <option>CIF</option>
+                <option>DDU</option>
+              </select>
+              <app-errorMessage [enable]="fS.isControlError(form,'DeliveryTerm')"></app-errorMessage>
+            </td>
+          </tr>
+          <tr>
+            <th>備註</th>
+            <td colspan="4"><textarea style="width:100%;height:50px;min-height: 50px;resize: vertical"
+                formControlName="Remark"></textarea></td>
+          </tr>
+        </table>
+
+      </div>
+    </div>
+  </section>
+</form>
+<!--建立or瀏覽資料End-->
+<!--Content End-->

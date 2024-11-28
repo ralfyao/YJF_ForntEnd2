@@ -1,0 +1,101 @@
+<div>
+  <div class="operateBlock mb-2">
+    <button type="button" class="btn btn-outline-info  mx-1" (click)="PageEdit(EditPage)"><i class="fa fa-pencil mr-2"
+        aria-hidden="true"></i>編輯</button>
+    <button type="button" class="btn btn-outline-info  mx-1" (click)="openmodal(search,'')">
+      <i class="fa fa-search"></i>
+      查詢
+    </button>
+  </div>
+  <div class="tableBlock">
+    <ngx-datatable #mydatatable class="material" [headerHeight]="50" style="height:calc(100% - 40px);"
+      [columnMode]="'force'" [footerHeight]="50" [rowHeight]="50" [rows]="ShutDownData" [reorderable]="true"
+      [scrollbarV]="true" (select)="onSelect($event)" [selectionType]="'checkbox'" [scrollbarH]="true">
+      <ngx-datatable-column frozenLeft="true" [sortable]="false" [headerCheckboxable]="true" [width]="20"
+        [checkboxable]="true"></ngx-datatable-column>
+
+      <ngx-datatable-column frozenLeft="true" prop="ProductionOrderHead" name="製令單別" [canAutoResize]="true"></ngx-datatable-column>
+      <ngx-datatable-column frozenLeft="true" prop="ProductionOrder" name="製令單" [canAutoResize]="true"></ngx-datatable-column>
+      <ngx-datatable-column frozenLeft="true" prop="ItemCode" name="品號" [canAutoResize]="true"></ngx-datatable-column>
+      <ngx-datatable-column frozenLeft="true" prop="PartDesc" name="品名" [width]="500" [canAutoResize]="true"></ngx-datatable-column>
+      <ngx-datatable-column prop="CusOrder" name="客戶訂單" [canAutoResize]="true"></ngx-datatable-column>
+      <ngx-datatable-column prop="CustomerName" name="客戶名稱" [canAutoResize]="true"></ngx-datatable-column>
+      <ngx-datatable-column prop="OrderErrStatus" name="目前工單狀態" [canAutoResize]="true"></ngx-datatable-column>
+      <ngx-datatable-column prop="IsDelete" name="工單顯示狀態" [canAutoResize]="true"></ngx-datatable-column>
+      <ngx-datatable-column name="異常原因" [canAutoResize]="true">
+        <ng-template let-row="row" ngx-datatable-cell-template>
+          {{row.ShutDownName == '其他'?row.OtherReason:row.ShutDownName}}
+        </ng-template>
+      </ngx-datatable-column>
+      <ngx-datatable-column prop="LastUpdateBy" name="最後操作人員"></ngx-datatable-column>
+      <ngx-datatable-column prop="LastUpdateDate" name="最後操作時間"></ngx-datatable-column>
+    </ngx-datatable>
+  </div>
+</div>
+<ng-template #EditPage let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title my-0"></h4>
+  </div>
+  <div class="modal-body">
+    <div class="row my-2">
+      <label class="text-right mx-2 col-3">工單:</label>
+      <input class="mr-2 col-7" type="text" [(ngModel)]="PageModalData.ProductionOrder" disabled>
+    </div>
+    <div class="row my-2">
+      <label class="text-right mx-2 col-3">停機原因:</label>
+      <select class="custom-select col-7" [(ngModel)]="PageModalData.ShutDownName"
+        [ngModelOptions]="{standalone: true}">
+        <option *ngFor="let item of ShutDownList" [value]="item.ShutDownName">{{item.ShutDownName}}</option>
+      </select>
+    </div>
+    <div class="row my-2" *ngIf="PageModalData.ShutDownName == '其他'">
+      <label class="text-right mx-2 col-3">停機原因描述:</label>
+      <textarea class="col-7" [(ngModel)]="PageModalData.OtherReason"></textarea>
+    </div>
+    <div class="row my-2">
+      <label class="text-right mx-2 col-3">目前工單狀態:</label>
+      <input class="mr-2 col-7" type="checkbox" [(ngModel)]="PageModalData.OrderErrStatus"
+        [value]="PageModalData.OrderErrStatus" />
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="PageSave();modal.close('Close click')"><i
+        class="mr-1 fa fa-floppy-o"></i>儲存</button>
+    <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')"><i
+        class="mr-1 fa fa-times"></i>Close</button>
+  </div>
+</ng-template>
+
+<ng-template #search let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title my-0"></h4>
+  </div>
+  <div class="modal-body">
+    <!-- <div class="row my-2">
+      <label class="text-right mx-2 col-3">工單:</label>
+      <input class="mr-2 col-7" type="text" [(ngModel)]="productionOrderSearch">
+    </div> -->
+    <div class="row my-2">
+      <label class="text-right mx-2 col-3">搜尋字串:</label>
+      <input class="mr-2 col-8" type="text" [(ngModel)]="searchText" placeholder="輸入製令單、客戶、品號、品名、客戶訂單號碼">
+    </div>
+    <div class="row my-2">
+      <label class="text-right mx-2 col-3">停機原因:</label>
+      <select class="custom-select col-7" [(ngModel)]="shutDownNameSearch" [ngModelOptions]="{standalone: true}">
+        <option *ngFor="let item of ShutDownList" [value]="item.ShutDownName">{{item.ShutDownName}}</option>
+      </select>
+    </div>
+    <div class="row my-2" *ngIf="shutDownNameSearch == '其他'">
+      <label class="text-right mx-2 col-3">停機原因描述:</label>
+      <textarea class="col-7" [(ngModel)]="otherReasonSearch"></textarea>
+    </div>
+    <div class="row my-2">
+      <label class="text-right mx-2 col-3">目前工單狀態:</label>
+      <input class="mr-2 col-7" type="checkbox" [(ngModel)]="orderErrStatusSearch">
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="onSearch()"><i class="mr-1 fa fa-floppy-o"></i>搜尋</button>
+    <button type="button" class="btn btn-secondary" (click)="onClear()"><i class="mr-1 fa fa-times"></i>清除</button>
+  </div>
+</ng-template>

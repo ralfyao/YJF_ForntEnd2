@@ -1,0 +1,78 @@
+ngx-datatable {
+  height: calc(100% - 190px);
+}
+
+.detailtable th,
+.detailtable td {
+  border: 1px solid #b1b1b1;
+  text-align: center;
+}
+
+.btn-expand {
+  padding: 0px;
+  width: 20px;
+  height: 20px;
+  background-color: #fff0;
+  border: 0px;
+  color: #b1b1b1;
+  cursor: pointer;
+}
+
+.form-check {
+  display: inline-block;
+}
+
+.form-check .form-check-input {
+  margin-top: 0.1rem;
+  margin-left: -1rem;
+}
+
+/* /deep/ .row-color-red {
+  background-color: lightpink;
+}
+
+/deep/ .row-color-blue {
+  background-color: lightskyblue;
+} */
+label.text-center {
+  font-weight: 600;
+}
+
+.round {
+  height: 20px;
+  width: 20px;
+  border-radius: 20px;
+}
+
+.round.green {
+  background-color: #00ba00;
+}
+
+.round.red {
+  background-color: #e0230d;
+}
+
+.round.blue {
+  background-color: #0d1fe0;
+}
+
+.round.yellow {
+  background-color: #ffcc13;
+}
+
+.round.orange {
+  background-color: rgb(255, 136, 0);
+}
+
+.round.pink {
+  background-color: rgb(239, 128, 147);
+}
+.round.lightpurple {
+  background-color: rgb(224 ,128 ,239);
+}
+.round.gray {
+  background-color:gray;
+}
+.round.done {
+  opacity: 0;
+}

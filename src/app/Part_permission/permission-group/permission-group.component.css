@@ -1,0 +1,8 @@
+.area{
+  display: inline-block;
+  margin:0 1%;
+  height:calc(100vh - 130px)
+}
+.ngx-datatable.material.single-selection .datatable-body-row.active:hover .datatable-row-group{
+  background-color: aquamarine;
+}

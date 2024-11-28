@@ -1,0 +1,54 @@
+<!--右邊內容__標題Start-->
+<div class="pagetitle">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>產出紀錄
+</div>
+<!--右邊內容__標題End-->
+
+<!--右邊內容__搜尋區域Start-->
+<section class="search_area">
+  <form role="form">
+    <div>
+      <input  type="text" style="background-color: honeydew;width: 350px;" placeholder="全文關鍵字搜尋" [(ngModel)]="SearchText"
+        [ngModelOptions]="{standalone: true}" (change)="SmartSearch(1,SearchText)">
+    </div>
+    <div class="typesetting-4">
+      <button type="button" class="btn btn-outline-primary" (click)="SmartSearch(1,SearchText)"><i class="fa fa-search"></i>
+        查詢</button>
+      <button type="button" class="btn btn-outline-primary" (click)="addProductLog(null)"><i
+          class="fa fa-plus-circle"></i>新增產出紀錄</button>
+    </div>
+  </form>
+</section>
+<!--右邊內容__搜尋區域End-->
+
+
+<!--右邊內容__搜尋之後的表格清單Start -->
+<table class="table table-bordered table-striped table-hover">
+  <thead>
+    <tr class="color_th1">
+      <th>澆注日期</th>
+      <th>填單人</th>
+      <th>爐次</th>
+      <th>盆數</th>
+      <th>出水總重(KG)</th>
+      <th width="90">操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr id="record{{i}}" (click)="TableRowColorChange('record',recordList,i)"  *ngFor="let record of recordList; let i=index">
+      <td>{{record.Date}}</td>
+      <td>{{record.Creator}}</td>
+      <td>{{record.PouringBatch}}</td>
+      <td>{{record.Basin}}</td>
+      <td>{{record.PouringOutTotal}}</td>
+      <td class="manage">
+        <button type="button" class="btn btn-outline-info" (click)="addProductLog(record)"><i
+            class="fa fa-search-plus"></i>查看</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<ngb-pagination (pageChange)="loadPage($event)" class="pagination pull-right" [(collectionSize)]="TotalCount"
+  [(page)]="Page" [pageSize]="10" [maxSize]="10" aria-label="Default pagination" size="sm" [boundaryLinks]="true">
+</ngb-pagination>
+<!--右邊內容__搜尋之後的表格清單End -->

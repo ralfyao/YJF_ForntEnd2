@@ -1,0 +1,155 @@
+<div>
+  <h1 style="text-align: right;">鑄件件數：{{itemCount}}&nbsp;總重：{{totalWeight}}</h1>
+  <button class="btn btn-info btn-sm active m-2" (click)="ExportData()"><i
+      class="fa fa-file-excel-o m-1"></i>Excel匯出</button>
+  <button class="btn btn-info btn-sm active m-2" (click)="openmodal(searchPopup)">
+    <i class="fa fa-search m-1"></i>查詢</button>
+
+    <ngx-datatable #mydatatable class="material" style="height: calc(100vh - 100px - 2.5rem);" [scrollbarV]="true"
+    [headerHeight]="50" [limit]="10" [columnMode]="'force'" [footerHeight]="50" [rowHeight]="60" [rows]="UnboxingData"
+    [selectAllRowsOnPage]="false" [messages]="noDataMessages" [scrollbarH]="true">
+    <ngx-datatable-column headerClass="text-center" cellClass="text-center" [resizeable]="true" name="勾選">
+      <ng-template let-row="row" let-expanded="expanded" ngx-datatable-cell-template>
+        <input type="checkbox" [checked]="(row.week != '' ? true : false)" (change)="onCheckboxChange($event, row)"  />
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column headerClass="text-center" cellClass="text-center" [resizeable]="true" name="排單週別">
+      <ng-template let-row="row" ngx-datatable-cell-template class="custom-cell">
+        第&nbsp;<input type='number' min="1" max="52" [(ngModel)]="row.week" (blur)="update(row)" />週
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column headerClass="text-center" cellClass="text-center"  [resizeable]="true" prop="ProductionOrderCode" name="工單單號"  [width]="160">
+    </ngx-datatable-column>
+    <ngx-datatable-column headerClass="text-center" cellClass="text-center"  [resizeable]="true" prop="" name="鐵斗">
+      <ng-template ngx-datatable-cell-template let-value="value" let-row="row">
+        {{row["BottomFlask"]==""?row["TopFlask"]:row["TopFlask"]+"/"+row["BottomFlask"]}}
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column headerClass="text-center" cellClass="text-center"  [resizeable]="true" prop="TA028" name="訂單序號"></ngx-datatable-column>
+    <ngx-datatable-column headerClass="text-center" cellClass="text-center"  [resizeable]="true" prop="TA027" name="訂單號碼"></ngx-datatable-column>
+    <ngx-datatable-column headerClass="text-center" cellClass="text-center"  [resizeable]="true" prop="CustomerName" name="客戶"></ngx-datatable-column>
+    <ngx-datatable-column headerClass="text-center" cellClass="text-center"  [resizeable]="true" prop="ItemCode"  [width]="250" name="品號"></ngx-datatable-column>
+    <ngx-datatable-column headerClass="text-center" cellClass="text-center"  [resizeable]="true" prop="ItemName"  [width]="660" name="品名規格"></ngx-datatable-column>
+    <ngx-datatable-column headerClass="text-center" cellClass="text-center"  [resizeable]="true" prop="Qty" name="數量"  [width]="50"></ngx-datatable-column>
+    <ngx-datatable-column headerClass="text-center" cellClass="text-center"  [resizeable]="true" prop="UnitWeight" name="單重"  [width]="60"></ngx-datatable-column>
+    <ngx-datatable-column headerClass="text-center" cellClass="text-center"  [resizeable]="true" prop="" name="總重"  [width]="60">
+      <ng-template ngx-datatable-cell-template let-row="row">
+        {{row["Qty"]*row["UnitWeight"]}}
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column headerClass="text-center" cellClass="text-center"  [resizeable]="true" prop="PouringFinishDate" name="澆注完工日">
+      <ng-template ngx-datatable-cell-template let-value="value">
+        {{DateStringFormat(value)}}
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column headerClass="text-center" cellClass="text-center"  [resizeable]="true" prop="UnboxingFinishDate" name="拆箱完工日">
+      <ng-template ngx-datatable-cell-template let-value="value">
+        {{DateStringFormat(value)}}
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column headerClass="text-center" cellClass="text-center"  [resizeable]="true" prop="UnboxingEndTime" name="拆箱完工時間"></ngx-datatable-column>
+    <ngx-datatable-column headerClass="text-center" cellClass="text-center"  [resizeable]="true" prop="ETD" name="預交日">
+      <ng-template ngx-datatable-cell-template let-value="value">
+        {{DateStringFormat(value)}}
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column headerClass="text-center" cellClass="text-center"  [resizeable]="true" prop="ProductionState" [width]="200" name="生產進度">
+      <ng-template ngx-datatable-cell-template let-value="value">
+        {{DateStringFormat(value)}}
+      </ng-template>
+    </ngx-datatable-column>
+  </ngx-datatable>
+</div>
+<ng-template #searchPopup let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title my-0">搜尋</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="container">
+      <div class="row align-items-center mt-2 mb-2">
+        <label class="col text-center font-weight-bold">澆注完工日:</label>
+      </div>
+      <div class="row justify-content-center">
+        <input class="col-4" type="date" [(ngModel)]="PouringFilterStartDateSearchTerm">
+        <div class="col-1 justify-content-center">~</div>
+        <input class="col-4" type="date" [(ngModel)]="PouringFilterEndDateSearchTerm">
+      </div>
+      <div class="row align-items-center my-2">
+        <label class="col text-center font-weight-bold">預交日:</label>
+      </div>
+      <div class="row justify-content-center">
+        <input class="col-4" type="date" [(ngModel)]="ETDFilterStartDateSearchTerm">
+        <div class="col-1 justify-content-center">~</div>
+        <input class="col-4" type="date" [(ngModel)]="ETDFilterEndDateSearchTerm">
+      </div>
+      <div class="row align-items-center my-2">
+        <label class="col text-center font-weight-bold">拆箱完工日:</label>
+      </div>
+      <div class="row justify-content-center">
+        <input class="col-4" type="date" [(ngModel)]="UnboxingFilterStartDateSearchTerm">
+        <div class="col-1 justify-content-center">~</div>
+        <input class="col-4" type="date" [(ngModel)]="UnboxingFilterEndDateSearchTerm">
+      </div>
+    </div>
+
+    <div class="row align-items-center justify-content-center my-2">
+      <div class="col-4">
+        <label class="col font-weight-bold">鐵斗:</label>
+        <input class="col " type="text" placeholder="輸入鐵斗編號..." [(ngModel)]="FlaskTextSearchTerm">
+      </div>
+      <div class="col-4">
+        <label class="col font-weight-bold">品號:</label>
+        <input class="col" type="text" placeholder="輸入品號..." [(ngModel)]="ItemCodeTextSearchTerm">
+      </div>
+
+    </div>
+    <div class="row align-items-center justify-content-center my-2">
+      <div class="col-4">
+        <label class="col font-weight-bold">製令單號:</label>
+        <input class="col " type="text" placeholder="輸入製令單..." [(ngModel)]="ProductionOrderTextSearchTerm">
+      </div>
+      <div class="col-4" [formGroup]="form">
+        <label class="col font-weight-bold">訂單類別:</label>
+        <ng-container *ngFor="let item of OrderList;index as i">
+          <div class="form-check">
+            <input type="checkbox"
+            [id]="'Order'+i"
+            formControlName="type{{i}}"
+            name="OrderList"
+            class="form-check-input">
+            <label class="form-check-label" [for]="'Order'+i">{{item.name}}</label>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+    <div class="row align-items-center justify-content-center my-2">
+      <div class="col-4">
+
+      </div>
+      <div class="col-4" [formGroup]="form1">
+        <label class="col font-weight-bold">製令狀態:</label>
+        <ng-container *ngFor="let item of productionStatusOptions;index as i">
+          <div class="form-check">
+            <input type="checkbox"
+            [id]="'Status'+i"
+            formControlName="Statustype{{i}}"
+            name="productionStatusOptions"
+            class="form-check-input">
+            <label class="form-check-label" [for]="'Status'+i">{{item.itemName}}</label>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+    <div class="row align-items-center mt-2 mb-2">
+
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="onSearch();"><i
+        class="mr-1 fa fa-file-excel-o"></i>確定</button>
+    <button type="button" class="btn btn-secondary" (click)="onClear()"><i class="mr-1 fa fa-times"></i>清除</button>
+  </div>
+</ng-template>

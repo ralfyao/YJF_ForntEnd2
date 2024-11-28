@@ -1,0 +1,248 @@
+<div>
+  <div class="area" style="width: 43%;">
+    <button type="button" class="btn btn-info my-2" (click)="GroupAdd(AddGroup)"><i class="fa fa-plus mr-2"
+        aria-hidden="true"></i>新增</button>
+    <ngx-datatable #groupdatatable class="material" [headerHeight]="50" style="height:calc(100% - 70px);"
+      selectionType="single" (select)="GroupSelected($event)" [columnMode]="'force'" [footerHeight]="50"
+      [rowHeight]="50" [rows]="GroupData" [reorderable]="true" [scrollbarV]="true">
+      <ngx-datatable-column prop="GroupName" name="角色群組名稱"></ngx-datatable-column>
+      <ngx-datatable-column prop="ManagerName" name="群組管理員"></ngx-datatable-column>
+      <ngx-datatable-column name="" [sortable]="false" [width]="230" [canAutoResize]="false">
+        <ng-template ngx-datatable-cell-template let-row="row">
+          <!-- 系統管理員不可做編輯、刪除,供應商僅能修改權限 -->
+          <button type="button" *ngIf="row['SYS_Group_Id']!=1" class="btn btn-outline-primary btn-sm mx-1"
+            (click)="PermissionEdit(EditPermission,row['GroupPermissionList'])">
+            <i class="fa fa-address-card-o mr-2" aria-hidden="true"></i>權限</button>
+          <button type="button" *ngIf="row['SYS_Group_Id']!=1&&row['SYS_Group_Id']!=6&&row['SYS_Group_Id']!=7"
+            class="btn btn-outline-info btn-sm mx-1" (click)="GroupEdit(EditGroup,row)">
+            <i class="fa fa-pencil mr-2" aria-hidden="true"></i>編輯</button>
+          <button type="button" *ngIf="row['SYS_Group_Id']!=1&&row['SYS_Group_Id']!=6&&row['SYS_Group_Id']!=7"
+            class="btn btn-outline-secondary btn-sm mx-1"
+            [swal]="{ title: '刪除後該群組人員權限需重設\r\n確定刪除嗎?', confirmButtonText:'確定',showCancelButton: true,cancelButtonText:'取消' }"
+            (confirm)="GroupDelete(row.SYS_Group_Id)"><i class="fa fa-trash-o mr-2" aria-hidden="true"></i>刪除</button>
+        </ng-template>
+      </ngx-datatable-column>
+    </ngx-datatable>
+  </div>
+  <div class="area" style="width: 53%;">
+    <button type="button"
+      *ngIf="SelectGroup.SYS_Group_Id!=0&&SelectGroup['SYS_Group_Id']!=6&&SelectGroup['SYS_Group_Id']!=7"
+      class="btn btn-info my-2" (click)="GroupPersonEdit(EditPerson,null)">
+      <i class="fa fa-plus mr-2" aria-hidden="true"></i>新增</button>
+    <ngx-datatable #persondatatable class="material" [headerHeight]="50" style="height:calc(100% - 70px);"
+      [columnMode]="'force'" [footerHeight]="50" [rowHeight]="50" [rows]="this.SelectGroup.GroupPersonList"
+      [reorderable]="true" [scrollbarV]="true">
+      <ngx-datatable-column prop="EmployeeName" name="成員ˊ" [width]="120"></ngx-datatable-column>
+      <ngx-datatable-column prop="Account" name="帳號" [width]="120"></ngx-datatable-column>
+      <ngx-datatable-column prop="RoleName" name="群組角色" [width]="150" [canAutoResize]="false"></ngx-datatable-column>
+      <ngx-datatable-column name="" [sortable]="false" [width]="160" [canAutoResize]="false">
+        <ng-template ngx-datatable-cell-template let-row="row">
+          <button type="button" *ngIf="row.GroupId!=1" class="btn btn-outline-info btn-sm mx-1"
+            (click)="GroupPersonEdit(EditPerson,row)"><i class="fa fa-pencil mr-2" aria-hidden="true"></i>編輯</button>
+          <button type="button" class="btn btn-outline-secondary btn-sm mx-1"
+            [swal]="{ title: '確定要刪除該人員嗎?', confirmButtonText:'確定',showCancelButton: true,cancelButtonText:'取消' }"
+            (confirm)="GroupPersonDelete(row.PersonId)"><i class="fa fa-trash-o mr-2" aria-hidden="true"></i>移除</button>
+        </ng-template>
+      </ngx-datatable-column>
+    </ngx-datatable>
+  </div>
+</div>
+<ng-template #EditPermission let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title my-0">群組權限設定</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <ngx-datatable class="material" [headerHeight]="50" style="height:68vh;" [columnMode]="" [footerHeight]="50"
+      [rowHeight]="50" [scrollbarV]="true" [rows]="GroupPermissionData">
+
+      <ngx-datatable-column prop="PageCode" width="250" name="頁面"></ngx-datatable-column>
+      <ngx-datatable-column prop="MenuGroupName" width="200" name="選單群組"></ngx-datatable-column>
+      <ngx-datatable-column prop="MenuName" width="200" name="選單名稱"></ngx-datatable-column>
+      <ngx-datatable-column prop="HasPermission" width="105" name="是否有權限">
+        <ng-template ngx-datatable-cell-template let-row="row" let-rowIndex="rowIndex">
+          <input type="checkbox" id="permission{{ rowIndex }}" [(ngModel)]="row['HasPermission']" />
+        </ng-template>
+      </ngx-datatable-column>
+    </ngx-datatable>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="PermissionSave();modal.close('Close click')"><i
+        class="mr-1 fa fa-floppy-o"></i>儲存</button>
+    <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')"><i
+        class="mr-1 fa fa-times"></i>取消</button>
+  </div>
+</ng-template>
+<ng-template #AddGroup let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title my-0">新增群組</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row ">
+      <label class="text-right my-auto col-3">群組名稱:</label>
+      <input class="mr-2 my-1" type="text" [(ngModel)]="EditPermissionGroup.GroupName" />
+    </div>
+    <div class="row ">
+      <label class="text-right my-auto col-3">群組管理員:</label>
+      <input class="mr-2 my-1" disabled type="text" [(ngModel)]="EditPermissionGroup.ManagerName" />
+      <button type="button" class="btn btn-sm btn-secondary" style="height: 2.5em;"
+        (click)="PersonReturnType='GroupManager';openmodal(ChooseAccount,'lg')"><i
+          class="fa fa-user-o mx-1"></i></button>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)=" GroupSave();"><i class="mr-1 fa fa-floppy-o"></i>儲存</button>
+    <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')"><i
+        class="mr-1 fa fa-times"></i>取消</button>
+  </div>
+</ng-template>
+<ng-template #EditGroup let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title my-0">群組編輯</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row ">
+      <label class="text-right mx-2 col-2">群組名稱:</label>
+      <input class="mr-2" type="text" [(ngModel)]="EditPermissionGroup.GroupName" />
+    </div>
+    <div class="row ">
+      <label class="text-right mx-2 col-2">群組管理員:</label>
+      <input class="mr-2" disabled type="text" [(ngModel)]="EditPermissionGroup.ManagerName" />
+      <button type="button" class="btn btn-sm btn-secondary" style="height: 2.5em;"
+        (click)="PersonReturnType='GroupManager';openmodal(ChooseAccount,'lg')"><i
+          class="fa fa-user-o mx-1"></i></button>
+    </div>
+    <div>
+      <div class="mx-2" style="width:calc(40% - 1rem); display: inline-block;">
+        <button type="button" class="btn btn-info my-2" (click)="GroupRoleEdit(EditRole,null)"><i
+            class="fa fa-plus mr-2" aria-hidden="true"></i>新增</button>
+        <ngx-datatable class="material" [headerHeight]="50" style="height:50vh;" [columnMode]="" [footerHeight]="50"
+          [rowHeight]="50" [scrollbarV]="true" [scrollbarH]="false" [rows]="EditPermissionGroup.PermissionRoleList"
+          selectionType="single" (select)="RoleSelected($event)">
+          <ngx-datatable-column prop="Name" [width]="140" name="角色名稱"></ngx-datatable-column>
+          <ngx-datatable-column [width]="150" [sortable]="false">
+            <ng-template ngx-datatable-cell-template let-row="row" let-rowIndex="rowIndex">
+              <button type="button" class="btn btn-outline-info btn-sm mx-1" (click)="GroupRoleEdit(EditRole,row)">
+                <i class="fa fa-pencil mr-2" aria-hidden="true"></i>編輯</button>
+              <button type="button" class="btn btn-outline-secondary btn-sm mx-1"
+                [swal]="{ title: '刪除後該角色人員權限需重設\r\n確定刪除嗎?', confirmButtonText:'確定',showCancelButton: true,cancelButtonText:'取消' }"
+                (confirm)="GroupRoleDelete(row.RoleId)">
+                <i class="fa fa-trash-o mr-2" aria-hidden="true"></i>刪除</button>
+            </ng-template>
+          </ngx-datatable-column>
+        </ngx-datatable>
+      </div>
+      <div class="mx-2" style="width:calc(60% - 1rem); display: inline-block;">
+
+        <ngx-datatable class="material" [headerHeight]="50" style="height:50vh;" [columnMode]="" [footerHeight]="50"
+          [rowHeight]="50" [scrollbarV]="true" [rows]="RolePermissionData">
+          <ngx-datatable-column prop="PageName" width="130" name="頁面"></ngx-datatable-column>
+          <ngx-datatable-column prop="MenuGroup" width="100" name="選單群組"></ngx-datatable-column>
+          <ngx-datatable-column prop="MenuName" width="120" name="選單名稱"></ngx-datatable-column>
+          <ngx-datatable-column prop="HasPermission" width="50" name="權限">
+            <ng-template ngx-datatable-cell-template let-row="row" let-rowIndex="rowIndex">
+              <input type="checkbox" id="permission{{ rowIndex }}" [(ngModel)]="row['HasPermission']" />
+            </ng-template>
+          </ngx-datatable-column>
+        </ngx-datatable>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="GroupSave();"><i class="mr-1 fa fa-floppy-o"></i>儲存</button>
+    <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')"><i
+        class="mr-1 fa fa-times"></i>取消</button>
+  </div>
+</ng-template>
+<ng-template #EditRole let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title my-0">角色編輯</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row ">
+      <label class="text-right p-2 col-4">角色名稱:</label>
+      <input class="col-7 m-0 mr-1" type="text" [(ngModel)]="EditGroupRole.Name" />
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="GroupRoleSave();modal.close('Close click')"><i
+        class="mr-1 fa fa-floppy-o"></i>儲存</button>
+    <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')"><i
+        class="mr-1 fa fa-times"></i>取消</button>
+  </div>
+</ng-template>
+<ng-template #EditPerson let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title my-0">編輯</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row ">
+      <label class="text-right my-auto col-3">姓名:</label>
+      <input class="mr-2 my-1" type="text" disabled [(ngModel)]="EditGroupPerson.EmployeeName" />
+      <button type="button" class="btn btn-sm btn-secondary" *ngIf="EditGroupPerson.PersonId==0" style="height: 2.5em;"
+        (click)="PersonReturnType='GroupPerson';openmodal(ChooseAccount,'lg')"><i
+          class="fa fa-user-o mx-1"></i></button>
+    </div>
+    <div class="row ">
+      <label class="text-right my-auto col-3">帳號:</label>
+      <input class="mr-2 my-1" type="text" disabled [(ngModel)]="EditGroupPerson.Account" />
+    </div>
+    <div class="row ">
+      <label class="text-right my-auto col-3">群組角色:</label>
+
+      <select class="custom-select mr-2 my-1" [(ngModel)]="EditGroupPerson.RoleId" [ngModelOptions]="{standalone: true}"
+        style="width: auto;">
+        <option *ngIf="EditGroupPerson.RoleId==0" [value]="0">請選擇角色</option>
+        <option *ngFor="let role of SelectGroup.PermissionRoleList" [value]="role.RoleId">{{role.Name}}</option>
+      </select>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="GroupPersonSave();"><i
+        class="mr-1 fa fa-floppy-o"></i>儲存</button>
+    <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')"><i
+        class="mr-1 fa fa-times"></i>取消</button>
+  </div>
+</ng-template>
+<ng-template #ChooseAccount let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title my-0">選擇人員</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <ngx-datatable class="material" [headerHeight]="50" style="height:50vh;" [footerHeight]="50" [rowHeight]="50"
+      [scrollbarH]="false" [scrollbarV]="true" [rows]="AccountData">
+      <ngx-datatable-column [width]="250" prop="EmployeeAccount" name="帳號"></ngx-datatable-column>
+      <ngx-datatable-column [width]="200" prop="EmployeeName" name="名稱"></ngx-datatable-column>
+      <ngx-datatable-column [width]="200" prop="YJFEmployeeCode" name="工號"></ngx-datatable-column>
+      <ngx-datatable-column name="" [sortable]="false" [width]="100" [canAutoResize]="false">
+        <ng-template ngx-datatable-cell-template let-row="row">
+          <button type="button" class="btn btn-outline-info btn-sm mx-1"
+            (click)="ReturnAccount(row);modal.close('Close click');"><i class="fa fa-check-square-o mr-2"
+              aria-hidden="true"></i>選擇</button>
+        </ng-template>
+      </ngx-datatable-column>
+
+    </ngx-datatable>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')"><i
+        class="mr-1 fa fa-times"></i>取消</button>
+  </div>
+</ng-template>

@@ -1,0 +1,98 @@
+<div class="pagetitle" style="height: fit-content;">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>生產負荷圖表
+</div>
+<br>
+<div class="title" style="height: fit-content;">
+  <div class="float_left path">
+    <a><i class="fa fa-arrow-circle-right"></i>查詢條件</a>
+    <!--修改時上方會顯示員工姓名，新增時不會顯示-->
+  </div>
+</div>
+<br>
+<div style="width: 100%;height: 100%;">
+  <div>
+    <table class="table tab_content_table table-bordered">
+      <tr>
+        <td style="width: 80px;white-space:nowrap" vertical_align_center="true">
+          日期區間：
+        </td>
+        <td vertical_align_center="true" style="white-space:nowrap">
+          <!-- <div class="col d-flex"> -->
+             開始日期
+            <input type="date" name="startDate" id="startDate" class="col" [(ngModel)]="startDate" (change)="reloadData()"/>
+         ~
+            結束日期
+            <input type="date" name="endDate" id="endDate" class="col" [(ngModel)]="endDate" (change)="reloadData()"/>
+          <!-- </div> -->
+        </td>
+      </tr>
+      <tr >
+        <td style="width: 80px;" vertical_align_center="true">
+          <label for="lineCodesSearch" class="form-check-label mr-2 font-weight-bolder">組別：</label>
+        </td>
+        <td>
+          <ng-container  *ngFor="let item of productionLineNameList">
+            <button *ngIf="showGroup != item" class="btn btn-primary btn-sm active" role="button"
+            (click)="filtertable(item)">
+              {{item}}
+            </button>
+            <button *ngIf="showGroup == item" class="btn btn-info btn-sm active" role="button"
+            (click)="filtertable(item)">
+              {{item}}
+            </button>
+          </ng-container>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2" style="text-align: center;align-content: center;">
+            <h1>{{showGroup}}</h1>
+          <!-- <ng-container *ngFor="let item of productionLineNameList"> -->
+            <canvas baseChart
+              [datasets]="chartData"
+              [options]="barChartOptions2"
+              [legend]="barChartLegend"
+              [chartType]="barChartType"
+              [labels]="label"
+              [colors]="barChartColors2">
+
+            </canvas>
+            <br>
+            <H1>每日產量工單</H1>
+            <br>
+            <div class="alignLeft">
+              <H2>總公斤數：{{totalWeight | number: '3.0-2'}}</H2>
+              <H2>總件數：{{totalQuantity}}</H2>
+              <button type="button" class="btn btn-primary" (click)="exportexcel()"><i
+                class="mr-1 fa fa-file-excel-o"></i>匯出Excel</button>
+            </div>
+          <!-- </ng-container> -->
+          <table id="excel-table" *ngIf="chartData != undefined" width="100%" >
+            <tr>
+              <th>日期</th>
+              <th>工單</th>
+              <th>品號</th>
+              <th>品名</th>
+              <th>產量公斤數</th>
+            </tr>
+            <tr *ngFor="let item of loadingWOData">
+              <ng-container *ngIf="item.OrderType === '223'">
+                <td class="stockWo">{{DateStringFormat(item.CreateDate)}}</td>
+                <td class="stockWo"><a href="/login_success/ScheduleManagement?workOrder={{item.WorkOrder}}">{{item.WorkOrder}}</a></td>
+                <td class="stockWo"><a href="/login_success/ScheduleManagement?partNo={{item.PartNo}}">{{item.PartNo}}</a></td>
+                <td class="stockWo">{{item.PartDesc}}</td>
+                <td class="stockWo">{{item.ProdWeight | number: '3.0-2'}}</td>
+              </ng-container>
+              <ng-container *ngIf="item.OrderType !== '223'">
+                <td>{{DateStringFormat(item.CreateDate)}}</td>
+                <td><a href="/login_success/ScheduleManagement?workOrder={{item.WorkOrder}}">{{item.WorkOrder}}</a></td>
+                <td><a href="/login_success/ScheduleManagement?partNo={{item.PartNo}}">{{item.PartNo}}</a></td>
+                <td>{{item.PartDesc}}</td>
+                <td>{{item.ProdWeight | number: '3.0-2'}}</td>
+              </ng-container>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>

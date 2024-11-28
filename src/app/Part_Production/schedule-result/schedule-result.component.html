@@ -1,0 +1,462 @@
+<div class="pagetitle" style="height: fit-content;">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>排程結果
+</div>
+<div style="width: 100%;height: 100%;">
+  <div>
+    <table class="table tab_content_table table-bordered">
+      <tr>
+        <th style="width: 150px;">
+          組別：
+        </th>
+        <td>
+          <div>
+            <button *ngIf="ShowGroup!='全部排程'" class="btn btn-primary btn-sm active" role="button"
+              (click)="filtertable('全部排程')">全部排程</button>
+            <button *ngIf="ShowGroup=='全部排程'" class="btn btn-info btn-sm active" role="button"
+              (click)="filtertable('全部排程')">全部排程</button>
+            <ng-container *ngFor="let item of ProductionLineList">
+              <button *ngIf="ShowGroup!=item" class="btn btn-primary btn-sm active" role="button"
+                (click)="filtertable(item)">{{item}}</button>
+              <button *ngIf="ShowGroup==item" class="btn btn-info btn-sm active" role="button"
+                (click)="filtertable(item)">{{item}}</button>
+            </ng-container>
+            <button *ngIf="ShowGroup!='外包'" class="btn btn-primary btn-sm active" role="button"
+              (click)="filtertable('外包')">外包</button>
+            <button *ngIf="ShowGroup=='外包'" class="btn btn-info btn-sm active" role="button"
+              (click)="filtertable('外包')">外包</button>
+          </div>
+          <div>
+            {{ShowGroup}}生產總重：{{TotalWeight}}噸
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <th>顯示</th>
+        <td>
+          <div>
+            <button *ngIf="!ShowChart" (click)="filtertable(ShowGroup);ShowChart=!ShowChart;inintialChart()"
+              class="btn btn-info btn-sm active" role="button">
+              <i class="fa fa fa-list" aria-hidden="true"></i>清單顯示</button>
+            <button *ngIf="ShowChart" (click)="filtertable(ShowGroup);ShowChart=!ShowChart;inintialChart()"
+              class="btn btn-primary btn-sm active" role="button">
+              <i class="fa fa fa-list" aria-hidden="true"></i>清單顯示</button>
+            <button *ngIf="ShowChart" (click)="filtertable(ShowGroup);ShowChart=!ShowChart;inintialChart()"
+              class="btn btn-info btn-sm active" role="button">
+              <i class="fa fa-line-chart" aria-hidden="true"></i>圖面顯示</button>
+            <button *ngIf="!ShowChart" (click)="filtertable(ShowGroup);ShowChart=!ShowChart;inintialChart()"
+              class="btn btn-primary btn-sm active" role="button">
+              <i class="fa fa-line-chart" aria-hidden="true"></i>圖面顯示</button>
+            <button class="btn btn-info btn-sm active" *ngIf="ShowWIP"
+              (click)="ShowWIP=!ShowWIP;filtertable(ShowGroup)"><i class="fa fa-filter" aria-hidden="true"></i>
+              顯示廠內在製</button>
+            <button class="btn btn-info btn-sm active" *ngIf="!ShowWIP"
+              (click)="ShowWIP=!ShowWIP;filtertable(ShowGroup)"><i class="fa fa-filter" aria-hidden="true"></i>
+              隱藏在製</button>
+            <input *ngIf="ShowToday&&ShowGroup!='全部排程'" type="checkbox" class="form-check-input" id="ShowToday"
+              value="ShowToday" (click)="ShowToday=!ShowToday;filtertable(ShowGroup)" [(ngModel)]="ShowToday"
+              [ngModelOptions]="{standalone: true}">
+            <label *ngIf="ShowToday&&ShowGroup!='全部排程'" class="form-check-label" style="font-size: 20px;"
+              for="ShowToday">今日排單</label>
+            <input *ngIf="!ShowToday&&ShowGroup!='全部排程'" type="checkbox" class="form-check-input" id="ShowToday"
+              value="ShowToday" (click)="ShowToday=!ShowToday;filtertable(ShowGroup)" [(ngModel)]="ShowToday"
+              [ngModelOptions]="{standalone: true}">
+            <label *ngIf="!ShowToday&&ShowGroup!='全部排程'" class="form-check-label" style="font-size: 20px;"
+              for="ShowToday">今日排單</label>
+            <button class="btn btn-primary btn-sm active" (click)="exportexcel()">Excel匯出</button>
+
+
+          </div>
+        </td>
+      </tr>
+      <tr align="left">
+        <th style="text-align: center;width: 150px;">
+
+        </th>
+        <td>
+          <input  type="text" style="background-color: honeydew;width: 500px;" placeholder="全文關鍵字搜尋" [(ngModel)]="SearchString"
+            [ngModelOptions]="{standalone: true}" (input)="filtertable(ShowGroup)">
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <canvas *ngIf="ShowChart" baseChart height="100%" [datasets]="lineChartData" [labels]="lineChartLabels"
+    [options]="lineChartOptions" [colors]="lineChartColors" [legend]="lineChartLegend" [chartType]="lineChartType"
+    [plugins]="lineChartPlugins">
+  </canvas>
+
+  <div class="fitwindow" *ngIf="!ShowChart">
+    <table class="table-fixed" style="width: 100%;" id="excel-table">
+      <thead>
+        <tr style="height: 65px;">
+          <th class="tablehead">排序</th>
+          <th class="tablehead">品號</th>
+          <th class="tablehead">重量</th>
+          <th class="tablehead">預計出貨日</th>
+          <th class="tablehead">預計完成日</th>
+          <th class="tablehead">造模組別</th>
+          <th class="tablehead">合模組別</th>
+          <th class="tablehead">鐵斗編號</th>
+          <th *ngIf="ShowGroup=='木模線'||ShowGroup=='全部排程'" class="tablehead">木模</th>
+          <th *ngIf="ShowGroup=='木模線'" class="tablehead">木模位置</th>
+          <th *ngIf="ShowGroup.substring(0,2)=='造模'||ShowGroup=='全部排程'" class="tablehead">造模</th>
+          <th *ngIf="ShowGroup.substring(0,2)=='合模'||ShowGroup=='全部排程'" class="tablehead">合模</th>
+          <th *ngIf="ShowGroup=='澆注'||ShowGroup=='全部排程'" class="tablehead">澆注</th>
+          <th *ngIf="ShowGroup=='拆箱'||ShowGroup=='全部排程'" class="tablehead">拆箱</th>
+          <!-- <th *ngIf="ShowGroup=='退火'||ShowGroup=='全部排程'"
+          style="border: black;background-color: cornsilk;text-align: center;">退火爐</th>
+        <th *ngIf="ShowGroup=='磨毛'||ShowGroup=='全部排程'"
+          style="border: black;background-color: cornsilk;text-align: center;">磨毛邊</th> -->
+          <th *ngIf="ShowGroup!='全部排程'" colspan="7" class="tablehead">
+            {{ShowGroup}}進站完成</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="height:70px" *ngFor="let item of ShowScheduleTable;let i=index" id="ScheduleTableResult{{i}}"
+          (click)="TableRowColorChange('ScheduleTableResult',ShowScheduleTable,i);">
+          <td class="fullsizetd">{{item.scheduleindex}}</td>
+          <td class="fullsizetd">{{item.PartNo}}</td>
+          <td class="fullsizetd">{{item.Weight}}</td>
+          <td class="fullsizetd">{{item.ETD}}</td>
+          <td class="fullsizetd">{{item.EstimateFinDate}}</td>
+          <td class="fullsizetd">{{item.MoldingLine}}</td>
+          <td class="fullsizetd">{{item.AsemblingLine}}</td>
+          <td class="fullsizetd">
+            <ng-container *ngIf="!WIPcheck(item)">
+              <ng-container *ngIf="item.FlaskNo.length>0">
+                <button class="btn btn-outline-primary" style="background-color: white;"
+                  [ngClass]="{'patternsize' : item.PatternLength>0}" data-toggle="modal" data-target="#Modal_FlaskMatch"
+                  data-backdrop="static" (click)="FlaskMatch(item);FlaskListQuery(item,'')">{{item.FlaskNo}}</button>
+              </ng-container>
+              <ng-container *ngIf="item.FlaskNo.length==0">
+                <button class="btn btn-outline-primary" data-toggle="modal" style="background-color: white;"
+                  [ngClass]="{'patternsize' : item.PatternLength>0}" data-target="#Modal_FlaskMatch"
+                  data-backdrop="static" (click)="FlaskMatch(item);FlaskListQuery(item,'')">模具設定</button>
+              </ng-container>
+            </ng-container>
+            <ng-container *ngIf="WIPcheck(item)">
+              {{item.FlaskNo}}
+            </ng-container>
+          </td>
+
+          <td *ngIf="ShowGroup=='木模線'||ShowGroup=='全部排程'" class="fullsizetd" [ngStyle]="checkResult(item.Pattern)">
+            <ng-container *ngIf="!item.Pattern.includes('F')">
+              <button (mouseleave)="mouseout('Pattern'+i)" (mouseenter)="mousein('Pattern'+i)" class="tdbutton"
+                *ngIf="!item.Pattern.includes('F')" data-toggle="modal" data-target="#Modal_SFT"
+                (click)="trasnferSFT='木模線';CurrentScheduleResult=item;CheckFlaskUsage(item)"
+                data-backdrop="static">{{HoverIndex==('Pattern'+i)?'進站':item.Pattern}}</button>
+            </ng-container>
+            <ng-container *ngIf="item.Pattern.includes('F')">
+              <ng-container *ngIf="item.Molding.includes('F')">
+                {{item.Pattern}}
+              </ng-container>
+              <ng-container *ngIf="!item.Molding.includes('F')">
+                <button (mouseleave)="mouseout('Pattern'+i)" (mouseenter)="mousein('Pattern'+i)" class="tdbutton"
+                  [ngStyle]="{'background-color': HoverIndex==('Pattern'+i)?'':'darkorange'}"
+                  (click)="CancelSFT('木模線',item)">{{HoverIndex==('Pattern'+i)?'取消進站':item.Pattern}}</button>
+              </ng-container>
+            </ng-container>
+          </td>
+          <td *ngIf="ShowGroup=='木模線'" class="fullsizetd">{{item.PatternLocation}}</td>
+
+          <td *ngIf="ShowGroup.substring(0,2)=='造模'||ShowGroup=='全部排程'" class="fullsizetd"
+            [ngStyle]="checkResult(item.Molding)">
+            <ng-container *ngIf="!item.Molding.includes('F')">
+              <ng-container *ngIf="item.Pattern.includes('F')">
+                <button (mouseleave)="mouseout('Molding'+i)" (mouseenter)="mousein('Molding'+i)" class="tdbutton"
+                  data-toggle="modal" data-target="#Modal_SFT"
+                  (click)="trasnferSFT=item.MoldingLine;CurrentScheduleResult=item;CheckFlaskUsage(item)">{{HoverIndex==('Molding'+i)?'進站':item.Molding}}</button>
+              </ng-container>
+              <ng-container *ngIf="!item.Pattern.includes('F')">
+                {{item.Molding}}
+              </ng-container>
+            </ng-container>
+            <ng-container *ngIf="item.Molding.includes('F')">
+              <ng-container *ngIf="item.Asembling.includes('F')">
+                {{item.Molding}}
+              </ng-container>
+              <ng-container *ngIf="!item.Asembling.includes('F')">
+                <button (mouseleave)="mouseout('Molding'+i)" (mouseenter)="mousein('Molding'+i)" class="tdbutton"
+                  [ngStyle]="{'background-color': HoverIndex==('Molding'+i)?'':'darkorange'}"
+                  (click)="CancelSFT(item.MoldingLine,item)">{{HoverIndex==('Molding'+i)?'取消進站':item.Molding}}</button>
+              </ng-container>
+            </ng-container>
+          </td>
+
+          <td *ngIf="ShowGroup.substring(0,2)=='合模'||ShowGroup=='全部排程'" class="fullsizetd"
+            [ngStyle]="checkResult(item.Asembling)">
+            <ng-container *ngIf="!item.Asembling.includes('F')">
+              <ng-container *ngIf="item.Molding.includes('F')">
+                <button (mouseleave)="mouseout('Asembling'+i)" (mouseenter)="mousein('Asembling'+i)" class="tdbutton"
+                  data-toggle="modal" data-target="#Modal_SFT"
+                  (click)="trasnferSFT=item.AsemblingLine;CurrentScheduleResult=item;CheckFlaskUsage(item)">{{HoverIndex==('Asembling'+i)?'進站':item.Asembling}}</button>
+              </ng-container>
+              <ng-container *ngIf="!item.Molding.includes('F')">
+                {{item.Molding}}
+              </ng-container>
+            </ng-container>
+            <ng-container *ngIf="item.Asembling.includes('F')">
+              <ng-container *ngIf="item.Pouring.includes('F')">
+                {{item.Asembling}}
+              </ng-container>
+              <ng-container *ngIf="!item.Pouring.includes('F')">
+                <button (mouseleave)="mouseout('Asembling'+i)" (mouseenter)="mousein('Asembling'+i)" class="tdbutton"
+                  [ngStyle]="{'background-color': HoverIndex==('Asembling'+i)?'':'darkorange'}"
+                  (click)="CancelSFT(item.AsemblingLine,item)">{{HoverIndex==('Asembling'+i)?'取消進站':item.Asembling}}</button>
+              </ng-container>
+            </ng-container>
+          </td>
+
+
+          <td *ngIf="ShowGroup=='澆注'||ShowGroup=='全部排程'" class="fullsizetd" [ngStyle]="checkResult(item.Pouring)">
+            <ng-container *ngIf="!item.Pouring.includes('F')">
+              <ng-container *ngIf="item.Asembling.includes('F')">
+                <button (mouseleave)="mouseout('Pouring'+i)" (mouseenter)="mousein('Pouring'+i)" class="tdbutton"
+                  data-toggle="modal" data-target="#Modal_SFT"
+                  (click)="trasnferSFT='澆注';CurrentScheduleResult=item;CheckFlaskUsage(item)">{{HoverIndex==('Pouring'+i)?'進站':item.Pouring}}</button>
+              </ng-container>
+              <ng-container *ngIf="!item.Asembling.includes('F')">
+                {{item.Pouring}}
+              </ng-container>
+            </ng-container>
+            <ng-container *ngIf="item.Pouring.includes('F')">
+              <ng-container *ngIf="item.DeFlask.includes('F')">
+                {{item.Pouring}}
+              </ng-container>
+              <ng-container *ngIf="!item.DeFlask.includes('F')">
+                <button (mouseleave)="mouseout('Pouring'+i)" (mouseenter)="mousein('Pouring'+i)" class="tdbutton"
+                  [ngStyle]="{'background-color': HoverIndex==('Pouring'+i)?'':'darkorange'}"
+                  (click)="CancelSFT('澆注',item)">{{HoverIndex==('Pouring'+i)?'取消進站':item.Pouring}}</button>
+              </ng-container>
+            </ng-container>
+          </td>
+
+          <td *ngIf="ShowGroup=='拆箱'||ShowGroup=='全部排程'" class="fullsizetd" [ngStyle]="checkResult(item.DeFlask)">
+            <ng-container *ngIf="!item.DeFlask.includes('F')">
+              <ng-container *ngIf="item.Pouring.includes('F')">
+                <button (mouseleave)="mouseout('DeFlask'+i)" (mouseenter)="mousein('DeFlask'+i)" class="tdbutton"
+                  data-toggle="modal" data-target="#Modal_SFT"
+                  (click)="trasnferSFT='拆箱';CurrentScheduleResult=item;CheckFlaskUsage(item)">{{HoverIndex==('DeFlask'+i)?'進站':item.DeFlask}}</button>
+              </ng-container>
+              <ng-container *ngIf="!item.Pouring.includes('F')">
+                {{item.DeFlask}}
+              </ng-container>
+            </ng-container>
+            <ng-container *ngIf="item.DeFlask.includes('F')">
+              <button (mouseleave)="mouseout('DeFlask'+i)" (mouseenter)="mousein('DeFlask'+i)" class="tdbutton"
+                [ngStyle]="{'background-color': HoverIndex==('DeFlask'+i)?'':'darkorange'}"
+                (click)="CancelSFT('拆箱',item)">{{HoverIndex==('DeFlask'+i)?'取消進站':item.DeFlask}}</button>
+            </ng-container>
+          </td>
+
+          <!-- <td *ngIf="ShowGroup=='退火'||ShowGroup=='全部排程'" class="fullsizetd" [ngStyle]="checkResult(item.StressRelease)">
+            <ng-container *ngIf="!item.StressRelease.includes('F')">
+              <button (mouseleave)="mouseout('StressRelease'+i)" (mouseenter)="mousein('StressRelease'+i)" class="tdbutton"
+                (click)="insertSFT('退火',item)">{{HoverIndex==('StressRelease'+i)?'進站':item.StressRelease}}</button>
+            </ng-container>
+            <ng-container *ngIf="item.StressRelease.includes('F')">
+              <ng-container *ngIf="item.DeBurring.includes('F')">
+                {{item.StressRelease}}
+              </ng-container>
+              <ng-container *ngIf="!item.DeBurring.includes('F')">
+                <button (mouseleave)="mouseout('StressRelease'+i)" (mouseenter)="mousein('StressRelease'+i)" class="tdbutton"
+                  [ngStyle]="{'background-color': HoverIndex==('StressRelease'+i)?'':'darkorange'}"
+                  (click)="CancelSFT('退火',item)">{{HoverIndex==('StressRelease'+i)?'取消進站':item.StressRelease}}</button>
+              </ng-container>
+            </ng-container>
+          </td>
+
+          <td *ngIf="ShowGroup=='毛邊'||ShowGroup=='全部排程'" class="fullsizetd" [ngStyle]="checkResult(item.DeBurring)">
+            <ng-container *ngIf="!item.DeBurring.includes('F')">
+              <button (mouseleave)="mouseout('DeBurring'+i)" (mouseenter)="mousein('DeBurring'+i)" class="tdbutton"
+                (click)="insertSFT('毛邊',item)">{{HoverIndex==('DeBurring'+i)?'進站':item.DeBurring}}</button>
+            </ng-container>
+            <ng-container *ngIf="item.DeBurring.includes('F')">
+              <button (mouseleave)="mouseout('DeBurring'+i)" (mouseenter)="mousein('DeBurring'+i)" class="tdbutton"
+                  [ngStyle]="{'background-color': HoverIndex==('DeBurring'+i)?'':'darkorange'}"
+                  (click)="CancelSFT('毛邊',item)">{{HoverIndex==('DeBurring'+i)?'取消進站':item.DeBurring}}</button>
+            </ng-container>
+          </td> -->
+          <td *ngIf="ShowGroup!='全部排程'&&ShowGroup!='外包'" colspan="7" class="fullsizetd">
+            <button class="btn btn-outline-primary" *ngIf="checkCanSFT(item,ShowGroup)" style="background-color: white;"
+              (click)="insertSFT(ShowGroup,item)">進站</button>
+            <button class="btn btn-outline-primary" *ngIf="CheckCanCancelSFT(item,ShowGroup)"
+              style="background-color: white;" (click)="CancelSFT(ShowGroup,item)">進站取消</button>
+          </td>
+          <td *ngIf="ShowGroup=='外包'" colspan="7" class="fullsizetd">
+            外包
+          </td>
+        </tr>
+      </tbody>
+
+    </table>
+  </div>
+
+</div>
+<form [formGroup]="form" ngNativeValidate>
+  <div class="modal fade" tabindex="-1" role="dialog" id="Modal_SFT">
+    <div class="modal-dialog modal-xl" role="document">
+      <div class="modal-content">
+        <div align="left" style="padding: 10px">
+          <h3>
+            <i class="fa fa-address-book"></i> 進站確認{{trasnferSFT}}
+          </h3>
+        </div>
+        <div class="modal-body">
+          <table class="table table-bordered table-responsive-md table-striped text-center">
+            <thead>
+              <tr>
+                <th>進站日期</th>
+                <th>進站時間</th>
+              </tr>
+            </thead>
+            <tbody>
+              <td>
+                <mat-form-field appearance="fill">
+                  <mat-label>Different locale</mat-label>
+                  <input matInput [matDatepicker]="dp2" [(ngModel)]="SFTDate" [ngModelOptions]="{standalone: true}">
+                  <mat-datepicker-toggle matSuffix [for]="dp2"></mat-datepicker-toggle>
+                  <mat-datepicker #dp2></mat-datepicker>
+                </mat-form-field>
+              </td>
+              <td>
+                <input formControlName="StartTime" type="time" [(value)]="StartTime" />
+              </td>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-primary" data-dismiss="modal"
+            (click)="insertSFT(trasnferSFT,CurrentScheduleResult)">確認</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+<!--鐵斗選擇-->
+<div class="modal fade" tabindex="-1" role="dialog" id="Modal_FlaskMatch">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div align="left" style="padding: 10px">
+        <h3>
+          <i class="fa fa-address-book"></i> 鐵斗配對
+        </h3>
+      </div>
+      <div class="modal-body">
+        <div>
+          <label style="font-size: large;">{{CurrentPOstatus.PartNO}}木模尺寸紀錄：</label>
+        </div>
+        <div>
+          <label>長度</label>
+          <input style="width: 100px;" type="number" [ngModelOptions]="{standalone: false}"
+            [(ngModel)]="CurrentPOstatus.PatternLength" (input)="FlaskListQuery(CurrentPOstatus,'')">
+          <label>寬度</label>
+          <input style="width: 100px;" type="number" [ngModelOptions]="{standalone: false}"
+            [(ngModel)]="CurrentPOstatus.PatternWidth" (input)="FlaskListQuery(CurrentPOstatus,'')">
+          <label>上模高度</label>
+          <input style="width: 100px;" type="number" [ngModelOptions]="{standalone: false}"
+            [(ngModel)]="CurrentPOstatus.PatternUHeight" (input)="FlaskListQuery(CurrentPOstatus,'')">
+          <label>下模高度</label>
+          <input style="width: 100px;" type="number" [ngModelOptions]="{standalone: false}"
+            [(ngModel)]="CurrentPOstatus.PatternDHeight" (input)="FlaskListQuery(CurrentPOstatus,'')">
+          <label>木模置放位置</label>
+          <input style="width: 100px;" type="text" [ngModelOptions]="{standalone: false}"
+            [(ngModel)]="CurrentPOstatus.PatternLocation" (input)="FlaskListQuery(CurrentPOstatus,'')">
+          <label>體積</label>
+          <label>{{CurrentPOstatus.PatternLength*CurrentPOstatus.PatternWidth*(CurrentPOstatus.PatternUHeight+CurrentPOstatus.PatternDHeight)/100000000}}m2</label>
+        </div>
+        <div style="height: 500px;overflow:auto">
+          <table class="table table-bordered table-responsive-md table-striped text-center">
+            <thead>
+              <tr style="background-color: bisque;">
+                <th colspan="9">
+                  <label style="font-size: large;">已配對鐵斗</label>
+                </th>
+              </tr>
+              <tr>
+                <th>操作</th>
+                <th>鐵斗編號</th>
+                <th>長度</th>
+                <th>寬度</th>
+                <th>上模高度</th>
+                <th>中模高度</th>
+                <th>下模高度</th>
+                <th>鐵斗置放位置</th>
+                <th>體積</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of CurrentPOstatus.flaskMatches;let i = index">
+                <td>
+                  <input type="checkbox" class="form-check-input" id="item+{{item.FlaskId}}" value="item.Choice"
+                    [(ngModel)]="item.Choice" [ngModelOptions]="{standalone: true}" (change)="FlaskMatchChange(item)">
+                  <label class="form-check-label" style="font-size: 20px;" for="item+{{item.FlaskId}}">選擇</label>
+                </td>
+                <td>{{item.FlaskId}}</td>
+                <td>{{item.FLength}}</td>
+                <td>{{item.FWidth}}</td>
+                <td>{{item.FUpHeight}}</td>
+                <td>{{item.FMHeight}}</td>
+                <td>{{item.FDHeight}}</td>
+                <td>{{item.FlaskLocation}}</td>
+                <td>
+                  <label [ngStyle]="SetColor(item,CurrentPOstatus)">
+                    {{setval(item,CurrentPOstatus)}}</label>
+                </td>
+              </tr>
+              <tr>
+                <th style="background-color: bisque;" colspan="9">
+                  <div>
+                    <div>
+                      <label style="font-size: large;">可使用鐵斗列表</label>
+                      <input placeholder="搜尋鐵斗" style="width: 100px; margin: 5px" type="text" [(ngModel)]="SearchText"
+                        [ngModelOptions]="{standalone: true}" (change)="FlaskListQuery(CurrentPOstatus,SearchText)"
+                        (change)="FlaskListQuery(CurrentPOstatus,SearchText)">
+                    </div>
+                  </div>
+                </th>
+              </tr>
+              <ng-container *ngIf="FlaskSelectList.length>0">
+                <tr *ngFor="let item of FlaskSelectList">
+                  <td align="center">
+                    <input type="checkbox" class="form-check-input" id="item+{{item.FlaskId}}" value="item.Choice"
+                      [(ngModel)]="item.Choice" [ngModelOptions]="{standalone: true}">
+                    <label class="form-check-label" style="font-size: 20px;" for="item+{{item.FlaskId}}">選擇</label>
+                  </td>
+                  <td>{{item.FlaskId}}</td>
+                  <td>{{item.FLength}}</td>
+                  <td>{{item.FWidth}}</td>
+                  <td>{{item.FUpHeight}}</td>
+                  <td>{{item.FMHeight}}</td>
+                  <td>{{item.FDHeight}}</td>
+                  <td>{{item.FlaskLocation}}</td>
+                  <td [ngStyle]="SetColor(item,CurrentPOstatus)">
+                    <label [ngStyle]="SetColor(item,CurrentPOstatus)">
+                      {{setval(item,CurrentPOstatus)}}</label>
+                  </td>
+                </tr>
+              </ng-container>
+              <ng-container *ngIf="FlaskSelectList.length==0">
+                <tr>
+                  <td colspan="8">未輸入木模尺寸資訊</td>
+                </tr>
+              </ng-container>
+            </tbody>
+            <tfoot>
+
+            </tfoot>
+          </table>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="CancelChange()">取消</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal"
+          (click)="FlaskAddList(CurrentPOstatus,FlaskSelectList)">確認</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,40 @@
+<div class="pagetitle" style="height: fit-content;">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>製令停機記錄查詢
+</div>
+<div class="title" style="height: fit-content;">
+  <div class="float_left path">
+    <a><i class="fa fa-arrow-circle-right"></i>查詢條件</a>
+    <!--修改時上方會顯示員工姓名，新增時不會顯示-->
+  </div>
+</div>
+<br>
+<div style="width: 70%;height: 100%;">
+  <div>
+    <table class="table tab_content_table table-bordered">
+      <tr>
+        <td style="width: 80px;white-space:nowrap" vertical_align_center="true">
+          製令單號
+        </td>
+        <td>
+          <input type="text" [(ngModel)]="workOrder" />
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <button class="btn btn-info btn-sm active" role="button" (click)="Query()">查詢</button>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <ngx-datatable #mydatatable class="material" [headerHeight]="50" style="height:calc(100vh - 244px - 5.75rem) ;" [columnMode]="'force'"
+            [footerHeight]="50" [rowHeight]="50" [rows]="history" [selectAllRowsOnPage]="true" [scrollbarV]="true" >
+            <ngx-datatable-column prop="ProductionOrder" name="製令單號"></ngx-datatable-column>
+            <ngx-datatable-column prop="ShutDownName" name="停機原因"></ngx-datatable-column>
+            <ngx-datatable-column prop="OtherReason" name="其他說明"></ngx-datatable-column>
+            <ngx-datatable-column prop="LastUpdateDate" name="交易時間"></ngx-datatable-column>
+          </ngx-datatable>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>

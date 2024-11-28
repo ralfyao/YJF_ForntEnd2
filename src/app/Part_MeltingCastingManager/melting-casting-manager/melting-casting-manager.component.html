@@ -1,0 +1,56 @@
+<!--右邊內容__標題Start-->
+<div class="pagetitle">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>爐前管制紀錄
+</div>
+<!--右邊內容__標題End-->
+
+<!--右邊內容__搜尋區域Start-->
+<section class="search_area">
+  <form role="form">
+    <div>
+      <input type="text" style="background-color: honeydew;width: 350px;" placeholder="全文關鍵字搜尋" [(ngModel)]="SearchText"
+        [ngModelOptions]="{standalone: true}" (change)="SmartSearch(1)">
+    </div>
+    <div class="typesetting-4">
+      <button type="button" class="btn btn-outline-primary" (click)="SmartSearch(1)"><i class="fa fa-search"></i>
+        查詢</button>
+      <button *ngIf="premanager.GetPermission(LoginUserPermission, 'PouringData', 'IsCanAdd',LoginUserAccount);"
+        type="button" class="btn btn-outline-primary" (click)="addCastingLog()"><i
+          class="fa fa-plus-circle"></i>新增管制紀錄</button>
+    </div>
+  </form>
+</section>
+<!--右邊內容__搜尋區域End-->
+
+
+<!--右邊內容__搜尋之後的表格清單Start -->
+<table class="table table-bordered table-striped table-hover">
+  <thead>
+    <tr class="color_th1">
+      <th>紀錄編號</th>
+      <th>填單人</th>
+      <th>澆注日期</th>
+      <th>當日爐次</th>
+      <th>累計開爐次數</th>
+      <th width="90">操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr id="PouringData{{i}}" (click)="TableRowColorChange('PouringData',PouringDataList,i)"  *ngFor="let PouringData of PouringDataList; let i=index">
+      <td>{{PouringData.PDID}}</td>
+      <td>{{PouringData.EngName}}</td>
+      <td>{{PouringData.Date}}</td>
+      <td>{{PouringData.PouringContainer}}{{PouringData.PouringBatch}}</td>
+      <td>{{PouringData.TotalPouringBatch}}</td>
+      <td class="manage">
+        <button *ngIf="premanager.GetPermission(LoginUserPermission, 'PouringData', 'IsCanEdit',LoginUserAccount);"
+          type="button" class="btn btn-outline-info" (click)="querySinglePouringData(PouringData.POU_PouringData_ID)"><i
+            class="fa fa-search-plus"></i>查看</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<ngb-pagination (pageChange)="loadPage($event)" class="pagination pull-right" [(collectionSize)]="TotalCount"
+  [(page)]="Page" [(pageSize)]="PageCount" [maxSize]="8" aria-label="Default pagination" size="sm">
+</ngb-pagination>
+<!--右邊內容__搜尋之後的表格清單End -->

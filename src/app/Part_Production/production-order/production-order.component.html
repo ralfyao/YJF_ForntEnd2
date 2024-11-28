@@ -1,0 +1,360 @@
+<ngb-tabset>
+  <ngb-tab title="製令單印製">
+    <ng-template ngbTabContent>
+
+      <div>
+        <div class="row align-items-center mt-2 mb-2">
+          <label class="col-1 text-right">客戶名稱:</label>
+          <input class="col-2 m-0 form-control" type="text" [(ngModel)]="CustumerSelected"
+            (ngModelChange)="updatePrintdataFilter()" />
+          <label class="col-1 text-right">製令單號:</label>
+          <input class="col-2 m-0 form-control" type="text" [(ngModel)]="ProductionOrderSelected"
+            (ngModelChange)="updatePrintdataFilter()" />
+          <label class="col-1 text-right">排單日期:</label>
+          <div class="col row">
+            <input class="mr-2 form-control" type="date" [(ngModel)]="StartdaySelected"
+              (ngModelChange)="updatePrintdataFilter()" [ngModelOptions]="{standalone: true}" />
+            <div class="mr-2">~</div>
+            <input class="form-control" type="date" [(ngModel)]="EnddaySelected"
+              (ngModelChange)="updatePrintdataFilter()" [ngModelOptions]="{standalone: true}" />
+          </div>
+        </div>
+        <div class="row align-items-center mt-2 mb-2">
+          <label class="col-1 text-right">生產線別:</label>
+          <select class="custom-select col-2" [(ngModel)]="ProductionSelected" (ngModelChange)="updatePrintdataFilter()"
+            [ngModelOptions]="{standalone: true}">
+            <option *ngFor="let item of LineList">{{item}}</option>
+          </select>
+          <label class="col-1 text-right">生產進度:</label>
+          <select class="custom-select col-2" [(ngModel)]="StateSelected" (ngModelChange)="updatePrintdataFilter()"
+            [ngModelOptions]="{standalone: true}">
+            <option *ngFor="let item of StateList">{{item}}</option>
+          </select>
+        </div>
+
+      </div>
+      <div class="my-2">
+        <button type="button" class="btn btn-primary btn-sm mx-2" (click)="downloadPDF()"><i
+            class="mr-1 fa fa-file-pdf-o"></i>匯出PDF</button>
+        <label class="message"><i class="fa fa-exclamation-triangle mr-1"></i>單次匯出最多50筆</label>
+
+      </div>
+      <div>
+        <ngx-datatable #mydatatable class="material" style="height:70vh;" [headerHeight]="50" [scrollbarV]="true"
+          [columnMode]="'force'" [footerHeight]="50" [rowHeight]="50" [rows]="printdata" [selectionType]="'checkbox'"
+          [reorderable]="true" [selectAllRowsOnPage]="false" [selected]="printProductionOrder"
+          (select)="onPrintSelect($event)">
+
+          <ngx-datatable-column [width]="30" [sortable]="false" [canAutoResize]="false" [draggable]="false"
+            [resizeable]="false" [headerCheckboxable]="true" [checkboxable]="true">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="ProductionHeadCode" [width]="70" name="製令單別">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="ProductionOrderCode" [width]="100" name="製令單號">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="ItemCode" [width]="150" name="品號">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="PartDesc" [width]="350" name="品名">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="SysOrderNum" name="訂單" [width]="130" [canAutoResize]="false">
+            <ng-template ngx-datatable-cell-template let-row="row">
+              {{row["OrderHeadCode"]+"-"+row["OrderCode"]}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="CusOrder" [width]="150" name="客單">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="CustomerName" [width]="70" name="客戶">
+          </ngx-datatable-column>
+
+          <ngx-datatable-column prop="MaterialType" [width]="70" name="材質">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="PlanQTY" [width]="50" name="數量">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="ProductWeight" [width]="50" name="重量">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="SchedulingDate" [width]="100" name="排單日期">
+            <ng-template ngx-datatable-cell-template let-value="value">
+              {{DateStringFormat(value)}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="ETD" [width]="100" name="預交日">
+            <ng-template ngx-datatable-cell-template let-value="value">
+              {{DateStringFormat(value)}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="ProductionState" name="生產進度" [width]="100"></ngx-datatable-column>
+          <ngx-datatable-column prop="MoldingLineName" [width]="80" name="造模組別">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="AsemblingLineName" [width]="80" name="合模組別">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="PrintCount" [width]="70" name="列印次數">
+          </ngx-datatable-column>
+          <!-- 測試報工連結 -->
+          <ngx-datatable-column *ngIf="UserAccount=='admin' " [width]="70" name="Url">
+            <ng-template ngx-datatable-cell-template let-row="row">
+              <button class="btn btn-outline-info btn-sm"
+                (click)="OpenRepotrWorking(row['ProductionHeadCode'],row['ProductionOrderCode'])">報工</button>
+            </ng-template>
+          </ngx-datatable-column>
+        </ngx-datatable>
+      </div>
+
+    </ng-template>
+  </ngb-tab>
+  <ngb-tab title="砂心製令單">
+    <ng-template ngbTabContent>
+      <div>
+        <div class="row align-items-center mt-2 mb-2">
+          <label class="col-1 text-right">客戶名稱:</label>
+          <input class="col-2 m-0 form-control" type="text" [(ngModel)]="CoreCustumerSelected"
+            (ngModelChange)="updateCorePrintdataFilter()" />
+          <label class="col-1 text-right">製令單號:</label>
+          <input class="col-2 m-0 form-control" type="text" [(ngModel)]="CoreProductionOrderSelected"
+            (ngModelChange)="updateCorePrintdataFilter()" />
+          <label class="col-1 text-right">排單日期:</label>
+          <div class="col row">
+            <input class="mr-2 form-control" type="date" [(ngModel)]="CoreStartdaySelected"
+              (ngModelChange)="updateCorePrintdataFilter()" [ngModelOptions]="{standalone: true}" />
+            <div class="mr-2">~</div>
+            <input class="form-control" type="date" [(ngModel)]="CoreEnddaySelected"
+              (ngModelChange)="updateCorePrintdataFilter()" [ngModelOptions]="{standalone: true}" />
+          </div>
+        </div>
+        <div class="row align-items-center mt-2 mb-2">
+          <label class="col-1 text-right">砂心線別:</label>
+          <select class="custom-select col-1" [(ngModel)]="CoreProductionSelected"
+            (ngModelChange)="updateCorePrintdataFilter()" [ngModelOptions]="{standalone: true}">
+            <option *ngFor="let item of CoreLineList">{{item}}</option>
+          </select>
+        </div>
+
+      </div>
+      <div class="my-2">
+        <button type="button" class="btn btn-primary btn-sm mx-2" (click)="downloadCorePDF()"><i
+            class="mr-1 fa fa-file-pdf-o"></i>匯出PDF</button>
+        <label class="message"><i class="fa fa-exclamation-triangle mr-1"></i>單次匯出最多50筆</label>
+
+      </div>
+      <div>
+        <ngx-datatable #mydatatable class="material" style="height:70vh;" [headerHeight]="50" [scrollbarV]="true"
+          [columnMode]="'force'" [footerHeight]="50" [rowHeight]="50" [rows]="coreprintdata"
+          [selectionType]="'checkbox'" [reorderable]="true" [selectAllRowsOnPage]="false"
+          [selected]="printCoreProductionOrder" (select)="onCorePrintSelect($event)">
+
+          <ngx-datatable-column [width]="30" [sortable]="false" [canAutoResize]="false" [draggable]="false"
+            [resizeable]="false" [headerCheckboxable]="true" [checkboxable]="true">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="ProductionHeadCode" [width]="70" name="製令單別">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="ProductionOrderCode" [width]="100" name="製令單號">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="MainProductionHeadCode" [width]="70" name="母製令單別">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="MainProductionOrderCode" [width]="100" name="母製令單號">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="ItemCode" [width]="130" name="品號">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="PartDesc" [width]="350" name="品名">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="SysOrderNum" name="訂單" [width]="130" [canAutoResize]="false">
+            <ng-template ngx-datatable-cell-template let-row="row">
+              {{row["OrderHeadCode"]+"-"+row["OrderCode"]}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="CusOrder" [width]="150" name="客單">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="CustomerName" [width]="70" name="客戶">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="MaterialType" [width]="70" name="材質">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="PlanQTY" [width]="50" name="數量">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="ProductWeight" [width]="50" name="重量">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="SchedulingDate" [width]="100" name="排單日期">
+            <ng-template ngx-datatable-cell-template let-value="value">
+              {{DateStringFormat(value)}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="ETD" [width]="100" name="預交日">
+            <ng-template ngx-datatable-cell-template let-value="value">
+              {{DateStringFormat(value)}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="CoreLineName" [width]="100" name="砂心組別">
+          </ngx-datatable-column>
+          <!-- 測試報工連結 -->
+          <ngx-datatable-column *ngIf="UserAccount=='admin' " [width]="70" name="Url">
+            <ng-template ngx-datatable-cell-template let-row="row">
+              <button class="btn btn-outline-info btn-sm"
+                (click)="OpenRepotrWorking(row['ProductionHeadCode'],row['ProductionOrderCode'])">報工</button>
+            </ng-template>
+          </ngx-datatable-column>
+        </ngx-datatable>
+      </div>
+
+    </ng-template>
+  </ngb-tab>
+  <ngb-tab title="後處理拆單">
+    <ng-template ngbTabContent>
+      <div>
+        <div class="row align-items-center mt-2 mb-2">
+          <label class="col-1 text-right">客戶名稱:</label>
+          <input class="col-2 m-0 form-control" type="text" [(ngModel)]="SplitCustumerSelected"
+            (ngModelChange)="updateSplitPrintdataFilter()" />
+          <label class="col-1 text-right">製令單號:</label>
+          <input class="col-2 m-0 form-control" type="text" [(ngModel)]="SplitProductionOrderSelected"
+            (ngModelChange)="updateSplitPrintdataFilter()" />
+          <label class="col-1 text-right">澆注日期:</label>
+          <div class="col row">
+            <input class="mr-2 form-control" type="date" [(ngModel)]="SplitStartdaySelected"
+              [ngModelOptions]="{standalone: true}" (ngModelChange)="updateSplitPrintdataFilter()" />
+            <div class="mr-2">~</div>
+            <input class="form-control" type="date" [(ngModel)]="SplitEnddaySelected"
+              [ngModelOptions]="{standalone: true}" (ngModelChange)="updateSplitPrintdataFilter()" />
+          </div>
+        </div>
+      </div>
+      <div class="my-2">
+        <button type="button" class="btn btn-primary btn-sm mx-2" (click)="downloadSplitPDF()">
+          <i class="mr-1 fa fa-file-pdf-o"></i>匯出PDF</button>
+        <label class="message"><i class="fa fa-exclamation-triangle mr-1"></i>單次匯出最多20筆</label>
+      </div>
+      <div>
+        <ngx-datatable #mydatatable class="material" style="height:75vh;" [headerHeight]="50" [scrollbarV]="true"
+          [columnMode]="'force'" [footerHeight]="50" [rowHeight]="50" [rows]="printSplitOrder"
+          [selectionType]="'checkbox'" [reorderable]="true" [selectAllRowsOnPage]="false"
+          [selected]="SplitOrderSelected" (select)="onSplitPrintSelect($event)">
+
+          <ngx-datatable-column [width]="30" [sortable]="false" [canAutoResize]="false" [draggable]="false"
+            [resizeable]="false" [headerCheckboxable]="true" [checkboxable]="true">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="ProductionHeadCode" [width]="60" name="製令單別">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="ProductionOrderCode" [width]="90" name="製令單號">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="ItemCode" [width]="130" name="品號">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="PartDesc" [width]="400" name="品名">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="CustomerName" [width]="70" name="客戶">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="SysOrderNum" name="訂單" [width]="130" [canAutoResize]="false">
+            <ng-template ngx-datatable-cell-template let-row="row">
+              {{row["OrderHeadCode"]+"-"+row["OrderCode"]}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="CusOrder" [width]="150" name="客單">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="MaterialType" [width]="70" name="材質">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="PlanQTY" [width]="40" name="數量">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="ProductWeight" [width]="40" name="重量">
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="PouringFinishDate" [width]="90" name="澆注日期">
+            <ng-template ngx-datatable-cell-template let-value="value">
+              {{DateStringFormat(value)}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="ETD" [width]="90" name="預交日">
+            <ng-template ngx-datatable-cell-template let-value="value">
+              {{DateStringFormat(value)}}
+            </ng-template>
+          </ngx-datatable-column>
+          <ngx-datatable-column prop="ProductionState" [width]="100" name="生產狀態">
+          </ngx-datatable-column>
+        </ngx-datatable>
+      </div>
+
+    </ng-template>
+  </ngb-tab>
+</ngb-tabset>
+<ng-template #AddDonemodal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title my-0">加入排程</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <label class="text-right mx-2">排單日期:</label>
+    <div class="row mx-2">
+      <input class="mr-2" type="date" [(ngModel)]="InsertDate" />
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="InsertDoneList();modal.close('Close click');"><i
+        class="mr-1 fa fa-file-excel-o"></i>確定</button>
+    <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')"><i
+        class="mr-1 fa fa-times"></i>Close</button>
+  </div>
+</ng-template>
+<div id="printpdf" class="container printPDF">
+  <div class="row pdftitle">源潤豐鑄造股份有限公司</div>
+  <div class="row subtitle"> YUAN JUN FONG CASTING CO., LTD.</div>
+
+  <div class="row subtitle">製造命令</div>
+  <div class="row">
+
+  </div>
+  <div class="row">
+    <div class="col-4">客戶名稱:</div>
+    <div class="col-4">訂單月份:{{printItem.OrderDate.substring(0,4)+'-'+printItem.OrderDate.substring(4,6)}}</div>
+    <div class="col-4" *ngIf="!printItem.TopFlask">鐵斗號碼:</div>
+    <div class="col-4" *ngIf="printItem.TopFlask">鐵斗號碼:{{printItem.TopFlask+"/"+printItem.BottomFlask}}</div>
+  </div>
+  <div class="row">
+    <div class="col-4">製令編號:{{printItem.ProductionHeadCode.trim()+"-"+printItem.ProductionOrderCode}}
+      <ng-container *ngIf="printType=='split'">{{"-"+SplitSequence}}</ng-container>
+    </div>
+    <div class="col-4">預交日期:{{DateStringFormat(printItem.ETD)}}</div>
+    <div class="col-4">拆箱日期:</div>
+  </div>
+  <div class="row">
+    <div class="col-4">排單日期:{{DateStringFormat(printItem.SchedulingDate)}}</div>
+    <div class="col-4">預計完工:{{DateStringFormat(printItem.PlanFinDate)}}</div>
+    <div class="col-4">特殊鐵骨:</div>
+  </div>
+  <div class="row">
+    <div class="col-4" *ngIf="printType=='core'">
+      母製令單:{{printItem.MainProductionHeadCode.trim()+"-"+printItem.MainProductionOrderCode}}</div>
+    <div class="col-8">備註:</div>
+  </div>
+  <div class="row mt-2 border border-2 border-dark">
+
+    <div class="col-8">
+      <div>品號:{{printItem.ItemCode}}</div>
+      <div>品名/規格:{{printItem.PartDesc}}</div>
+      <div>材質:{{printItem.MaterialType}}</div>
+      <div *ngIf="printType!='split'">數量:{{printItem.PlanQTY}}</div>
+      <div *ngIf="printType=='split'">數量:1</div>
+      <div>單重:{{printItem.ProductWeight}}</div>
+    </div>
+    <div class="col-4" *ngIf="printType=='main'">
+      <div class="">造模:{{printItem.MoldingLineName}}</div>
+      <div class="">合模:{{printItem.AsemblingLineName}}</div>
+    </div>
+    <div class="col-4" *ngIf="printType=='core'">
+      <div class="">砂心:{{printItem.CoreLineName}}</div>
+    </div>
+
+  </div>
+  <table width="100%">
+    <tr>
+      <td witdh="60%">
+        後處理司機條碼：
+        <div><svg id="barcode"></svg></div>
+      </td>
+      <td witdh="40%">
+        <div class="">
+          <img class="qrcodeimg" width="250" height="250" />
+        </div>
+      </td>
+    </tr>
+  </table>
+  <!-- <ejs-barcodegenerator style="display: block;" #barcode id="barcode" width="200px" height="150px"mode="SVG" type="Code39" value="SYNCFUSION"/> -->
+
+
+</div>
+

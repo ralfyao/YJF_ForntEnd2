@@ -1,0 +1,71 @@
+<div class="row align-items-center my-2 mx-0">
+  <label class="col-2 col-lg-1 my-0 pl-0 text-right">進料種類:</label>
+  <div class="row">
+    <div class="form-check">
+      <input type="radio" id="material1" [(ngModel)]="Type" value="5" name="material" class="form-check-input"
+        [ngModelOptions]="{standalone: true}">
+      <label class="form-check-label" for="material1">原料</label>
+    </div>
+    <div class="form-check mr-1">
+      <input type="radio" id="material2" [(ngModel)]="Type" value="6" name="material" class="form-check-input"
+        [ngModelOptions]="{standalone: true}">
+      <label class="form-check-label" for="material2">物料</label>
+    </div>
+  </div>
+  <label class="col-2 col-lg-1 my-0 pr-0 text-right">進料月份:</label>
+  <input class="form-control" type="month" [(ngModel)]="StartMonth" [ngModelOptions]="{standalone: true}"
+    [min]="'2023-01'" />
+  <label class="mx-2 my-0">~</label>
+  <input class="form-control" type="month" [(ngModel)]="EndMonth" [ngModelOptions]="{standalone: true}"
+    [min]="'2023-01'" />
+
+  <button class="btn btn-sm mx-2 btn-primary" (click)="Search()"><i class="fa fa-search"></i> 搜尋</button>
+  <button class="btn btn-sm mx-2 btn-info" (click)="ExportExcel()"><i class="fa fa-file-excel-o"></i> 匯出</button>
+</div>
+<ngb-tabset>
+  <ngb-tab *ngFor="let HRname of HRGroup" [title]="HRname">
+    <ng-template ngbTabContent>
+      <div class="panel">
+        <ng-container *ngFor="let item of PurchaseList">
+
+          <table *ngIf="item.HRName==HRname">
+            <thead>
+              <tr>
+                <th [width]="100">進貨月份</th>
+                <th [width]="120">進/退貨日期</th>
+                <th [width]="150">廠商</th>
+                <th [width]="250">品名</th>
+                <th [width]="80">數量</th>
+                <th [width]="120">單位進價</th>
+                <th [width]="120">進貨金額</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let Purchase of item.PurchaseList;let firstRecord = first;">
+                <td *ngIf="firstRecord" [attr.rowspan]="item.PurchaseList.length">{{item.PurchaseMonth}}</td>
+                <td>{{Purchase.PurchaseDate}}</td>
+                <td>{{Purchase.SupplierName}}</td>
+                <td>{{Purchase.ItemName}}</td>
+                <td class="text-right">{{(Purchase.Quantity < 0 ?'('+ (0 - Purchase.Quantity).toLocaleString('en-US')+')' : Purchase.Quantity.toLocaleString('en-US'))}}</td>
+                <td class="text-right">{{Purchase.UnitPrice.toLocaleString('en-US')}}</td>
+                <td class="text-right">{{(Purchase.TotalPrice < 0 ? '(' + (0 - Purchase.TotalPrice).toLocaleString('en-US')+')' : Purchase.TotalPrice.toLocaleString('en-US'))}}</td>
+              </tr>
+              <tr class="text-right" *ngFor="let Supplier of item.SupplierList;let firstRecord = first;let index=index">
+                <td colspan="4">{{Supplier.SupplierName}}</td>
+                <td>{{(Supplier.TotalQuantity < 0 ? '(' + (0-Supplier.TotalQuantity).toLocaleString('en-US')+')' : Supplier.TotalQuantity.toLocaleString('en-US') )}}</td>
+                <td></td>
+                <td>{{(Supplier.TotalPrice < 0 ? '('+(0-Supplier.TotalPrice).toLocaleString('en-US')+')' : Supplier.TotalPrice.toLocaleString('en-US'))}}</td>
+              </tr>
+              <tr class="text-right">
+                <td colspan="4">總和</td>
+                <td>{{(item.TotalQuantity < 0 ? '('+(0 - item.TotalQuantity).toLocaleString('en-US')+')' : item.TotalQuantity.toLocaleString('en-US'))}}</td>
+                <td>{{item.UnitPrice.toLocaleString('en-US')}}</td>
+                <td>{{(item.TotalPrice < 0 ? '('+(0 - item.TotalPrice).toLocaleString('en-US')+')' : item.TotalPrice.toLocaleString('en-US'))}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </ng-container>
+      </div>
+    </ng-template>
+  </ngb-tab>
+</ngb-tabset>

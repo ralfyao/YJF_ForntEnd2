@@ -1,0 +1,94 @@
+<div class="row m-3 mt-0 bg-light border border-primary ">
+  <div class="col-auto d-inline p-3 font-weight-bold">
+    <label class=" d-inline">關鍵字：</label>
+    <input class=" d-inline" type="text" [(ngModel)]="searchString" [ngModelOptions]="{standalone: true}"
+      (ngModelChange)="searchShutDownName()" >
+    <!-- <button class="btn btn-primary d-inline">搜尋</button> -->
+  </div>
+</div>
+<div class="row m-3 mb-0 border border-dark justify-content-end" style="height:560px;">
+  <table class="table mt-0 table-striped  table-bordered">
+    <thead>
+      <tr class="color_th1">
+        <th>名稱</th>
+        <th>負責人員</th>
+        <th style="width:140px;">操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of ShutDownListByFilter; let i=index">
+        <td>{{item.ShutDownName}}</td>
+        <td>{{item.Representative}}</td>
+        <td class="justify-content-start align-middle">
+          <div class="checkbox checkbox-info justify-content-start align-middle">
+            <button class="btn btn-outline-primary" data-toggle="modal" data-target="#UpdateParameter"
+              data-backdrop="static" (click)="selectUpdateShutName(item)">修改</button>
+            <button class="btn btn-outline-primary" (click)="selectDeleteShutDown(item)">刪除</button>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="2">
+          <ngb-pagination (pageChange)="loadPage($event)" class="pagination pull-right mt-2 mr-3"
+            [collectionSize]="TotalCount" [(page)]="Page" [pageSize]="PageCount" aria-label="Default pagination"
+            size="sm">
+          </ngb-pagination>
+        </td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+<div class="row justify-content-end mr-3">
+  <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#AddParameter" data-backdrop="static"
+    (click)="selectnewShutDown()">新增</button>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="AddParameter">
+  <div class="modal-dialog modal-sm" role="document">
+    <section class="section-style edit on">
+      <div class="modal-content">
+        <div class="modal-body">
+          <h3><i class="fa fa-edit"></i>新增參數名稱</h3>
+          <form role="form">
+            <label>參數名稱</label>
+            <input type="text" [(ngModel)]="newShutDown.ShutDownName" [ngModelOptions]="{standalone: true}">
+            <label>負責人員</label>
+            <input type="text" [(ngModel)]="newShutDown.Representative" [ngModelOptions]="{standalone: true}">
+            <div class="typesetting-4">
+              <button class="btn btn-outline-primary" data-dismiss="modal" (click)="addShutDown()"><i
+                  class="fa fa-pencil-square-o"></i>
+                確認</button>
+              <button class="btn btn-outline-primary" data-dismiss="modal"><i class="fa fa-close"></i> 取消</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="UpdateParameter">
+  <div class="modal-dialog modal-sm" role="document">
+    <section class="section-style edit on">
+      <div class="modal-content">
+        <div class="modal-body">
+          <h3><i class="fa fa-edit"></i>修改參數名稱</h3>
+          <form role="form">
+            <label>參數名稱</label>
+            <input type="text" [(ngModel)]="selectedShutName.ShutDownName" [ngModelOptions]="{standalone: true}">
+            <label>負責人員</label>
+            <input type="text" [(ngModel)]="selectedShutName.Representative" [ngModelOptions]="{standalone: true}">
+            <div class="typesetting-4">
+              <button class="btn btn-outline-primary" data-dismiss="modal" (click)="UpdateShutName()"><i
+                  class="fa fa-pencil-square-o"></i>
+                確認修改</button>
+              <button class="btn btn-outline-primary" data-dismiss="modal"><i class="fa fa-close"></i> 取消</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

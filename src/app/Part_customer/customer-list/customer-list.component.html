@@ -1,0 +1,96 @@
+<div class="pagetitle"><i class="fa fa-play-circle mr-2" aria-hidden="true"></i>客戶資料</div>
+<!--右邊內容__標題End-->
+<!--右邊內容__搜尋區域Start-->
+<section class="search_area">
+  <form role="form">
+
+    <div class="typesetting-4">
+      <button class="btn btn-info btn-sm active m-2" (click)="openModal(searchTerms)"><i class="fa fa-search"></i>
+        查詢</button>
+      <button *ngIf="premanager.GetPermission(Permission, 'CustomerManage', 'IsCanAdd',LoginUserAccount);"
+        class="btn btn-info btn-sm active m-2" [routerLink]="['../CustomerManageDetail']"><i
+          class="fa fa-plus-circle"></i>
+        新增客戶</button>
+    </div>
+  </form>
+</section>
+<!--右邊內容__搜尋區域End-->
+
+<!--右邊內容__搜尋之後的表格清單Start -->
+<table class="table table-bordered table-striped table-hover">
+  <thead>
+    <tr class="color_th1">
+      <th>客戶編號</th>
+      <th>客戶名稱</th>
+      <th>地區</th>
+      <th>聯絡人</th>
+      <th>系統編號</th>
+      <th width="140">操作</th>
+      <th width="90">管理</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr id="custom{{i}}" (click)="TableRowColorChange('custom',customerlist,i)"
+      *ngFor="let custom of customerlist;let i =index">
+      <td>{{custom.CustomerNumber}}</td>
+      <td>{{custom.Nickname}}</td>
+      <td>{{custom.CountryCode}}</td>
+      <td>{{custom.ContactPerson}}</td>
+      <td>{{custom.YJFCustomerNumber}}</td>
+      <td class="manage">
+        <button type="button" class="btn btn-outline-info" (click)="CreateRFQ(custom)"><i class="fa fa-file"></i>
+          <a>建立詢價單</a></button>
+      </td>
+      <td class="manage">
+        <button type="button" class="btn btn-outline-info" (click)="CustomerDetail(custom)"><i
+            class="fa fa-search-plus"></i>
+          <a>瀏覽</a></button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<ngb-pagination (pageChange)="loadPage($event)" class="pagination pull-right" [(collectionSize)]="TotalCount"
+  [(page)]="Page" [pageSize]="12" aria-label="Default pagination" size="sm">
+</ngb-pagination>
+<!--右邊內容__搜尋之後的表格清單End -->
+<ng-template #searchTerms let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title my-0">搜尋</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="container">
+      <div class="row">
+        <div class="col-5">
+          <label for="CustomerNumber" class="font-weight-bold col">客戶代號：</label>
+          <input class="col" type="text" placeholder="請輸入客戶代號" id="CustomerNumber" [(ngModel)]="CustomerNumber"
+            [ngModelOptions]="{standalone: true}">
+        </div>
+        <div class="col-5">
+          <label class="font-weight-bold col" for="ContactPerson">聯絡人：</label>
+          <input type="text" id="ContactPerson" class="col" placeholder="請輸入聯絡人" [(ngModel)]="ContactPerson"
+            [ngModelOptions]="{standalone: true}">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-5">
+          <label for="YJFCustomerNumber" class="font-weight-bold col">系統編號：</label>
+          <input class="col" type="text" placeholder="請輸入系統編號" [(ngModel)]="YJFCustomerNumber"
+            [ngModelOptions]="{standalone: true}">
+        </div>
+        <div class="col-5">
+          <label for="Nickname" class="font-weight-bold col">客戶名稱：</label>
+          <input type="text" class="col" placeholder="請輸入客戶名稱" [(ngModel)]="Nickname"
+            [ngModelOptions]="{standalone: true}">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="onSearch()"><i
+        class="mr-1 fa fa-file-excel-o"></i>確定</button>
+    <button type="button" class="btn btn-secondary" (click)="onClear()"><i class="mr-1 fa fa-times"></i>清除</button>
+  </div>
+</ng-template>

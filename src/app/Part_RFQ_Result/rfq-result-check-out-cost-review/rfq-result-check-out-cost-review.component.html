@@ -1,0 +1,266 @@
+<div class="pagetitle">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>報價成本計算
+</div>
+
+<section class="content_data">
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a class="nav-link active" href="#tab_1" data-toggle="tab"><i class="fa fa-search-plus"></i>內容檢視</a>
+    </li>
+  </ul>
+
+  <section *ngIf="ResultHeader.CreateByName==UserName||UserName=='系統管理者'||UserName=='張中議'" class="search_area">
+    <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="CheckoutResult()">取消</button>
+    <button type="button" class="btn btn-primary" data-dismiss="modal"
+      (click)="ConfirmQuoteDetail();SaveFORM_QuotationResultLog();CheckoutResult();">儲存</button>
+  </section>
+
+  <table class="table table-bordered table-striped table-hover">
+    <thead>
+      <tr style="background-color: lightcyan">
+        <th>品名</th>
+        <th>項目</th>
+        <th>尺寸細節</th>
+        <th>報價進度</th>
+        <th>供應商/溢價比/客戶價格</th>
+        <th>操作</th>
+        <th>備註</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let detail of quotationDetailList; let i=index" id="{{detail.FORM_QuotationDetail_ID}}">
+        <td>{{detail.QuoteItemNumber}}</td>
+        <td>{{detail.QuoteTypeName}}</td>
+        <td>{{detail.QuoteDetailDimension}}</td>
+        <td>{{detail.SupplierQuoteStatus}}</td>
+        <td style="padding: 0px">
+          <table style="width: 100%;height: 100%">
+            <tr *ngFor="let ResultLog of ResultQyoteLogList;let last =last">
+              <ng-container
+                *ngIf="detail.FORM_QuotationDetail_ID==ResultLog.FORM_QuotationDetail_ID.toString()&&ResultLog.Choice">
+                <td id="Sup{{ResultLog.LOG_SupplierQuotationRecord_ID}}" style="width: auto">
+                  {{ResultLog.SupplierName}}</td>
+                <td>{{ResultLog.ProfitRatio}}</td>
+                <td id="Amu{{ResultLog.LOG_SupplierQuotationRecord_ID}}" style="width: auto">
+                  {{ResultLog.Currency}} &ensp; {{ResultLog.Amount}}</td>
+
+              </ng-container>
+              <ng-container *ngIf="last">
+                {{MaxWidth()}}
+              </ng-container>
+            </tr>
+          </table>
+        </td>
+        <td>
+          <button class="btn btn-primary btn-sm active" role="button" aria-pressed="true" data-backdrop="static"
+            (click)="queryDetailVendor(detail)" data-toggle="modal" data-target="#Modal_QuoteResult">
+            報價操作
+          </button>
+        </td>
+        <td>{{detail.QuoteDetailRemark}}</td>
+      </tr>
+    </tbody>
+    <tfoot>
+
+    </tfoot>
+  </table>
+  <div style="float: right;">
+    <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="CheckoutResult()">取消</button>
+    <button type="button" class="btn btn-primary" data-dismiss="modal"
+      (click)="ConfirmQuoteDetail();SaveFORM_QuotationResultLog();CheckoutResult();">儲存</button>
+  </div>
+</section>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="Modal_QuoteResult">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div align="left" style="padding: 10px">
+        <h3>
+          <i class="fa fa-address-book"></i> 品項負責廠商
+        </h3>
+      </div>
+      <div class="modal-body">
+        <ng-container *ngIf="selectlog!=null;else quotetemp">
+          <ng-container *ngFor="let ResultLog of ResultQyoteLogList">
+            <table *ngIf="ResultLog.LOG_SupplierQuotationRecord_ID==selectlog.LOG_SupplierQuotationRecord_ID"
+              class="table tab_content_table table-bordered">
+              <thead></thead>
+              <tbody>
+                <tr>
+                  <th>匯率</th>
+                  <td>
+                    <select style="width:90px;margin: 5px" [(ngModel)]="ResultLog.Currency"
+                      (ngModelChange)="CurrencyChange($event)">
+                      <option *ngFor="let Currency of Currencys" [ngValue]="Currency">{{Currency}}</option>
+                    </select>
+                    <input type="text" style="width: 120px" [(ngModel)]="ResultLog.ExchangeRate"
+                      [ngModelOptions]="{standalone: true}" readonly>
+                    <button (click)="CurrencySetAll()">設置全部</button>
+                  </td>
+                  <th>數量</th>
+                  <td>
+                    <input type="text" style="width: 120px" (change)="CaculateResultLog(ResultLog)"
+                      [(ngModel)]="selectlog==null?'':ResultLog.QuoteQTY" [ngModelOptions]="{standalone: false}">
+                  </td>
+                  <th>重量</th>
+                  <td>{{selectdetail==null?'':selectdetail.Weight}}kg</td>
+                <tr>
+                  <th>鑄件單價</th>
+                  <td>{{selectlog==null?'':selectlog.QuoteWeightPrice}}</td>
+                  <th>供應商單價</th>
+                  <td>{{selectlog==null?'':selectlog.QuoteUnitPrice}}</td>
+                  <th>供應商單價</th>
+                  <td>{{selectlog==null?'':selectlog.QuotePrice}}</td>
+                </tr>
+                <tr>
+                  <th>客戶鑄件報價</th>
+                  <td>
+                    <input type="text" style="width: 120px" (change)="CaculateResultLogByWeightPrice(ResultLog)"
+                      *ngIf="selectdetail==null?false:(selectdetail.SYS_QuoteType_ID=='13'||selectdetail.SYS_QuoteType_ID=='15')"
+                      [(ngModel)]="ResultLog.SinglePrice" [ngModelOptions]="{standalone: true}">
+                  </td>
+                  <th>客戶單價</th>
+                  <td>
+                    <input type="text" style="width: 120px" [(ngModel)]="ResultLog.UnitPrice"
+                      [ngModelOptions]="{standalone: true}" readonly>
+                  </td>
+                  <th>客戶金額</th>
+                  <td>
+                    <input type="text" style="width: 120px" [(ngModel)]="ResultLog.Amount"
+                      [ngModelOptions]="{standalone: true}" readonly>
+                  </td>
+                </tr>
+                <tr>
+                  <th>溢價比</th>
+                  <td colspan="5">
+                    <input (change)="CaculateResultLog(ResultLog)" type="text" style="width: 120px"
+                      [(ngModel)]="ResultLog.ProfitRatio" [ngModelOptions]="{standalone: true}">
+                  </td>
+                </tr>
+                <tr>
+                  <th>備註</th>
+                  <td colspan="5">
+                    <input type="text" style="width: 120px" [(ngModel)]="ResultLog.Remark"
+                      [ngModelOptions]="{standalone: true}">
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot></tfoot>
+            </table>
+          </ng-container>
+        </ng-container>
+        <ng-template #quotetemp>
+          <table class="table tab_content_table table-bordered">
+            <thead></thead>
+            <tbody>
+              <tr>
+                <th>匯率</th>
+                <td>
+                  <select style="width:90px;margin: 5px" disabled>
+                    <option *ngFor="let Currency of Currencys" [ngValue]="Currency">{{Currency}}</option>
+                  </select>
+                  <input type="text" style="width: 120px" readonly>
+                </td>
+                <th>數量</th>
+                <td>
+                  <input type="text" style="width: 120px" [(ngModel)]="selectlog==null?'':selectlog.QuoteQty"
+                    [ngModelOptions]="{standalone: false}" readonly>
+                </td>
+                <th>重量</th>
+                <td>{{selectdetail==null?'':selectdetail.Weight}}kg</td>
+              <tr>
+                <th>鑄件單價</th>
+                <ng-container></ng-container>
+
+                <td>{{selectlog==null?'':selectlog.QuoteWeightPrice}}</td>
+                <th>供應商單價</th>
+                <td>{{selectlog==null?'':selectlog.QuoteUnitPrice}}</td>
+                <th>供應商單價</th>
+                <td>{{selectlog==null?'':selectlog.QuotePrice}}</td>
+              </tr>
+              <tr>
+                <th>客戶鑄件報價</th>
+                <td>
+                  <input type="text" style="width: 120px"
+                    *ngIf="selectdetail==null?false:(selectdetail.SYS_QuoteType_ID=='13'&&selectdetail.SYS_QuoteType_ID=='15')" readonly>
+                </td>
+                <th>客戶單價</th>
+                <td>
+                  <input type="text" style="width: 120px" readonly>
+                </td>
+                <th>客戶金額</th>
+                <td>
+                  <input type="text" style="width: 120px" readonly>
+                </td>
+              </tr>
+              <tr>
+                <th>溢價比</th>
+                <td colspan="5">
+                  <input type="text" style="width: 120px" readonly>
+                </td>
+              </tr>
+              <tr>
+                <th>備註</th>
+                <td colspan="5">
+                  <input type="text" style="width: 120px" readonly>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot></tfoot>
+
+          </table>
+        </ng-template>
+
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <tr style="background-color: lightcyan">
+              <th>供應商</th>
+              <th>報價項目</th>
+              <th>數量</th>
+              <th *ngIf="selectdetail==null?true:(selectdetail.SYS_QuoteType_ID!='13'&&selectdetail.SYS_QuoteType_ID!='15')">單價</th>
+              <th *ngIf="selectdetail==null?false:(selectdetail.SYS_QuoteType_ID=='13'||selectdetail.SYS_QuoteType_ID=='15')">鑄件單價</th>
+              <th>重量(kg)</th>
+              <th>金額</th>
+              <th>備註</th>
+              <th>溢價比</th>
+              <th>客戶報價</th>
+              <th>選擇</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="background-color:white" *ngFor="let log of selectDetail_VendorList;" (click)="Rowselect(log)"
+              id="ID{{log.LOG_SupplierQuotationRecord_ID}}">
+              <td>{{log.SupplierName}}</td>
+              <td>{{log.QuoteItem}}</td>
+              <td>{{log.QuoteQty}}</td>
+              <td *ngIf="selectdetail==null?false:(selectdetail.SYS_QuoteType_ID=='13'||selectdetail.SYS_QuoteType_ID=='15')">{{log.QuoteWeightPrice}}</td>
+              <td *ngIf="selectdetail==null?true:(selectdetail.SYS_QuoteType_ID!='13'&&selectdetail.SYS_QuoteType_ID!='15')">{{log.QuoteUnitPrice}}</td>
+              <td>{{selectdetail==null?0:selectdetail.Weight}}</td>
+              <td>{{log.QuotePrice}}</td>
+              <td>
+                <textarea autosize style="width: 400px">{{log.QuoteRemark}}</textarea>
+              </td>
+
+              <ng-container *ngFor="let ResultLog of ResultQyoteLogList">
+                <ng-container *ngIf=" ResultLog.LOG_SupplierQuotationRecord_ID==log.LOG_SupplierQuotationRecord_ID">
+                  <td>{{ResultLog.ProfitRatio}}</td>
+                  <td>{{ResultLog.Amount}}</td>
+                  <td>
+                    <input type="checkbox" class="form-check-input" [(ngModel)]="ResultLog.Choice"
+                      [ngModelOptions]="{standalone: true}" id="Check{{log.LOG_SupplierQuotationRecord_ID}}">
+                    <label class="form-check-label" for="Check{{log.LOG_SupplierQuotationRecord_ID}}"> 選擇</label>
+                  </td>
+                </ng-container>
+              </ng-container>
+
+
+          </tbody>
+          <tfoot></tfoot>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="ConfirmQuoteDetail()">確定</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,27 @@
+table>thead>tr>th {
+  text-align: center;
+}
+
+table>thead>tr>th,
+table>tbody>tr>td {
+  border: solid 2px #000000;
+  padding: 4px 4px;
+}
+
+#printpdf {
+  position: relative;
+  display: none;
+  width: 5740px;
+  height: 4000px;
+  font-size: 77px;
+  line-height: 80px;
+  font-family: DFKai-sb;
+  overflow: visible;
+}
+
+.Page {
+  position: absolute;
+  bottom: 0.2em;
+  text-align: center;
+  width: 100%;
+}

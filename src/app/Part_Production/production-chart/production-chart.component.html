@@ -1,0 +1,90 @@
+<div class="">
+  <div class="col-10 ml-auto mr-auto mb-5">
+    <div class="card">
+      <div class="card-body">
+        <h1 class="card-title">造模</h1>
+        <button class="btn mx-1 my-2" (click)="MoldingGroupBtnClick('全部')" [ngClass]="{'btn-info':SelectMoldingsGroup=='全部','btn-outline-info':SelectMoldingsGroup!='全部'}">全部</button>
+        <button class="btn mx-1 my-2" (click)="MoldingGroupBtnClick(item)" *ngFor="let item of MoldingsGroups;" [ngClass]="{'btn-info':SelectMoldingsGroup==item,'btn-outline-info':SelectMoldingsGroup!=item}">{{item}}</button>
+        <canvas baseChart [datasets]="MoldingbarChartData" [labels]="MoldingbarChartLabels"
+          [options]="barChartOptions1" [legend]="barChartLegend" [chartType]="barChartType"
+          (chartHover)="chartHovered($event)" [colors]="barChartColors1"
+          (chartClick)="MoldingchartClicked($event,modalcontent)">
+        </canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-10 ml-auto mr-auto mb-5">
+    <div class="card">
+      <div class="card-body">
+        <h1 class="card-title">合模</h1>
+        <canvas baseChart [datasets]="AsemblingbarChartData" [labels]="AsemblingbarChartLabels"
+          [options]="barChartOptions2" [legend]="barChartLegend" [chartType]="barChartType"
+          (chartHover)="chartHovered($event)" [colors]="barChartColors2"
+          (chartClick)="AsemblingchartClicked($event,modalcontent)">
+        </canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-10 ml-auto mr-auto mb-5">
+    <div class="card">
+      <div class="card-body">
+        <h1 class="card-title">澆注</h1>
+        <canvas baseChart [datasets]="PouringbarChartData" [labels]="PouringbarChartLabels" [options]="barChartOptions2"
+          [legend]="barChartLegend" [chartType]="barChartType" (chartHover)="chartHovered($event)"
+          [colors]="barChartColors2" (chartClick)="PouringchartClicked($event,modalcontent)">
+        </canvas>
+      </div>
+    </div>
+  </div>
+</div>
+<!--- ------------------
+	Modal With Options (NgbdModalBasicComponent)
+	---------------------->
+<ng-template #modalcontent let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">{{modaltitle}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <ngx-datatable #mydatatable class="material common-m-tbl"
+    [headerHeight]="50"
+    style="height:63vh;"
+    [scrollbarV]="true"
+    [footerHeight]="50"
+    [rowHeight]="50"
+    [rows]="modaltabledata"
+    [count]="modaltabledata.length"
+    >
+    <ngx-datatable-column prop="OrderCode" name="訂單" [width]="150">
+      <ng-template ngx-datatable-cell-template let-row="row" let-value="value">
+        {{value+'-'+row['OrderSeries']}}
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column prop="CusOrder" name="客單" [width]="110"></ngx-datatable-column>
+    <ngx-datatable-column prop="CustomerName" name="客戶" [width]="80"></ngx-datatable-column>
+    <ngx-datatable-column prop="ProductionHeadCode" name="製令單別" [width]="80"></ngx-datatable-column>
+    <ngx-datatable-column prop="ProductionOrderCode" name="製令單號" [width]="100"></ngx-datatable-column>
+    <ngx-datatable-column prop="ItemCode" name="品號" [width]="120"></ngx-datatable-column>
+    <ngx-datatable-column prop="PartDesc" name="品名" [width]="400"> </ngx-datatable-column>
+    <ngx-datatable-column prop="MaterialType" name="材質" [width]="80"></ngx-datatable-column>
+    <ngx-datatable-column prop="ProductWeight" name="重量" [width]="50"></ngx-datatable-column>
+    <ngx-datatable-column prop="ETD" name="預交日" [width]="100">
+      <ng-template  ngx-datatable-cell-template let-value="value">
+        {{DateStringFormat(value)}}
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column prop="PlanFinDate" name="預計完工日" [width]="100">
+      <ng-template  ngx-datatable-cell-template let-value="value">
+        {{DateStringFormat(value)}}
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column prop="MoldingLineName" name="造模組別" [width]="100"> </ngx-datatable-column>
+    <ngx-datatable-column prop="AsemblingLineName" name="合模組別" [width]="100"></ngx-datatable-column>
+  </ngx-datatable>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-light" (click)="modal.close('Close click')">Close</button>
+  </div>
+</ng-template>

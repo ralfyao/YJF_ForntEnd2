@@ -1,0 +1,88 @@
+<div class="mainBody">
+  <button class="btn btn-info btn-sm active m-2" (click)="openmodal(searchTerms)">
+    <i class="fa fa-search m-1"></i>查詢</button>
+  <button class="btn btn-info btn-sm active m-2" (click)="printSeletedForm()"><i
+      class="fa fa-file-excel-o m-1"></i>列印</button>
+  <ngx-datatable *ngIf="formSelected" #mydatatable class="material" style="height: calc(100vh - 100px - 2.5rem);"
+    [scrollbarV]="true" [headerHeight]="50" [limit]="10" [columnMode]="'force'" [footerHeight]="50" [rowHeight]="50"
+    [rows]="responseDatas" [selectAllRowsOnPage]="false" [messages]="noDataMessages" checkboxColumn="true"
+    [selected]="formSelected" [selectionType]="'multiClick'">
+    <ngx-datatable-column headerClass="d-flex justify-content-center" cellClass="text-center" prop="LineCode"
+      name="生產線別" [canAutoResize]="true" [headerCheckboxable]="true" [checkboxable]="true">
+    </ngx-datatable-column>
+    <ngx-datatable-column headerClass="d-flex justify-content-center" cellClass="text-center" prop="WorkOrder"
+      name="製令單號" [canAutoResize]="true">
+    </ngx-datatable-column>
+    <ngx-datatable-column headerClass="d-flex justify-content-center" cellClass="text-center" prop="PatFlasNo"
+      name="模具編號" [canAutoResize]="true">
+    </ngx-datatable-column>
+    <ngx-datatable-column headerClass="d-flex justify-content-center" cellClass="text-center" prop="PatFlasType"
+      name="模具類型" [canAutoResize]="true">
+    </ngx-datatable-column>
+    <ngx-datatable-column headerClass="d-flex justify-content-center" cellClass="text-center" prop="Status" name="表單狀態"
+      [canAutoResize]="true">
+    </ngx-datatable-column>
+    <ngx-datatable-column headerClass="d-flex justify-content-center" cellClass="text-center" prop="Description"
+      name="損壞狀況" [canAutoResize]="true">
+    </ngx-datatable-column>
+    <ngx-datatable-column headerClass="d-flex justify-content-center" cellClass="text-center" prop="Type" name="上模/下模"
+      [canAutoResize]="true">
+    </ngx-datatable-column>
+  </ngx-datatable>
+
+</div>
+<ng-template #searchTerms let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title my-0">搜尋</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="container" [formGroup]="form">
+      <div class="row my-1">
+        <div class="col-5">
+          <label for="ID" class="font-weight-bold col">系統ID：</label>
+          <input type="text" id="ID" formControlName="ID" placeholder="請輸入系統ID" class="col">
+        </div>
+        <div class="col-5">
+          <label for="MoldId" class="font-weight-bold col">模具編號：</label>
+          <input type="text" id="MoldId" formControlName="moldId" placeholder="請輸入模具編號" class="col">
+        </div>
+      </div>
+      <div class="row my-1">
+        <div class="col-5">
+          <label class="col font-weight-bold">表單狀態：</label>
+          <div class="d-flex justify-content-around" formArrayName="formStatus">
+            <ng-container *ngFor="let item of statusListArray;index as idx">
+              <div class="col">
+                <input type="checkbox" [id]="'status'+idx" class="form-check-input" [formControl]="item">
+                <label [for]="'status'+idx" class="form-check-label">{{statusList[idx].text}}</label>
+              </div>
+            </ng-container>
+          </div>
+
+        </div>
+        <div class="col-5">
+          <label class="font-weight-bold col">模具類型：</label>
+          <div class="d-flex justify-content-around">
+            <ng-container *ngFor="let item of moldTypeList;index as idx">
+              <div class="col">
+                <input type="radio" name="moldType" [id]="'moldType'+idx" formControlName="moldType"
+                  class="form-check-input" [value]="item.value">
+                <label class="form-check-label" [for]="'moldType'+idx">{{item.name}}</label>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="onSearch()"><i
+        class="mr-1 fa fa-file-excel-o"></i>確定</button>
+    <button type="button" class="btn btn-secondary" (click)="onClear()"><i class="mr-1 fa fa-times"></i>清除</button>
+  </div>
+</ng-template>

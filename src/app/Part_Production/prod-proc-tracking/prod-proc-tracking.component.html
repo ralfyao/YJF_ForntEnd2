@@ -1,0 +1,126 @@
+<div class="pagetitle">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>報工紀錄明細
+</div>
+<table width="50%">
+  <tr>
+    <td>
+      <br>
+      <label class="subtitle mb-5">製令單號:</label>
+    </td>
+    <td class="flex-nowrap">
+      <input type="text" class="form-control col-sm-5 col-2" maxlength="15" [(ngModel)]="WorkOrder" />
+    </td>
+  </tr>
+  <tr>
+    <td>
+      生產組別
+    </td>
+    <td>
+      <select [(ngModel)]="lineId" class="form-control col-sm-5 col-4">
+        <option value="" class="palceHolder">請選擇產線別</option>
+        <ng-container  *ngFor="let item of lineList">
+          <option [value]="item.lineName">{{item.lineName}}</option>
+        </ng-container>
+      </select>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      進出站日期
+    </td>
+    <td class="flex-nowrap">
+      <div>
+        <input type="date" name="startDate" class="form-control col-sm-4 col-4" [(ngModel)]="startDate" /> ~
+        <input type="date" name="endDate" class="form-control col-sm-4 col-4" [(ngModel)]="endDate" />
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      進/出站
+    </td>
+    <td>
+      &nbsp;&nbsp;&nbsp;&nbsp;<input class="form-check-input" type="checkbox" [(ngModel)]="InChecked" (ngModelChange)="MaterialSelectChange()"/>進站&nbsp;&nbsp;&nbsp;&nbsp;
+      <input class="form-check-input" type="checkbox" [(ngModel)]="OutChecked" (ngModelChange)="MaterialSelectChange()"/>出站
+    </td>
+  </tr>
+  <tr>
+    <td>
+
+    </td>
+    <td>
+      <button class="btn btn-info" (click)="query()">查詢</button>
+    </td>
+  </tr>
+  <tr *ngIf="totalDataCount>0">
+    <td><H2>報工補單張數</H2></td>
+    <td><H2>{{supplementWoArray.length}}</H2></td>
+  </tr>
+  <tr *ngIf="totalDataCount>0">
+    <td><H2>報工補單率</H2></td>
+    <td><H2>{{supplementWoArray.length}} / {{totalDataCount}} = {{supplementRate.toFixed(2) + '%'}}</H2></td>
+  </tr>
+  <tr *ngIf="totalDataCount>0">
+    <td>
+      <H2>各組補報工率</H2>
+    </td>
+    <td style="justify-content: center;align-items: center;">
+      <table>
+        <tr>
+          <td>
+            <table class="table tab_content_table table-bordered">
+              <tr>
+                <td style="background-color: lightgray;">組別</td>
+                <ng-container *ngFor="let item of supplementByGroup.keys()">
+                  <td style="background-color: lightgray;">{{item}}</td>
+                </ng-container>
+              </tr>
+              <tr>
+                <td style="background-color: lightgray;">補報工率</td>
+                <ng-container *ngFor="let item of supplementByGroup.keys()">
+                  <td>{{setval(supplementByGroup.get(item), totalDataCount).toFixed(2)}}%</td>
+                </ng-container>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<ng-container *ngIf="GridData.length > 0">
+  <table class="table tab_content_table table-bordered" >
+    <thead>
+      <tr style="background-color: lightgray;">
+        <td>製令單別單號</td>
+        <td>製令狀態</td>
+        <td>品號</td>
+        <td>生產組別</td>
+        <td>生產組別說明</td>
+        <td>報工類別</td>
+        <td>進出站時間</td>
+        <td>報工人員</td>
+        <td>報工時下鐵斗</td>
+        <td>報工日期</td>
+        <td>備註</td>
+      </tr>
+    </thead>
+    <ng-container *ngFor="let item of GridData">
+      <tr>
+        <td>{{item.WorkOrder}}</td>
+        <td>{{item.Status=="V"?"已作廢":"正常"}}</td>
+        <td>{{item.ItemCode}}</td>
+        <td>{{item.ProdGroup}}</td>
+        <td>{{item.ProdSerial}}</td>
+        <td>
+          {{item.ProdStatus}}
+        </td>
+        <td>{{item.ProdTime}}</td>
+        <td>{{item.ProdUser}}</td>
+        <td>{{item.ProdFlask}}</td>
+        <td>{{item.ReportDate}}</td>
+        <td>{{item.Comment}}</td>
+      </tr>
+    </ng-container>
+  </table>
+</ng-container>

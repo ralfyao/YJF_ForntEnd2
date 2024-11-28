@@ -1,0 +1,188 @@
+<div class="pagetitle">
+  <div class="float_left path">鐵斗狀態預覽表</div>
+</div>
+<div style="height: calc(100% - 150px);">
+  <div>
+    <div style="display: flex;flex-direction: row;width: 100%;overflow: auto;">
+      <div><button class="btn btn-primary btn-sm active mr-1" role="button">全部列表</button></div>
+      <div><button class="btn btn-primary btn-sm active mr-1" role="button">利用狀態</button></div>
+      <div><button class="btn btn-primary btn-sm active" role="button">維修清單</button></div>
+    </div>
+    <div style="width: 100%;">
+      <div style="width: 100%;display: flex;flex-direction: row;">
+        <ngx-select style="width:50%" [(ngModel)]="selectedPartNo" [ngModelOptions]="{standalone: true}"
+          (ngModelChange)="onselectedOutProduce(selectedPartNo)" [items]="PartList"></ngx-select>
+        <button class="btn btn-primary btn-sm active"
+          role="button">{{'查看木模'}}{{selectedPartNo!='選擇品號'?selectedPartNo:''}}</button>
+      </div>
+
+      <input type="text" style="background-color: honeydew;width: 100%;" placeholder="全文關鍵字搜尋" [(ngModel)]="SearchText"
+        [ngModelOptions]="{standalone: true}">
+    </div>
+  </div>
+  可用鐵斗數：{{flaskAvailableCount}}
+  <div id="fitdiv" class="fitwindow">
+    <table class="table-fixed" style="border: 2px black solid;">
+      <thead>
+        <tr>
+          <th style="background-color: cornsilk;text-align: center;">鐵斗編號</th>
+          <th style="background-color: cornsilk;text-align: center;">位置</th>
+          <th style="background-color: cornsilk;text-align: center;">使用頻率</th>
+          <th style="background-color: cornsilk;text-align: center;">操作</th>
+          <th style="background-color: cornsilk;text-align: center;">狀態</th>
+          <th style="background-color: cornsilk;text-align: center;">順序</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of FlaskList;let i = index">
+          <td>
+            <div class="col justify-content-center d-flex">
+              <button class="btn btn-primary btn-sm active" role="button" data-toggle="modal" data-target="#PartNOlist"
+                data-backdrop="static" (click)="QueryFlaskUsage(item.FlaskId)">{{item.FlaskId}}</button>
+            </div>
+          </td>
+          <td>
+            <div class="col justify-content-center d-flex">
+              <span>
+                {{item.FlaskLocation}}
+              </span>
+            </div>
+          </td>
+          <td>
+            <div class="col justify-content-center d-flex">
+              <span>
+                {{item.Usage}}
+              </span>
+            </div>
+          </td>
+          <td>
+            <div class="col justify-content-center d-flex">
+              <button class="btn btn-primary btn-sm active" role="button" data-toggle="modal"
+                data-target="#ProblemReport" data-backdrop="static" (click)="SelectFlask=item">修改</button>
+            </div>
+          </td>
+          <td>
+            <div class="col justify-content-center d-flex">
+              <span>
+                {{item.Status}}
+              </span>
+            </div>
+          </td>
+          <td>
+            <div class="col justify-content-center d-flex">
+              <span>
+                {{item.Sequence}}
+              </span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+      <tfoot>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="ProblemReport">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div align="left" style="padding: 10px">
+        <h3>
+          <i class="fa fa-address-book">鐵斗問題回報</i>
+        </h3>
+      </div>
+      <div class="modal-body">
+        <div style="padding: 10px;">
+          位置：
+          <select class="custom-select custom-select-sm" style="background-color:transparent;"
+            [(ngModel)]="SelectFlask.FlaskLocation" [ngModelOptions]="{standalone: false}">
+            <option [ngValue]="" disabled selected>選擇區域</option>
+            <option [ngValue]=""></option>
+            <option [ngValue]="'A1'">A1</option>
+            <option [ngValue]="'A2'">A2</option>
+            <option [ngValue]="'B3'">B3</option>
+            <option [ngValue]="'B4'">B4</option>
+            <option [ngValue]="'C5'">C5</option>
+            <option [ngValue]="'C6'">C6</option>
+            <option [ngValue]="'C7'">C7</option>
+            <option [ngValue]="'C8'">C8</option>
+            <option [ngValue]="'C9'">C9</option>
+            <option [ngValue]="'C10'">C10</option>
+            <option [ngValue]="'C11'">C11</option>
+            <option [ngValue]="'C12'">C12</option>
+          </select>
+        </div>
+        <div style="padding: 10px;">
+          長度：
+          <input class="inputfull" type="text" style="background-color:transparent;"
+            [ngModelOptions]="{standalone: false}" [(ngModel)]="SelectFlask.FLength">
+        </div>
+        <div style="padding: 10px;">
+          寬度：
+          <input class="inputfull" type="text" style="background-color:transparent;"
+            [ngModelOptions]="{standalone: false}" [(ngModel)]="SelectFlask.FWidth">
+        </div>
+        <div style="padding: 10px;">
+          上模高度：
+          <input class="inputfull" type="text" style="background-color:transparent;"
+            [ngModelOptions]="{standalone: false}" [(ngModel)]="SelectFlask.FUpHeight">
+        </div>
+        <div style="padding: 10px;">
+          下模高度：
+          <input class="inputfull" type="text" style="background-color:transparent;"
+            [ngModelOptions]="{standalone: false}" [(ngModel)]="SelectFlask.FDHeight">
+        </div>
+        <div style="padding: 10px;">
+          中模高度：
+          <input class="inputfull" type="text" style="background-color:transparent;"
+            [ngModelOptions]="{standalone: false}" [(ngModel)]="SelectFlask.FMHeight">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div style="display: grid;grid-template-columns: 50% 50%;">
+          <div>
+            <button type="button" class="btn btn-primary mr-2" data-dismiss="modal"
+              (click)="FlaskDataChange(SelectFlask)">儲存</button>
+          </div>
+          <div>
+            <button type="button" class="btn btn-primary" data-dismiss="modal">取消</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" tabindex="-1" role="dialog" id="PartNOlist">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div align="left" style="padding: 10px">
+        <h3>
+          <i class="fa fa-address-book">品號利用</i>
+        </h3>
+      </div>
+      <div class="modal-body">
+        <table class="table-fixed">
+          <thead>
+            <tr>
+              <th class="text-center">品號</th>
+              <th class="text-center">訂單重量</th>
+              <th class="text-center">使用次數</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of FlaskUsageList">
+              <td class="text-center">{{item.PartNO}}</td>
+              <td class="text-center">{{item.Weight}}</td>
+              <td class="text-center">{{item.FlaskUse}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">確認</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,97 @@
+<div>
+  <div class="row align-items-center">
+    <div class="col-12 text-center title mt-3"><img width="30" class="page-img"
+        src="/assets/images/YJF-logo-Blue.png" />源潤豐鑄造股份有限公司</div>
+    <div class="col-12 text-center subtitle"> YUAN JUN FONG CASTING CO., LTD.</div>
+    <div class="col-12 text-center title">備模出入庫作業</div>
+    <div class="col-12 my-3"></div>
+    <ng-container *ngIf="Success==true">
+
+      <div class="col-12  text-center title">作業已完成</div>
+      <div class="btndiv justify-content-center">
+        <button type="button" class="btn btn-primary mx-2" (click)="Refresh()"><i class="fa fa-refresh"></i>
+          重新作業</button>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="Success==false">
+      <div class="col-3 px-1 col-sm-3 my-1 my-sm-2 text-right">人員:</div>
+      <div class="col-8 px-1 my-1 my-sm-2">
+        <input type="text" class="form-control mx-0" maxlength="5" [(ngModel)]="UserCode" />
+      </div>
+      <div class="col-3 px-1 col-sm-3 my-1 my-sm-2 text-right">日期:</div>
+      <div class="col-8 px-1 my-1 my-sm-2">
+        <input class="form-control mx-0" type="date" [(ngModel)]="OrderDate" disabled />
+      </div>
+      <div class="col-3 px-1 col-sm-3 my-1 my-sm-2 text-right">狀態:</div>
+      <div class="col-8 px-1 my-1 my-sm-2 ">
+        <div class="form-check">
+          <input type="radio" id="Stockout" [(ngModel)]="ChangeType" value="out" name="StockState"
+            class="form-check-input">
+          <label class="form-check-label" for="Stockout">出庫</label>
+        </div>
+        <div class="form-check">
+          <input type="radio" id="Stockin" [(ngModel)]="ChangeType" value="in" name="StockState"
+            class="form-check-input">
+          <label class="form-check-label" for="Stockin">入庫</label>
+        </div>
+      </div>
+      <div class="col-3 px-1 col-sm-3 my-1 my-sm-2 text-right">品號:</div>
+      <div class="col-8 px-1 my-1 my-sm-2 row">
+        <input type="text" class="form-control  mx-0" style="width: calc(100% - 45px);" readonly
+          [value]="ItemCode.length>2?'1'+ItemCode.substring(2):''" placeholder="請掃描QrCode" />
+        <button class="btn btn-info btn-sm camerabtn" (click)="ScannerClick('ItemCode')">
+          <i class="fa fa-camera mx-1"></i></button>
+      </div>
+      <div *ngIf="ItemCode.length>2" class="col-3 px-1 col-sm-3 my-1 my-sm-2 text-right">模具種類:</div>
+      <div *ngIf="ItemCode.length>2" class="col-8 px-1 my-1 my-sm-2 row">
+        {{ItemCode.substring(0,2)=='M1'?'外模':ItemCode.substring(0,2)=='M2'?'砂心':''}}
+      </div>
+      <div class="col-3 px-1 col-sm-3 my-1 my-sm-2 text-right" *ngIf="ItemCode!=''">數量:</div>
+      <div class="col-8 px-1 my-1 my-sm-2 row" *ngIf="ItemCode!=''">
+        <!--   <input type="number" class="form-control mx-0" [(ngModel)]="Quantity" *ngIf="ItemCode!=''"/> -->
+        <div>{{Quantity}}</div>
+      </div>
+      <div class="col-3 px-1 col-sm-3 my-1 my-sm-2 text-right">倉庫:</div>
+      <div class="col-8 px-1 my-1 my-sm-2 row">
+        <select class="custom-select" [(ngModel)]="WareHouse" style="width: calc(100% - 45px);" disabled>
+          <option value="">請掃描QrCode</option>
+          <option *ngFor="let item of MoldWareHouseList" [value]="item.MC001.trim()">{{item.MC002.trim()}}</option>
+        </select>
+        <button class="btn btn-info btn-sm camerabtn" (click)="ScannerClick('WareHouse')">
+          <i class="fa fa-camera mx-1"></i></button>
+      </div>
+
+      <div class="col-3 px-1 col-sm-3 my-1 my-sm-2 text-right">庫位:</div>
+      <div class="col-8 px-1 my-1 my-sm-2 row">
+        {{Location}}
+      </div>
+
+      <div class="btndiv justify-content-center">
+        <button type="button" class="btn btn-primary mx-2"
+          [swal]="{ title: 'OK?\r\n確定要執行嗎?', confirmButtonText:'確定 OK',showCancelButton: true,cancelButtonText:'取消 CANCEL' }"
+          (confirm)="Save()">確定 OK</button>
+      </div>
+    </ng-container>
+  </div>
+
+</div>
+
+<div class="mask" *ngIf="ScannerEnable">
+  <select [(ngModel)]="deviceSelected" (ngModelChange)="onDeviceSelectChange($event)">
+    <option *ngFor="let device of availableDevices" [value]="device.deviceId">{{device.label}}</option>
+    <option *ngIf="availableDevices.length==0" value="">No Device Selected</option>
+  </select>
+  <zxing-scanner class="Scanner" [formats]="['QR_CODE']" [enable]="ScannerEnable" [device]="deviceCurrent"
+    (deviceChange)="onDeviceChange($event)" (scanSuccess)="onScanSuccess($event)"
+    (camerasFound)="onCamerasFound($event)"></zxing-scanner>
+
+  <button class="btn btn-danger btn-sm " (click)="ScannerEnable=false;">取消
+    <i class="fa fa-times mx-1"></i></button>
+</div>
+<div class="loading" *ngIf="Loading==true">
+  <div class="dot"></div>
+  <div class="dot"></div>
+  <div class="dot"></div>
+  <div class="dot"></div>
+  <div class="dot"></div>
+</div>

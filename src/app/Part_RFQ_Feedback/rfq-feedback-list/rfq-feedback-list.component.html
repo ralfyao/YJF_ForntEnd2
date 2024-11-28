@@ -1,0 +1,297 @@
+<!--右邊內容__標題Start-->
+<div class="pagetitle">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>詢價回饋
+</div>
+<!--右邊內容__標題End-->
+
+<!--右邊內容__搜尋區域Start-->
+<section class="search_area">
+  <div>
+    <input type="text" style="background-color: honeydew;width: 350px;" placeholder="全文關鍵字搜尋" [(ngModel)]="SearchText"
+      [ngModelOptions]="{standalone: true}" (change)="queryFeedbackList('1')" (input)="queryFeedbackList('1')">
+    <select class="select_search" [(ngModel)]="QuotationIsClosedString" [ngModelOptions]="{standalone: true}"
+      (ngModelChange)="ChangeIsClosed($event)" (change)="queryFeedbackList('1')">
+      <option *ngFor="let Status of StatusList" [ngValue]="Status">{{Status}}</option>
+    </select>
+    <button class="btn  btn-outline-primary" (click)="EditMutipleQuotation()">
+      <i class="fa fa-files-o"></i>
+      批次報價
+    </button>
+  </div>
+</section>
+<!--右邊內容__搜尋區域End-->
+
+<!--右邊內容__搜尋之後的表格清單Start -->
+<table class="table table-bordered table-striped table-hover">
+  <thead>
+    <tr class="color_th1">
+      <th>報價單號</th>
+      <th>客戶編號</th>
+      <th>產品名稱</th>
+      <th>備註</th>
+      <th>詢價種類</th>
+      <th>詢價附件</th>
+      <th>詢價狀態</th>
+      <th width="120">報價操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr
+      [ngStyle]="{'color':selectQuotationDetail.FORM_QuotationDetail_ID==feedback.FORM_QuotationDetail_ID?'white':'black','background-color': selectQuotationDetail.FORM_QuotationDetail_ID==feedback.FORM_QuotationDetail_ID?'blue':'white'}"
+      *ngFor="let feedback of FBList" (click)="SelectQuoDetail(feedback)">
+      <td>{{feedback.QuoteNumber}}</td>
+      <td>{{feedback.CustomerNumber}}</td>
+      <td>{{feedback.QuoteItemNumber}}</td>
+      <td>{{feedback.QuoteRemark}}</td>
+      <td>{{feedback.QuoteTypeName}}</td>
+      <td class="manage">
+        <button
+          [ngStyle]="{'color':selectQuotationDetail.FORM_QuotationDetail_ID==feedback.FORM_QuotationDetail_ID?'white':''}"
+          type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#Modal_QueryAttachment"
+          (click)="queryQuotationAttachList(feedback).subscribe()"><i class="fa fa-search-plus"></i>查看</button>
+      </td>
+      <td [ngSwitch]="feedback.Status">
+        <label *ngSwitchCase="2">已回饋</label>
+        <label *ngSwitchCase="3">結案</label>
+        <label *ngSwitchDefault>未報價</label>
+      </td>
+      <td class="manage">
+        <button
+          [ngStyle]="{'color':selectQuotationDetail.FORM_QuotationDetail_ID==feedback.FORM_QuotationDetail_ID?'white':''}"
+          (click)="EditQuotation(feedback)" type="button" class="btn btn-outline-info"><i
+            class="fa fa-file-o"></i>單筆報價</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<ngb-pagination *ngIf="TotalCount" (pageChange)="loadPage($event)" class="pagination pull-right"
+  [(collectionSize)]="TotalCount" [(page)]="Page" [pageSize]="PageSize" aria-label="Default pagination" size="sm">
+</ngb-pagination>
+<!-- 查看詢價單附件彈跳視窗Start -->
+<div class="modal fade" tabindex="-1" role="dialog" id="Modal_QueryAttachment">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+      </div>
+      <div class="modal-body">
+        <section class="section-style on">
+          <h3><i class="fa fa-address-book"></i> 選擇客戶</h3>
+          <table class="table table-bordered table-striped table-hover">
+            <thead>
+              <tr class="color_th1">
+                <th>項目</th>
+                <th>檔案</th>
+                <th>下載</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let Attach of QuotationDetailAttachList; let i=index">
+                <td>{{i+1}}</td>
+                <td>{{Attach.AnnexName}}</td>
+                <td><a href="{{rest.APserver}}{{Attach.AnnexURL}}" target="_blank">下載</a></td>
+              </tr>
+            </tbody>
+            <tfoot>
+            </tfoot>
+          </table>
+        </section>
+        <!--詢價清單委託人編號維護__選擇客戶End-->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">確定</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 查看詢價單附件彈跳視窗End -->
+
+<!-- 報價彈跳視窗Start -->
+<div class="modal fade" tabindex="-1" role="dialog" id="Modal_UpdatePrice">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <section class="section-style on">
+          <h3><i class="fa fa-address-book"></i>源潤豐進階管理系統</h3>
+          <table class="table table-bordered table-striped table-hover">
+            <thead>
+              <tr>
+                <th>品號</th>
+                <th>報價種類</th>
+                <th>材質</th>
+                <th>重量</th>
+                <th>尺寸</th>
+                <th>預估年量</th>
+                <th>備註</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{QuotationDetail.QuoteItemNumber}}</td>
+                <td>{{QuotationDetail.QuoteTypeName}}</td>
+                <td>{{QuotationDetail.CastingMaterial}}</td>
+                <td>{{QuotationDetail.CastingWeight}}</td>
+                <td>{{QuotationDetail.CastingSize}}</td>
+                <td>{{QuotationDetail.EstimateQuantity}}</td>
+                <td>{{QuotationDetail.QuoteRemark}}</td>
+              </tr>
+            </tbody>
+          </table>
+          <table style="width: 100%">
+            <tr>
+              <th>
+                <h3>廠商報價細節</h3>
+              </th>
+              <th>
+                <h3>廠商報價附件(選填)</h3>
+              </th>
+            </tr>
+            <tr>
+              <td style="text-align: left;vertical-align: top">
+                <form role="form">
+                  <label>報價項目(必填)：</label>
+                  <input type="text" placeholder="請輸入報價項目" [(ngModel)]="FeedbackItem"
+                    [ngModelOptions]="{standalone: true}" required><br>
+                  <label>報價金額(必填)：</label>
+                  <input type="text" placeholder="請輸入報價金額" style="color: black" [(ngModel)]="FeedbackPrice"
+                    [ngModelOptions]="{standalone: true}" required><br>
+                  <ng-container *ngIf="!isnumber(FeedbackPrice)&&FeedbackPrice.length!=0">
+                    <label style="color: red">輸入錯誤，請輸入數字格式</label><br>
+                  </ng-container>
+                  <label>報價說明(選填)：</label>
+                </form>
+              </td>
+              <td style="text-align: left;vertical-align: top">
+                <input id="fileupload" type="file" class="btn btn-default" value="選擇檔案"
+                  (change)="chooseFile($event.target.files)">
+                <button id="fileupload_btn" type="button" class="btn btn-outline-primary"
+                  (click)="uploadReportAttach()"><i class="fa fa-search"></i>
+                  上傳檔案</button>
+                <ngb-progressbar id="progressbar" type="warning" [value]="ProgressPercent" [striped]="true"
+                  height="25px" style="visibility: hidden;">
+                  <i>已上傳{{Uploaded}}，共{{UploadTotal}}---{{ProgressPercent}}%</i>
+                </ngb-progressbar>
+              </td>
+            </tr>
+            <tr>
+              <td id="TextareaBlock" style="border: 1px solid black;padding: 0">
+                <textarea id='AutoTextarea' style='min-height: 100px;width:100%;padding: 0;overflow: none;resize:none'
+                  [(ngModel)]="FeedbackDescrpiton" [ngModelOptions]="{standalone: true}"></textarea>
+              </td>
+              <td style="align-content: left;vertical-align: top">
+                <table class="table table-bordered table-striped table-hover" style="margin: 0px">
+                  <thead>
+                    <tr class="color_th1">
+                      <th>項目</th>
+                      <th>檔案</th>
+                      <th>下載</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let Attach of ReportAttachList; let i=index">
+                      <td>{{i+1}}</td>
+                      <td>{{Attach.AnnexName}}</td>
+                      <td><a href="{{rest.APserver}}{{Attach.AnnexURL}}" target="_blank">下載</a></td>
+                      <td>
+                        <button type="button" class="btn btn-primary" (click)="DeleteSupplierAttach(Attach)">移除</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td align="right">
+                <button type="button" class="btn btn-outline-info" data-toggle="modal"
+                  data-target="#Modal_QueryAttachment">
+                  <i class="fa fa-search-plus"></i>查看</button>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <table class="table table-bordered table-striped table-hover">
+                  <thead>
+                    <tr class="color_th1">
+                      <th>報價項次</th>
+                      <th>報價品項</th>
+                      <th>報價金額</th>
+                      <th>報價說明</th>
+                      <th>移除</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let log of ReportLogList; let i=index">
+                      <td>{{i+1}}</td>
+                      <td>{{log.QuoteItem}}</td>
+                      <td>{{log.QuotePrice}}</td>
+                      <td>
+                        <textarea id="{{log.FORM_QuotationDetailSupplierMap_ID}}"
+                          style="width:100%;height: auto;min-height: 20px;overflow: none">{{log.QuoteRemark}}</textarea>
+                      </td>
+                      <td style="width: 100px">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal"
+                          (click)="updateReportDetail()">移除</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2" align="right">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">離開</button>
+              </td>
+            </tr>
+          </table>
+        </section>
+      </div>
+
+      <div class="modal-footer">
+
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 報價彈跳視窗End -->
+
+<!-- 報價紀錄彈跳視窗Start -->
+<div class="modal fade" tabindex="-1" role="dialog" id="Modal_PriceLog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+      </div>
+      <div class="modal-body">
+        <section class="section-style on">
+          <h3><i class="fa fa-address-book"></i>報價記錄</h3>
+          <table class="table table-bordered table-striped table-hover">
+            <thead>
+              <tr class="color_th1">
+                <th width="180">日期</th>
+                <th width="200">金額</th>
+                <th>備註</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let log of ReportLogList; let i=index">
+                <td>{{log.CreateDate}}</td>
+                <td>{{log.QuotePrice}}</td>
+                <td>
+                  <textarea
+                    style="width:100%;height: auto;min-height: 20px;resize:vertical;">{{log.QuoteRemark}}</textarea>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+            </tfoot>
+          </table>
+        </section>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">確定</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 報價彈跳視窗End -->
+
+<!--右邊內容__搜尋之後的表格清單End -->

@@ -1,0 +1,79 @@
+.ProductionSection {
+  width: 180px;
+  height: 220px;
+  background-color: bisque;
+  margin: 15px;
+  text-align: center;
+  float: left;
+  cursor: pointer;
+}
+
+.innerdiv {
+  height: 100%;
+  width: 75%;
+  min-width: 220px;
+  margin: 0 auto;
+}
+
+.innertop {
+  text-align: center;
+  font-size: 25px;
+  font-weight: bolder;
+  margin: 10px 0;
+}
+
+.table-fixed {
+  width: 100%;
+
+}
+
+.table-fixed thead th {
+  position: sticky;
+  position: -webkit-sticky;
+  top: 0;
+}
+
+.table-fixed tr {
+  height: 65px;
+}
+
+.table-fixed td {
+  border: black 1px solid;
+  height: 65px;
+}
+
+.tablehead {
+  background-color: cornsilk;
+  text-align: center;
+  border: 1px grey solid;
+}
+
+.titleOrder {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bolder;
+  background-color: cyan;
+}
+
+
+
+
+.datatable-checkbox input[type='checkbox'] {
+  opacity: 1;
+}
+
+#modalcontent .modal-body {
+  height: 77.5vh;
+  overflow-y: auto;
+}
+
+#modalcontent .modal-title {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.message {
+  font-size: 20px;
+  color: #db8214;
+}
+

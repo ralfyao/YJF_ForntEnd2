@@ -1,0 +1,33 @@
+#detailTable tr td {
+  width: 130px;
+  padding: 4px;
+}
+
+  #detailTable tr td input {
+    width: 100%;
+    text-align: center;
+  }
+
+#MOdetailTable tr th, #detailTable tr th {
+  text-align: center;
+  min-width: auto;
+}
+
+#MOdetailTable tr td input {
+  width: 100%;
+  font-size: 16px;
+  text-align: center;
+  padding: 0%;
+}
+
+#MOdetailTable tr td {
+  font-size: 16px;
+  text-align: center;
+  padding: 0%;
+}
+
+#MaintainAmount input {
+  font-size: 40px;
+  font-weight: bold;
+  color: red;
+}

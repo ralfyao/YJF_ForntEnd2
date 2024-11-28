@@ -1,0 +1,12 @@
+
+.form-check{
+  display: inline-block;
+}
+.form-check-input,.form-check-label{
+  cursor: pointer;
+}
+.form-check-input{
+  margin-top: 0.2rem;
+  margin-left: -1rem;
+}
+

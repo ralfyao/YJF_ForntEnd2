@@ -1,0 +1,65 @@
+#table_OnforeSetting tr td {
+    width: 150px;
+    padding: 4px;
+}
+
+#table_OnforeSetting tr td input {
+    width: 100%;
+    text-align: center;
+}
+
+#table_OnforeSetting .table-warning {
+    text-align: center;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+#table_OnforeBOM tr td {
+    width: 130px;
+    padding: 4px;
+}
+
+#table_OnforeBOM tr td input {
+    width: 100%;
+    text-align: center;
+}
+
+#table_OnforeSetting tr th, #table_AfterMeltdata tr th, #table_BeforeMeltdata tr th, #table_OnforeBOM tr th {
+    text-align: center;
+    min-width: auto;
+}
+
+#table_BeforeMeltdata tr td, #table_AfterMeltdata tr td {
+    width: 55px;
+    padding: 4px;
+}
+
+#table_BeforeMeltdata tr td input, #table_AfterMeltdata tr td input {
+    width: 100%;
+    font-size: 16px;
+    text-align: center;
+    padding: 0%;
+}
+
+.popover {
+    max-width: 100%!important;
+    /* Max Width of the popover (depending on the container!) */
+}
+
+.tab-content {
+    padding: 8px 0px 8px;
+}
+
+.group-material{
+  padding: 10px;
+  border: 1px black solid;
+  text-align: center;
+}
+
+
+#MaterialTable .StockQuantity{
+  text-align: left;
+}
+input[type=text]{
+  margin: 5px 0px;
+}

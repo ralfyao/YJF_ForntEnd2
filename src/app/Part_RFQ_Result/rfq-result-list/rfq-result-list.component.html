@@ -1,0 +1,60 @@
+<!--右邊內容__標題Start-->
+<div class="pagetitle">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>報價成果結單
+</div>
+<!--右邊內容__標題End-->
+<!--右邊內容__搜尋區域Start-->
+<section class="search_area">
+  <form role="form">
+    <input  type="text" style="background-color: honeydew;width: 350px;" placeholder="全文關鍵字搜尋" [(ngModel)]="SearchText"
+    [ngModelOptions]="{standalone: true}" (change)="SmartSearch(1)" (input)="SmartSearch(1)">
+    <select class="select_search" [(ngModel)]="QuotationIsClosedString" [ngModelOptions]="{standalone: true}"
+      (ngModelChange)="ChangeIsClosed($event)" (change)="SmartSearch(1)">
+      <option *ngFor="let Status of StatusList" [ngValue]="Status">{{Status}}</option>
+    </select>
+    <br />
+    <div class="typesetting-4">
+      <button class="btn btn-outline-primary" (click)="SmartSearch(1)"><i class="fa fa-search"></i> 查詢</button>
+    </div>
+  </form>
+</section>
+<!--右邊內容__搜尋區域End-->
+<!--右邊內容__搜尋之後的表格清單Start -->
+<table class="table table-bordered table-striped table-hover">
+  <thead>
+    <tr class="color_th1">
+      <th>報價單編號</th>
+      <th>客戶簡稱</th>
+      <th>報價項目</th>
+      <th>建單人</th>
+      <th>結案碼</th>
+      <th>供應商報價</th>
+      <th>報價備註</th>
+      <th width="120">操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr id="QuotationResult{{i}}" (click)="TableRowColorChange('QuotationResult',QuotationResultList,i)"
+     *ngFor="let Result of QuotationResultList;let i =index" title="{{Result.QuoteItemString}}">
+      <td>{{Result.QuoteNumber}}</td>
+      <td>{{Result.CustomerName}}</td>
+      <td>{{Result.QuoteItemString.substring(0,20)}}...</td>
+      <td>{{Result.CreateByName}}</td>
+      <td>{{Result.Status=='1'?'未結案':'結案'}}</td>
+      <td>{{Result.IsQuoted=='Y'?'報價完成':'報價中'}}</td>
+      <td>{{Result.QuoteRemark}}</td>
+      <td class="manage">
+        <button type="button" class="btn btn-outline-info" (click)="CheckoutResult(Result)">
+          <i class="fa fa-search-plus"></i>結單操作
+        </button>
+      </td>
+    </tr>
+  </tbody>
+  <tfoot>
+
+  </tfoot>
+</table>
+<ngb-pagination *ngIf="TotalCount" (pageChange)="loadPage($event)" class="pagination pull-right" [(collectionSize)]="TotalCount"
+  [pageSize]="PageCount" [(page)]="Page" aria-label="Default pagination" size="sm">
+</ngb-pagination>
+<!--右邊內容__搜尋之後的表格清單End -->

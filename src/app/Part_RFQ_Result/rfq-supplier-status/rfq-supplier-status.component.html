@@ -1,0 +1,545 @@
+<!--右邊內容__標題Start-->
+<div class="pagetitle">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>供應商報價進度
+</div>
+<!--右邊內容__標題End-->
+<section class="content_data">
+  <ul class="nav nav-tabs">
+    <li class="nav-item">
+      <a class="nav-link active" href="#tab_1" data-toggle="tab"><i class="fa fa-search-plus"></i>內容檢視</a>
+    </li>
+  </ul>
+  <section class="search_area">
+    <table>
+      <tr>
+        <td>
+          <input type="text" style="background-color: honeydew;width: 350px;" placeholder="全文關鍵字搜尋"
+            [(ngModel)]="SearchText" [ngModelOptions]="{standalone: true}"
+            (change)="SmartSearch(1);AllSupplierQuotaiton()" (input)="SmartSearch(1);AllSupplierQuotaiton()">
+        </td>
+        <th>報價進度：</th>
+        <td>
+          <select type="text" [(ngModel)]="Search_Statu" [ngModelOptions]="{standalone: true}"
+            (change)="SmartSearch(1);AllSupplierQuotaiton()">
+            <option *ngFor="let op of Search_Status" [value]="op.ID">{{op.Name}}</option>
+          </select>
+        </td>
+        <td>
+          <button class="btn btn-outline-primary" (click)="SmartSearch(1);AllSupplierQuotaiton()"><i
+              class="fa fa-search"></i> 查詢</button>
+        </td>
+      </tr>
+    </table>
+    <div>
+      <label>群組顯示</label>
+      <select type="text" style="width: 150px;text-align: center;" [(ngModel)]="groupselect"
+        [ngModelOptions]="{standalone: true}" (ngModelChange)="GroupColumn(groupselect)">
+        <option *ngFor="let op of GroupColumns" [value]="op.GroupID">{{op.Name}}</option>
+      </select>
+      <button class="btn btn-primary btn-sm active" role="button" (click)="ClearOrderSque()">清除排序</button>
+    </div>
+  </section>
+  <div #tables>
+    <table class="table table-bordered table-striped table-hover" *ngIf="AllDisplay">
+      <thead>
+        <tr style="background-color: cornsilk;">
+          <th><i [ngClass]="SortColumns[0].SortText" aria-hidden="true" (click)="SortColumn(0)">報價日期</i></th>
+          <th><i [ngClass]="SortColumns[1].SortText" aria-hidden="true" (click)="SortColumn(1)">報價單號</i></th>
+          <th><i [ngClass]="SortColumns[8]?.SortText" aria-hidden="true" (click)="SortColumn(8)">負責業務</i></th>
+          <th><i [ngClass]="SortColumns[2].SortText" aria-hidden="true" (click)="SortColumn(2)">供應商</i></th>
+          <th><i [ngClass]="SortColumns[3].SortText" aria-hidden="true" (click)="SortColumn(3)">報價品項</i></th>
+          <th><i [ngClass]="SortColumns[4].SortText" aria-hidden="true" (click)="SortColumn(4)">詢價客戶</i></th>
+          <th><i [ngClass]="SortColumns[5].SortText" aria-hidden="true" (click)="SortColumn(5)">報價備註</i></th>
+          <th><i [ngClass]="SortColumns[6].SortText" aria-hidden="true" (click)="SortColumn(6)">備註</i></th>
+          <th><i [ngClass]="SortColumns[7].SortText" aria-hidden="true" (click)="SortColumn(7)">報價進度</i></th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let quote of SupplierQuoteStatusList;let i =index"
+          (click)="TableRowColorChange(quote,SupplierQuoteStatusList)"
+          [ngStyle]="{'background-color':quote.ClickColor?'deepskyblue':'white'}">
+          <td>{{quote.QuoteDate}}</td>
+          <td>{{quote.QuoteNumber}}</td>
+          <td>{{quote.SalesName}}</td>
+          <td>{{quote.SupplierName}}</td>
+          <td>{{quote.QuoteItemNumber}}</td>
+          <td>{{quote.CUSID}}</td>
+          <td>{{quote.Remark}}</td>
+          <td>{{quote.QuoteTypeName}}</td>
+          <td>{{quote.Status=='3'?"結案":quote.Status=='2'?"已報價":"報價中"}}</td>
+          <td>
+            <!--修改將有權限檢視的使用者加到陣列內-->
+            <!-- {{CurrentUserName}} {{AllDisplayViewUse.includes(CurrentUserName)}} -->
+            <button
+              *ngIf="quote.Representative.includes(CurrentUserName)||AllDisplayViewUse.includes(CurrentUserName)"
+              class="btn btn-primary btn-sm active" role="button" aria-pressed="true" data-toggle="modal"
+              data-target="#Modal_vendorList" (click)="queryDetailVendor(quote);queryQuotationAttachList(quote)"
+              data-backdrop="static">
+              查看紀錄
+            </button>
+          </td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="9">
+            <ngb-pagination *ngIf="TotalCount" (pageChange)="loadPage($event)" class="pagination pull-right"
+              [(collectionSize)]="TotalCount" [(page)]="Page" [pageSize]="PageCount" [maxSize]="8"
+              aria-label="Default pagination" size="sm">
+            </ngb-pagination>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <table class="table table-bordered table-striped table-hover" *ngIf="SuppierDisplay">
+      <thead>
+        <tr style="background-color: cornsilk;">
+          <th>供應商</th>
+          <th><i [ngClass]="SortColumns[0].SortText" aria-hidden="true" (click)="SortColumn(0)">報價日期</i></th>
+          <th><i [ngClass]="SortColumns[1].SortText" aria-hidden="true" (click)="SortColumn(1)">報價單號</i></th>
+          <th><i [ngClass]="SortColumns[8]?.SortText" aria-hidden="true" (click)="SortColumn(8)">負責業務</i></th>
+          <th><i [ngClass]="SortColumns[3].SortText" aria-hidden="true" (click)="SortColumn(3)">報價品項</i></th>
+          <th><i [ngClass]="SortColumns[4].SortText" aria-hidden="true" (click)="SortColumn(4)">詢價客戶</i></th>
+          <th><i [ngClass]="SortColumns[5].SortText" aria-hidden="true" (click)="SortColumn(5)">報價備註</i></th>
+          <th><i [ngClass]="SortColumns[6].SortText" aria-hidden="true" (click)="SortColumn(6)">備註</i></th>
+          <th><i [ngClass]="SortColumns[7].SortText" aria-hidden="true" (click)="SortColumn(7)">報價進度</i></th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let item of SuppierDisplayList;let i = index">
+          <tr>
+            <td colspan="10">
+              <i class="{{item.collapsetag}}" (click)="setcollasp('SuppierDisplay',i)" style="float: left;"
+                aria-hidden="true">{{item.filteritem}}&emsp; &emsp;</i>
+              <label style="float: left;">&emsp;已報:{{item.finishqty}} &emsp; &emsp; 未報: {{item.unfinqty}}</label>
+              <label style="float: left;">&emsp;延遲天數:{{item.QuoteDays}}</label>
+            </td>
+          </tr>
+          <tr *ngFor="let quote of AllSupplierQuoteStatusList;let y =index"
+            (click)="TableRowColorChange(quote,AllSupplierQuoteStatusList)"
+            [ngStyle]="{'visibility': item.visiabletag,'background-color':quote.ClickColor?'deepskyblue':quote.Status=='2'?'lightpink':'white'}">
+            <ng-container *ngIf="item.filteritem==quote.SupplierName">
+              <td></td>
+              <td>{{quote.QuoteDate}}</td>
+              <td>{{quote.QuoteNumber}}</td>
+              <td>{{quote.SalesName}}</td>
+              <td>{{quote.QuoteItemNumber}}</td>
+              <td>{{quote.CUSID}}</td>
+              <td>{{quote.Remark}}</td>
+              <td>{{quote.QuoteTypeName}}</td>
+              <td>{{quote.Status=='3'?"結案":quote.Status=='2'?"已報價":"報價中"}}</td>
+              <td>
+                <!-- {{CurrentUserName}} {{AllDisplayViewUse.includes(CurrentUserName)}} -->
+                <button
+                  *ngIf="quote.Representative.includes(CurrentUserName)||AllDisplayViewUse.includes(CurrentUserName)"
+                  class="btn btn-primary btn-sm active" role="button" aria-pressed="true" data-toggle="modal"
+                  data-target="#Modal_vendorList" (click)="queryDetailVendor(quote);queryQuotationAttachList(quote)"
+                  data-backdrop="static">
+                  查看紀錄
+                </button>
+              </td>
+            </ng-container>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+
+    <table class="table table-bordered table-striped table-hover" *ngIf="QuoteDisplay">
+      <thead>
+        <tr style="background-color: cornsilk;">
+          <th>報價單號</th>
+          <th><i [ngClass]="SortColumns[2].SortText" aria-hidden="true" (click)="SortColumn(2)">供應商</i></th>
+          <th><i [ngClass]="SortColumns[0].SortText" aria-hidden="true" (click)="SortColumn(0)">報價日期</i></th>
+          <th><i [ngClass]="SortColumns[8]?.SortText" aria-hidden="true" (click)="SortColumn(8)">負責業務</i></th>
+          <th><i [ngClass]="SortColumns[3].SortText" aria-hidden="true" (click)="SortColumn(3)">報價品項</i></th>
+          <th><i [ngClass]="SortColumns[4].SortText" aria-hidden="true" (click)="SortColumn(4)">詢價客戶</i></th>
+          <th><i [ngClass]="SortColumns[5].SortText" aria-hidden="true" (click)="SortColumn(5)">報價備註</i></th>
+          <th><i [ngClass]="SortColumns[6].SortText" aria-hidden="true" (click)="SortColumn(6)">備註</i></th>
+          <th><i [ngClass]="SortColumns[7].SortText" aria-hidden="true" (click)="SortColumn(7)">報價進度</i></th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let item of QuoteDisplayList;let i = index">
+          <tr>
+            <td colspan="10">
+              <i class="{{item.collapsetag}}" (click)="setcollasp('QuoteDisplay',i)" style="float: left;"
+                aria-hidden="true">{{item.filteritem}}&emsp; &emsp;</i>
+              <label style="float: left;">&emsp;已報:{{item.finishqty}} &emsp; &emsp; 未報: {{item.unfinqty}}</label>
+              <label style="float: left;">&emsp;延遲天數:{{item.QuoteDays}}</label>
+            </td>
+          </tr>
+          <tr *ngFor="let quote of AllSupplierQuoteStatusList;let y = index"
+            (click)="TableRowColorChange(quote,AllSupplierQuoteStatusList)"
+            [ngStyle]="{'visibility': item.visiabletag,'background-color':quote.ClickColor?'deepskyblue':quote.Status=='2'?'lightpink':'white'}">
+            <ng-container *ngIf="item.filteritem==quote.QuoteNumber">
+              <td></td>
+              <td>{{quote.SupplierName}}</td>
+              <td>{{quote.QuoteDate}}</td>
+              <td>{{quote.SalesName}}</td>
+              <td>{{quote.QuoteNumber}}</td>
+              <td>{{quote.CUSID}}</td>
+              <td>{{quote.Remark}}</td>
+              <td>{{quote.QuoteTypeName}}</td>
+              <td>{{quote.Status=='3'?"結案":quote.Status=='2'?"已報價":"報價中"}}</td>
+              <td>
+                <button
+                  *ngIf="quote.Representative.includes(CurrentUserName)||AllDisplayViewUse.includes(CurrentUserName)"
+                  class="btn btn-primary btn-sm active" role="button" aria-pressed="true" data-toggle="modal"
+                  data-target="#Modal_vendorList" (click)="queryDetailVendor(quote);queryQuotationAttachList(quote)"
+                  data-backdrop="static">
+                  查看紀錄
+                </button>
+              </td>
+            </ng-container>
+          </tr>
+        </ng-container>
+      </tbody>
+      <tfoot>
+
+      </tfoot>
+    </table>
+
+    <table class="table table-bordered table-striped table-hover" *ngIf="CusDisplay">
+      <thead>
+        <tr style="background-color: cornsilk;">
+          <th>詢價客戶</th>
+          <th><i [ngClass]="SortColumns[2].SortText" aria-hidden="true" (click)="SortColumn(2)">供應商</i></th>
+          <th><i [ngClass]="SortColumns[0].SortText" aria-hidden="true" (click)="SortColumn(0)">報價日期</i></th>
+          <th><i [ngClass]="SortColumns[1].SortText" aria-hidden="true" (click)="SortColumn(1)">報價單號</i></th>
+          <th><i [ngClass]="SortColumns[8]?.SortText" aria-hidden="true" (click)="SortColumn(8)">負責業務</i></th>
+          <th><i [ngClass]="SortColumns[3].SortText" aria-hidden="true" (click)="SortColumn(3)">報價品項</i></th>
+          <th><i [ngClass]="SortColumns[5].SortText" aria-hidden="true" (click)="SortColumn(5)">報價備註</i></th>
+          <th><i [ngClass]="SortColumns[6].SortText" aria-hidden="true" (click)="SortColumn(6)">備註</i></th>
+          <th><i [ngClass]="SortColumns[7].SortText" aria-hidden="true" (click)="SortColumn(7)">報價進度</i></th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let item of CusDisplayList;let i = index">
+          <tr>
+            <td colspan="10">
+              <i class="{{item.collapsetag}}" (click)="setcollasp('CusDisplay',i)" style="float: left;"
+                aria-hidden="true">{{item.filteritem}}&emsp; &emsp;</i>
+              <label style="float: left;">&emsp;已報:{{item.finishqty}} &emsp; &emsp; 未報: {{item.unfinqty}}</label>
+              <label style="float: left;">&emsp;延遲天數:{{item.QuoteDays}}</label>
+            </td>
+          </tr>
+          <tr *ngFor="let quote of AllSupplierQuoteStatusList;let y =index"
+            (click)="TableRowColorChange(quote,AllSupplierQuoteStatusList)"
+            [ngStyle]="{'visibility': item.visiabletag,'background-color':quote.ClickColor?'deepskyblue':quote.Status=='2'?'lightpink':'white'}">
+            <ng-container *ngIf="item.filteritem==quote.CUSID">
+              <td></td>
+              <td>{{quote.SupplierName}}</td>
+              <td>{{quote.QuoteDate}}</td>
+              <td>{{quote.QuoteNumber}}</td>
+              <td>{{quote.SalesName}}</td>
+              <td>{{quote.QuoteItemNumber}}</td>
+              <td>{{quote.Remark}}</td>
+              <td>{{quote.QuoteTypeName}}</td>
+              <td>{{quote.Status=='3'?"結案":quote.Status=='2'?"已報價":"報價中"}}</td>
+              <td>
+                <button
+                  *ngIf="quote.Representative.includes(CurrentUserName)||AllDisplayViewUse.includes(CurrentUserName)"
+                  class="btn btn-primary btn-sm active" role="button" aria-pressed="true" data-toggle="modal"
+                  data-target="#Modal_vendorList" (click)="queryDetailVendor(quote);queryQuotationAttachList(quote)"
+                  data-backdrop="static">
+                  查看紀錄
+                </button>
+              </td>
+            </ng-container>
+          </tr>
+        </ng-container>
+      </tbody>
+      <tfoot>
+
+      </tfoot>
+    </table>
+  </div>
+
+
+</section>
+
+
+<div class="modal fade" tabindex="-1" role="dialog" id="Modal_vendorList">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div align="left" style="padding: 10px">
+        <h3>
+          <i class="fa fa-address-book"></i> 品項負責廠商
+        </h3>
+      </div>
+      <div class="modal-header" style="flex-direction: column;">
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <tr style="background-color: lightcyan">
+              <th>供應商</th>
+              <th>品號</th>
+              <th>報價種類</th>
+              <th>材質</th>
+              <th>重量</th>
+              <th>尺寸</th>
+              <th>預估年量</th>
+              <th>備註</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{{selectDetail.SupplierName}}</td>
+              <td>{{QuotationDetail.QuoteItemNumber}}</td>
+              <td>{{QuotationDetail.QuoteTypeName}}</td>
+              <td>{{QuotationDetail.CastingMaterial}}</td>
+              <td>{{QuotationDetail.CastingWeight}}</td>
+              <td>{{QuotationDetail.CastingSize}}</td>
+              <td>{{QuotationDetail.EstimateQuantity}}</td>
+              <td>{{QuotationDetail.QuoteRemark}}</td>
+            </tr>
+          </tbody>
+        </table>
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <tr style="background-color: lightcyan">
+              <th>項目</th>
+              <th>檔案說明</th>
+              <th>下載</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr (click)="FileListShow=!FileListShow">
+              <ng-container *ngIf="FileListShow">
+                <td colspan="3">-縮小列表</td>
+              </ng-container>
+            </tr>
+            <tr *ngFor="let Attach of quotation_AttachList; let i=index">
+              <ng-container *ngIf="FileListShow">
+                <td>{{Attach.FORM_QuotationAnnexMap_ID}}</td>
+                <td>{{Attach.AnnexName}}</td>
+                <td>
+                  <a download="{{Attach.AnnexURL}}" href="{{rest.APserver}}{{Attach.AnnexURL}}" target="_blank">下載</a>
+                </td>
+              </ng-container>
+            </tr>
+            <tr (click)="FileListShow=!FileListShow">
+              <ng-container *ngIf="!FileListShow && quotation_AttachList">
+                <td colspan="3"> + 共{{quotation_AttachList.length}}個檔案，點擊查看全部...</td>
+              </ng-container>
+            </tr>
+
+          </tbody>
+        </table>
+
+
+      </div>
+      <div class="modal-body">
+        <section class="section-style on">
+          <div class="search_area">
+            <button class="btn btn-outline-info" data-toggle="modal" data-target="#Modal_AddQuoteItem"
+              (click)="selectAddQuoteItem()"><i class="fa fa-plus">自行新增品項</i></button>
+            <button class="btn btn-outline-info" data-toggle="modal" data-target="#Modal_AddQuoteAttach"><i
+                class="fa fa-plus">自行新增附件</i></button>
+          </div>
+          <table class="table table-bordered table-striped table-hover">
+            <thead>
+              <tr class="color_th1">
+                <th>廠商名稱</th>
+                <th>報價</th>
+                <th width="50%">備註</th>
+                <th>填單人員</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let vendor of selectDetail_VendorList; let i=index">
+                <td>{{vendor.SupplierName}}</td>
+                <td>{{vendor.QuotePrice}}</td>
+                <td>{{vendor.QuoteRemark}}</td>
+                <td>{{vendor.CreateBy.substr(16)==vendor.USR_Supplier_ID?vendor.SupplierName:'YJF協助登打'}}</td>
+                <td>
+                  <button *ngIf="vendor.CreateBy.substr(16)!=vendor.USR_Supplier_ID" class="btn btn-outline-info"
+                    (click)="DeleteSupplierRecord(vendor)"><i class="fa fa-times"> 移除</i></button>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="3" align="left">
+                  <div style="width:100%">
+                    <label>{{selectDetail.SupplierName}}附件：</label>
+                    <div *ngFor="let levle of SupplierAttachLevelShow" style="border-collapse:separate;
+                                    border-spacing: 10px">
+                      <ng-container *ngFor="let Attach of SupplierAttachList; let i=index">
+                        <ng-container *ngIf="Attach.TextPage==levle">
+                          <div
+                            style="margin:0px 5px 0px;display: inline-block;padding: 5px;border: 1px solid rgb(144, 206, 224);font-size: 16px;width: fit-content">
+                            <a href="{{rest.APserver}}{{Attach.AnnexURL}}" target="_blank">
+                              <i class="fa fa-file-word-o fa-6"></i>{{Attach.AnnexName}}</a>
+                          </div>
+                        </ng-container>
+                      </ng-container>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </section>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">確定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="Modal_AddQuoteAttach">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+      </div>
+      <div class="modal-body">
+        <section class="section-style on">
+          <h3>
+            <i class="fa fa-address-book"></i> 上傳供應商附件檔案
+          </h3>
+          <div class="search_area">
+            <input id="fileupload" type="file" class="btn btn-default" value="選擇檔案"
+              (change)="chooseFile($event.target.files)">
+            <button id="fileupload_btn" type="button" class="btn btn-outline-primary" (click)="uploadReportAttach()"><i
+                class="fa fa-search"></i>
+              上傳檔案</button>
+            <ngb-progressbar id="progressbar" type="warning" [value]="ProgressPercent" [striped]="true" height="25px"
+              style="visibility: hidden;">
+              <i>已上傳{{Uploaded}}，共{{UploadTotal}}---{{ProgressPercent}}%</i>
+            </ngb-progressbar>
+          </div>
+          <div class="search_area">
+            <label>{{selectDetail.SupplierName}}報價附件：</label>
+            <div *ngFor="let levle of SupplierAttachLevelShow" style="border-collapse:separate;
+                        border-spacing: 10px">
+              <ng-container *ngFor="let Attach of SupplierAttachList; let i=index">
+                <ng-container *ngIf="Attach.TextPage==levle">
+                  <div
+                    style="margin:0px 5px 0px;display: inline-block;padding: 5px;border: 1px solid rgb(144, 206, 224);font-size: 16px;width: fit-content">
+                    <a href="{{rest.APserver}}{{Attach.AnnexURL}}" target="_blank">
+                      <i class="fa fa-file-word-o fa-6"></i>{{Attach.AnnexName}}</a>
+                  </div>
+                </ng-container>
+              </ng-container>
+            </div>
+          </div>
+        </section>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">確定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--#region 新增品項彈跳視窗Start -->
+<div class="modal fade" tabindex="-1" role="dialog" id="Modal_AddQuoteItem">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+      </div>
+      <div class="modal-body">
+        <section class="section-style on">
+          <h3>
+            <i class="fa fa-address-book"></i>圖號：{{QuotationDetail.QuoteItemNumber}} 新增報價項目
+          </h3>
+          <div class="search_area">
+            <label style="color: red" *ngIf="!(newdetail.QuotePrice>=0)">欄位格數輸入錯誤</label>
+            <label style="color: red"
+              *ngIf="newdetail.QuoteItem!=undefined&&newdetail.QuoteItem.length==0">報價項目不能空白</label>
+            <table>
+              <thead></thead>
+              <tbody>
+                <tr>
+                  <th>
+                    <label><span>報價品項：</span></label>
+                  </th>
+                  <td>
+                    <input type="text" [(ngModel)]="newdetail.QuoteItem" [ngModelOptions]="{standalone: true}"
+                      required />
+                  </td>
+                  <th>
+                    <label><span>數量：</span></label>
+                  </th>
+                  <td>
+                    <input type="text" [(ngModel)]="newdetail.QuoteQty" [ngModelOptions]="{standalone: true}"
+                      (change)="CaculateNewDetail()" required />
+                  </td>
+                </tr>
+                <tr>
+                  <th *ngIf="QuotationDetail.SYS_QuoteType_ID=='13'||QuotationDetail.SYS_QuoteType_ID=='15'">
+                    <label><span>鑄件單價：</span></label>
+                  </th>
+                  <td *ngIf="QuotationDetail.SYS_QuoteType_ID=='13'||QuotationDetail.SYS_QuoteType_ID=='15'">
+                    <input type="text" [(ngModel)]="newdetail.QuoteWeightPrice" [ngModelOptions]="{standalone: true}"
+                      (change)="CaculateNewDetail()" required />
+                  </td>
+                  <th *ngIf="QuotationDetail.SYS_QuoteType_ID=='13'||QuotationDetail.SYS_QuoteType_ID=='15'">
+                    鑄件重量
+                  </th>
+                  <td *ngIf="QuotationDetail.SYS_QuoteType_ID=='13'||QuotationDetail.SYS_QuoteType_ID=='15'">
+                    <input type="text" [(ngModel)]="QuotationDetail.CastingWeight" [ngModelOptions]="{standalone: true}"
+                      readonly />
+                  </td>
+                  <th *ngIf="QuotationDetail.SYS_QuoteType_ID!='13'&&QuotationDetail.SYS_QuoteType_ID!='15'">
+                    <label><span>單價：</span></label>
+                  </th>
+                  <td *ngIf="QuotationDetail.SYS_QuoteType_ID!='13'&&QuotationDetail.SYS_QuoteType_ID!='15'">
+                    <input type="text" [(ngModel)]="newdetail.QuoteUnitPrice" [ngModelOptions]="{standalone: true}"
+                      (change)="CaculateNewDetail()" required />
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    <label><span>金額：</span></label>
+                  </th>
+                  <td colspan="3">
+                    <input type="text" [(ngModel)]="newdetail.QuotePrice" [ngModelOptions]="{standalone: true}" required
+                      readonly />
+                  </td>
+                </tr>
+                <tr>
+                  <th>
+                    <label><span>報價說明：</span></label>
+                  </th>
+                  <td colspan="3">
+                    <textarea autosize type="text" style="width:500px" [(ngModel)]="newdetail.QuoteRemark"
+                      [ngModelOptions]="{standalone: true}" required></textarea><br>
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="4">
+                    <button type="submit" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                    <ng-container
+                      *ngIf="newdetail.QuotePrice>=0&&newdetail.QuoteItem!=undefined&&newdetail.QuoteItem.length>0;else confirmtemp">
+                      <button type="submit" class="btn btn-primary" data-dismiss="modal"
+                        (click)="AddSupplierQuotationDetail(newdetail)">確定</button>
+                    </ng-container>
+                    <ng-template #confirmtemp>
+                      <button type="submit" class="btn btn-primary" data-dismiss="modal" disabled>確定</button>
+                    </ng-template>
+                  </td>
+                </tr>
+              </tfoot>
+
+            </table>
+          </div>
+        </section>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>

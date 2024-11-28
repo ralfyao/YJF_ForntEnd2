@@ -1,0 +1,50 @@
+<div class="container">
+  <ng-container>
+    <div class="step1 p-sm-5">
+      <div class="col-12 text-center title mt-3">
+        <img width="30" class="page-img" src="/assets/images/YJF-logo-Blue.png" />
+        源潤豐鑄造股份有限公司
+      </div>
+      <div class="col-12 text-center subtitle mb-5"> YUAN JUN FONG CASTING CO., LTD.</div>
+      <div class="col-12 text-center subtitle mt-3">
+        拆箱運送回報
+      </div>
+      <ng-container *ngIf="IsLogin==false || IsLogin == undefined">
+        <div class="row">
+          <div class="label">
+            司機帳號:
+          </div>
+          <input type="text" class="form-control col-sm-7 col-4" maxlength="5" [(ngModel)]="UserCode" />
+          <button class="btn btn-info mx-2" (click)="login()">登入</button>
+        </div>
+      </ng-container>
+      <ng-container *ngIf="IsLogin==true">
+        <div class="row">
+          <div class="label">
+            製令條碼:
+          </div>
+          <input matInput type="text" id="myInput" class="form-control col-sm-7 col-4" maxlength="150" [(ngModel)]="WorkOrder" (blur)="checkBarcode()" [autofocus]="true" />
+        </div>
+        <ng-container *ngIf="GridData.length > 0">
+          <table class="table tab_content_table table-bordered" [formGroup]="form">
+            <tr>
+              <th>製令別單號</th>
+              <th>送出者</th>
+              <th>到站日期</th>
+              <th>簽收Flag</th>
+            </tr>
+            <ng-container *ngFor="let item of GridData">
+              <tr>
+                <td>{{item.WorkOrder}} <input type="hidden" [(ngModel)]="_workOrder"/> </td>
+                <td>{{item.Submittor}}</td>
+                <td>{{item.InStationDate}}</td>
+                <td>{{item.ReveiceFlag}}</td>
+              </tr>
+            </ng-container>
+          </table>
+          <button class="btn btn-info mx-2" style="text-align: right;" (click)="submit()">送出</button>
+        </ng-container>
+      </ng-container>
+    </div>
+  </ng-container>
+</div>

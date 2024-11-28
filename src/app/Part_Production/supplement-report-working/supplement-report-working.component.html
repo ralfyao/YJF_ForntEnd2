@@ -1,0 +1,204 @@
+<div class="pagetitle">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>補報工作業
+</div>
+<table width="30%">
+  <tr>
+    <td>
+      <!-- <div class="label">
+        <div class="subtitle mb-5"></div>
+      </div> -->
+      <br>
+      <label class="subtitle mb-5">製令單號:</label>
+    </td>
+    <td class="flex-nowrap">
+      <input type="text" class="form-control col-sm-7 col-4" maxlength="15" [(ngModel)]="WorkOrder" />
+      <button class="btn btn-info" (click)="query()">查詢</button>&nbsp;&nbsp;&nbsp;
+      <button class="btn btn-primary">匯出逾時報工資料</button>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2">
+    </td>
+  </tr>
+</table>
+<!-- <div class="container"> -->
+  <ng-container *ngIf="step == '1'">
+    <table width="30%" border="1">
+      <ng-container *ngFor="let item of Processlist">
+        <tr>
+          <td>
+            <div class="row justify-content-center" >
+              <div *ngIf="!item.ProductionLineName.includes('木模')">
+                <label class="form-check-label">{{item.WIPProcessType}}:</label>
+              </div>
+             </div>
+          </td>
+          <td>
+              <div  class="row justify-content-center" *ngIf="!item.ProductionLineName.includes('木模')">
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input class="form-check-input" type="radio" [disabled]="item.WIPProcessStatus == 'Y'" name="inlineRadioOptions" [(ngModel)]="WIPProcessCode"
+                  (ngModelChange)="ProcessChange()" [id]="item.WIPProcessCode" [value]="item.WIPProcessCode">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <label class="form-check-label" [for]="item.WIPProcessCode">{{item.ProductionLineName}}</label>
+              </div>
+          </td>
+        </tr>
+      </ng-container>
+      <tr>
+        <td >
+          <div class="row justify-content-center">
+            <button type="button" (click)="step=0" *ngIf="step=='1'"
+              class="btn btn-secondary mx-2">上一步 BACK</button>
+          </div>
+        </td>
+        <td>
+          <div class="row justify-content-center">
+            <button type="button" (click)="NextStep()" class="btn btn-secondary mx-2">下一步 NEXT</button>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </ng-container>
+  <ng-container *ngIf="step == '2'">
+    <table width="30%" border="1" [cellPadding]="1" [cellSpacing]="1">
+      <tr class="align-items-center">
+        <td colspan="2" class="text-center">
+            <div class="col-12 text-center title mt-3"><img width="30" class="page-img"
+                src="/assets/images/YJF-logo-Blue.png" />源潤豐鑄造股份有限公司</div>
+            <div class="col-12 text-center subtitle"> YUAN JUN FONG CASTING CO., LTD.</div>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2" class="text-center">
+          製造命令
+        </td>
+      </tr>
+      <tr class="text-center">
+        <td width="30%">排單日期:</td>
+        <td>{{Schedule.SchedulingDate}}</td>
+      </tr>
+      <tr class="text-center">
+        <td width="30%">工序:</td>
+        <td>{{SelectProcess.WIPProcessType}}</td>
+      </tr>
+      <tr class="text-center">
+        <td width="30%">客戶名稱:</td>
+        <td>{{Schedule.CustomerName}}</td>
+      </tr>
+      <ng-container *ngIf="Schedule.OrderDate">
+        <tr class="text-center">
+          <td width="30%">訂單月份:</td>
+          <td>{{Schedule.OrderDate.substring(0,4)+'/'+Schedule.OrderDate.substring(4,6)}}</td>
+        </tr>
+      </ng-container>
+      <tr class="text-center">
+        <td width="30%">製令單號:</td>
+        <td>{{Schedule.ProductionHeadCode.trim()+'-'+Schedule.ProductionOrderCode}}</td>
+      </tr>
+      <tr class="text-center">
+        <td width="30%">生產線別:</td>
+        <td>{{SelectProcess.ProductionLineName}}</td>
+      </tr>
+      <tr class="text-center">
+        <td width="30%">預計完工:</td>
+        <td>{{Schedule.PlanFinDate}}</td>
+      </tr>
+      <tr class="text-center">
+        <td width="30%">品號:</td>
+        <td>{{Schedule.ItemCode}}</td>
+      </tr>
+      <tr class="text-center">
+        <td width="30%">品名/規格:</td>
+        <td>{{Schedule.PartDesc}}</td>
+      </tr>
+      <tr class="text-center">
+        <td width="30%">材質:</td>
+        <td>{{Schedule.MaterialType}}</td>
+      </tr>
+      <ng-container *ngIf="Sequence!=0">
+        <tr class="text-center">
+          <td width="30%">數量/總數:</td>
+          <td>{{"1/"+Schedule.PlanQTY}}</td>
+        </tr>
+        <tr class="text-center">
+          <td width="30%">進站/出站:</td>
+          <td>{{Schedule.InStationQty+"/"+Schedule.OutStationQty}}</td>
+        </tr>
+      </ng-container>
+      <ng-container *ngIf="Sequence==0">
+        <tr class="text-center">
+          <td width="30%">數量:</td>
+          <td>{{Schedule.PlanQTY}}</td>
+        </tr>
+      </ng-container>
+      <tr class="text-center">
+        <td width="30%">單重:</td>
+        <td>{{Schedule.ProductWeight}}</td>
+      </tr>
+      <tr class="text-center">
+        <td width="30%">備註:</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td  class="text-center" width="30%">單據日期:</td>
+        <td class="justify-content-center"><input class="form-control" type="date" [(ngModel)]="OrderDate" /></td>
+      </tr>
+      <tr class="text-center">
+        <td width="30%">鐵斗號碼:</td>
+        <td class="justify-content-center">
+          <!-- <div> -->
+            上模:
+            <input class="form-control " *ngIf="SelectProcess.WIPProcessType=='造模'" maxlength="5" type="text"
+              [(ngModel)]="Schedule.TopFlask" (ngModelChange)="FlaskIDChange()" />
+            <div *ngIf="SelectProcess.WIPProcessType!='造模'">{{Schedule.TopFlask}}</div>
+          <!-- </div> -->
+          <!-- <div class="col-4 px-1 col-sm-3 text-center">
+          </div> -->
+          <!-- <div> -->
+            下模:
+          <!-- </div> -->
+          <input class="form-control" *ngIf="SelectProcess.WIPProcessType=='造模' || SelectProcess.WIPProcessType=='合模' || SelectProcess.WIPProcessType=='熔解'" maxlength="5" type="text"
+            [(ngModel)]="Schedule.BottomFlask" />
+          <div *ngIf="SelectProcess.WIPProcessType!='造模' || SelectProcess.WIPProcessType!='合模' || SelectProcess.WIPProcessType!='熔解'">{{Schedule.BottomFlask}}
+          </div>
+        </td>
+      </tr>
+      <ng-container *ngIf="SelectProcess.WIPProcessCode == '08A1'">
+        <tr class="text-center">
+          <td width="30%">
+            工作人員：
+          </td>
+          <td class="justify-content-center">
+            <input type="text" class="form-control mx-0"  [(ngModel)]="workerNumber"/> <button class="btn btn-success" (click)="checkWorkerNumber(this.workerNumber)">增加人員</button>
+            <br>
+            <!-- <div> -->
+              <table class="table-bordered">
+                <ng-container *ngFor="let workNumberItem of workerNUmberList">
+                    <tr>
+                      <th>
+                        {{workNumberItem}}
+                      </th>
+                    </tr>
+                </ng-container>
+              </table>
+            <!-- </div> -->
+          </td>
+        </tr>
+      </ng-container>
+    </table>
+    <div class="btndiv justify-content-center">
+      <button type="button" (click)="PreviousStep()" class="btn btn-secondary mx-2">上一步 BACK</button>
+      <button type="button" class="btn btn-primary mx-2"
+        *ngIf="Schedule.WIPProcessStatus=='N'&& Schedule.InStationQty<Schedule.PlanQTY"
+        [swal]="{ title: 'IN?\r\n確定要進站開始作業嗎?', confirmButtonText:'確定 OK',showCancelButton: true,cancelButtonText:'取消 CANCEL' }"
+        (confirm)="Transfer('in')">進站 IN</button>
+      <button type="button" class="btn btn-info mx-2" *ngIf="Schedule.WIPProcessStatus=='D'"
+        [swal]="{ title: 'OUT?\r\n確定作業完成要出站嗎?', confirmButtonText:'確定 OK',showCancelButton: true,cancelButtonText:'取消 CANCEL' }"
+        (confirm)="Transfer('out')">出站 OUT</button>
+      <div class="message"
+        *ngIf="Schedule.WIPProcessStatus=='N'&& Schedule.InStationQty==Schedule.PlanQTY && Schedule.OutStationQty<Schedule.PlanQTY">
+        <i class="fa fa-exclamation-triangle mr-1"></i>該製程都已進站</div>
+      <div class="message" *ngIf="Schedule.WIPProcessStatus=='Y'||Schedule.OutStationQty==Schedule.PlanQTY"><i
+          class="fa fa-exclamation-triangle mr-1"></i>該製程已完工</div>
+    </div>
+  </ng-container>
+<!-- </div> -->
+

@@ -1,0 +1,29 @@
+<div class="reportblock">
+  <div class="row align-items-center mt-2 mb-2">
+    <div class="col-3 row mb-2">
+      <label class="col-3 my-auto text-right">訂單交期:</label>
+      <input class="form-control" type="date" [max]="ETDEndDate" [(ngModel)]="ETDStartDate"  (ngModelChange)="GetData()"/>
+      <div class="m-auto row">~</div>
+      <input class="form-control" type="date" [min]="ETDStartDate" [(ngModel)]="ETDEndDate"  (ngModelChange)="GetData()"/>
+    </div>
+  </div>
+
+  <ngx-datatable #mydatatable class="material" style="height: calc(100vh - 150px - 2.5rem);" [scrollbarV]="true"
+    [headerHeight]="50" [limit]="10" [columnMode]="'force'" [footerHeight]="50" [rowHeight]="50" [rows]="GridData"
+    [selectAllRowsOnPage]="false" [selected]="">
+
+    <ngx-datatable-column name="序號" [width]="40" [sortable]="false" [canAutoResize]="false" [draggable]="false"
+      [resizeable]="false">
+      <ng-template let-rowIndex="rowIndex" let-row="row" ngx-datatable-cell-template>
+        <div>{{ rowIndex+1 }}</div>
+      </ng-template>
+    </ngx-datatable-column>
+    <ngx-datatable-column prop="ItemCode" name="品號" [width]="200"></ngx-datatable-column>
+    <ngx-datatable-column prop="ItemName" name="品名"  [width]="500"></ngx-datatable-column>
+    <ngx-datatable-column prop="MaterialType" name="材質" [width]="100"></ngx-datatable-column>
+    <ngx-datatable-column prop="StockQty" name="庫存數量" [width]="100"></ngx-datatable-column>
+    <ngx-datatable-column prop="OrderQty" name="訂單數量"  [width]="100"></ngx-datatable-column>
+    <ngx-datatable-column prop="UnshippedQty" name="未銷貨數量" [width]="100">
+    </ngx-datatable-column>
+  </ngx-datatable>
+</div>

@@ -1,0 +1,142 @@
+<div class="pagetitle">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>例外工時處理
+</div>
+<table class="table table-bordered">
+  <tr>
+    <td colspan="5">
+      <button class="btn btn-info btn-sm m-2" (click)="query()"><i class="fa fa-search mr-1" ></i>查詢</button>
+      <button class="btn btn-primary btn-sm m-2" (click)="addPopup(addForm, null)"><i>新增</i></button>
+    </td>
+  </tr>
+  <tr>
+    <td>製令單別-單號</td>
+    <td>品號</td>
+    <td>品名</td>
+    <td>數量</td>
+    <td>例外工時時間</td>
+    <td>例外工時類別</td>
+    <td>暫停原因</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td><input type="text" [(ngModel)]="workOrder"/></td>
+    <td><input type="text" [(ngModel)]="partNo"/></td>
+    <td><input type="text" [(ngModel)]="partDesc"/></td>
+    <td><input type="text" [(ngModel)]="quantity" /></td>
+    <td><input type="date" [(ngModel)]="excpTime"/></td>
+    <td>
+      <select [(ngModel)]="excpType">
+        <option value=""></option>
+        <option value="3">報廢</option>
+        <!-- <option value="4">報廢拉回</option> -->
+      </select>
+    </td>
+    <td>
+
+    </td>
+    <td>
+    </td>
+  </tr>
+  <ng-container *ngFor="let item of GridData">
+    <tr>
+      <td>{{item.WorkOrder}}</td>
+      <td>{{item.PartNo}}</td>
+      <td>{{item.PartDesc}}</td>
+      <td>{{item.Quantity}}</td>
+      <td>{{item.ExcpTime}}</td>
+      <td>{{(item.ExcpType == "1" ? "製令暫停" : (item.ExcpType == "2" ? "製令暫停解除" : (item.ExcpType == "3" ? "報廢" : (item.ExcpType == "4" ? "報廢拉回" : ""))))}}</td>
+      <td>{{item.ExcpColumn}}</td>
+      <td>
+        <!-- <ng-container *ngIf="item.ExcpType != '3'"> -->
+          <button class="btn btn-info btn-sm m-2" (click)="addPopup(addForm, item.ID)"><i>更新</i></button>
+        <!-- </ng-container> -->
+      </td>
+    </tr>
+  </ng-container>
+</table>
+<ng-template #addForm let-modal>
+  <div class="modal-header">
+    <div class="container">
+      <h2>新增例外工時{{id}}</h2>
+    </div>
+  </div>
+  <div class="modal-body">
+    <table class="table table-bordered">
+      <tr>
+        <td>
+          製令單別-單號
+        </td>
+        <td>
+          <input type="text" [(ngModel)]="workOrderAdd" (blur)="queryPartInfo(this.workOrderAdd)" />
+        </td>
+      </tr>
+      <tr>
+        <td>
+          品號
+        </td>
+        <td>
+          {{partNoAdd}}
+        </td>
+      </tr>
+      <tr>
+        <td>
+          品名規格
+        </td>
+        <td>
+          {{partDescAdd}}
+        </td>
+      </tr>
+      <!-- <tr>
+        <td>
+          例外工時時間
+        </td>
+        <td>
+          <input type="date" [(ngModel)]="excpTimeAdd" />
+        </td>
+      </tr> -->
+      <tr>
+        <td>
+          例外工時件數
+        </td>
+        <td>
+          <input type="number" [(ngModel)]="quantityAdd"/>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          例外工時類別
+        </td>
+        <td>
+          <select [(ngModel)]="excpTypeAdd">
+            <option [value]="'3'">報廢</option>
+            <!-- <option [value]="'4'">報廢拉回</option> -->
+          </select>
+        </td>
+      </tr>
+      <!-- <tr>
+        <td>
+          暫停原因
+        </td>
+        <td>
+          <ng-container *ngIf="excpTypeAdd == '1'">
+            <select [(ngModel)]="excpReasonAdd">
+              <option>支援</option>
+              <option>暫停</option>
+            </select>
+          </ng-container>
+        </td>
+      </tr> -->
+      <tr>
+        <td>
+          備註
+        </td>
+        <td>
+          <input type="text" [(ngModel)]="excpReasonAdd"/>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-info btn-sm m-2" (click)="add(id)">{{(id == null ? "新增" : "更新")}}例外工時</button>
+  </div>
+</ng-template>

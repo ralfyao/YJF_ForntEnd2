@@ -1,0 +1,23 @@
+h1.Menugroup {
+  color: #a7a7a7;
+  font-weight: 600;
+  border-bottom: 2px solid #d7d7d7;
+  margin: 1rem 0 0.5rem 0;
+}
+
+.childitem {
+  margin: 0.9rem;
+  text-align: center;
+}
+
+.childitem a i {
+  font-size: 2vw;
+  color: #466296;
+  margin-bottom: 5px;
+}
+
+.childitem a div {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #6185c9;
+}

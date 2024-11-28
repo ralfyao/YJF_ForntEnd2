@@ -1,0 +1,84 @@
+<div class="searchbar row align-items-center">
+  <input class="mr-2" type="date" (change)="startdatechange()" [(ngModel)]="StartDate">
+  <div class="mr-2">~</div><input type="date" [(ngModel)]="EndDate">
+  <button class="btn btn-sm btn-primary" (click)="updateDefectReport()"><i class="fa fa-search"></i> 搜尋</button>
+  <button class="btn btn-sm ml-2 btn-info" (click)="ExportExcel()"><i class="fa fa-file-excel-o"></i> 匯出</button>
+</div>
+
+<div class="tabs ">
+  <div (click)="tabclick(item)" class="tab" [ngClass]="{'active': this.ActiveGroup==item.ProductionLineName}"
+    *ngFor="let item of ProductionGroupList">
+    <div>{{item.ProductionLineName}}</div>
+  </div>
+</div>
+<div class="panels">
+  <ng-container *ngFor="let item of ProductionGroupList;">
+    <div class="panel " *ngIf="this.ActiveGroup==item.ProductionLineName">
+      <table *ngFor="let table of item.TableList;">
+        <thead>
+          <tr>
+            <th colspan="9">{{table.DefectTableName}}</th>
+          </tr>
+          <tr>
+            <th width="130px">轉撥單號</th>
+            <th width="100px">日期</th>
+            <th width="150px">客戶簡稱</th>
+            <th width="150px">品號</th>
+            <th width="500px">品名</th>
+            <th>數量</th>
+            <th>單重</th>
+            <th>總重</th>
+            <th width="250px">不良原因</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let defect of table.DefectList">
+            <td>{{defect.TransfertNo}}</td>
+            <td>{{defect.Date}}</td>
+            <td>{{defect.Customer}}</td>
+            <td>{{defect.ItemCode}}</td>
+            <td>{{defect.ItemName}}</td>
+            <td>{{defect.Qty}}</td>
+            <td>{{(defect.ProductWeight).toLocaleString('en-US')}}</td>
+            <td>{{(defect.TotalWeight).toLocaleString('en-US')}}</td>
+            <td>{{defect.DefectReason}}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td class="subTitle" colspan="9">
+              <div>不良總重量:</div>
+              <div>{{(table.TableTotalWeight).toLocaleString('en-US')}}KG</div>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <div class="subtotal" *ngIf="this.ActiveGroup==item.ProductionLineName">
+      <div>小計:</div>
+      <div>不良總重量:</div>
+      <div>{{(item.DefectTotalWeight).toLocaleString('en-US')}} KG</div>
+      <div>生產總重:</div>
+      <div>{{(item.ProductionTotalWeight).toLocaleString('en-US')}} KG</div>
+      <div>成功率:</div>
+      <div>{{item.SuccessRate}}%</div>
+      <div>不良率:</div>
+      <div>{{item.DefectiveRate}}%</div>
+    </div>
+
+  </ng-container>
+
+</div>
+<ng-container>
+  <div class="total">
+    <div>總計:</div>
+    <div>不良總重量:</div>
+    <div>{{(AllDefectTotalWeight).toLocaleString('en-US')}} KG</div>
+    <div>生產總重:</div>
+    <div>{{(AllProductWeight).toLocaleString('en-US')}} KG</div>
+    <div>成功率:</div>
+    <div>{{AllSuccessRate}}%</div>
+    <div>不良率:</div>
+    <div>{{AllDefectiveRate}}%</div>
+  </div>
+</ng-container>

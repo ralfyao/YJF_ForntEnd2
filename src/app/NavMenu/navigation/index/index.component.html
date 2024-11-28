@@ -1,0 +1,18 @@
+<div class="container">
+  <ng-container *ngFor="let group of GroupList">
+    <div>
+      <h1 class="Menugroup" (click)="GroupClick()"><i class="fa mr-2"
+          [ngClass]="group.GroupIcon"></i>{{group.GroupName}}</h1>
+      <div class="row mx-0">
+        <ng-container *ngFor="let child of group.Children">
+          <div class="childitem col-2">
+            <a [routerLink]="'../'+child.Code">
+              <i class="fa" [ngClass]="child.Icon"></i>
+              <div> {{child.Name}}</div>
+            </a>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </ng-container>
+</div>

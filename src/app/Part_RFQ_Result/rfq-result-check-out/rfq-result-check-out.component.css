@@ -1,0 +1,70 @@
+.fullsize {
+  width: 100%;height: 100%;margin: 0px;padding: 0px;text-align: center;border: 0px;border-radius:0px;
+}
+.fullsizetd {
+  border: black solid 1px;padding: 0px;height: 10px;
+}
+.fullsizeth {
+  border: black solid 1px;
+}
+.size80{
+  width: 80%;height: 100%;margin: 0px;padding: 0px;text-align: center;border: 0px;border-radius:0px;
+}
+.size20{
+  width: 20%;height: 100%;margin: 0px;padding: 0px;text-align: center;border: 0px;border-radius:0px;
+}
+.fullsizeTextarea{
+  width: 100%;height: 100%;margin: 0px;padding: 0px;text-align: left;border: 0px;border-radius:0px;
+}
+.fullsizeInputNumber {
+  width: 100%;height: 100%;margin: 0px;padding: 0px;text-align: center;border: 0px;border-radius:0px;
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+input[type=number] {
+    -moz-appearance:textfield; /* Firefox */
+}
+.righttd{
+  width: 100px;
+  padding: 0px;
+  height: 10px;
+  border-top-color: black;
+  border-top-style: solde;
+  border-top-width: 1px;
+  border-bottom-color: black;
+  border-bottom-style: solde;
+  border-bottom-width: 1px;
+  border-left-color: black;
+  border-left-style: solde;
+  border-left-width: 0px;
+  border-right-color: black;
+  border-right-style: solde;
+  border-right-width: 1px;
+}
+.lefttd{
+  width: 50px;
+  padding: 0px;
+  height: 10px;
+  border-top-color: black;
+  border-top-style: solde;
+  border-top-width: 1px;
+  border-bottom-color: black;
+  border-bottom-style: solde;
+  border-bottom-width: 1px;
+  border-left-color: black;
+  border-left-style: solde;
+  border-left-width: 1px;
+  border-right-color: black;
+  border-right-style: solde;
+  border-right-width: 0px;
+}
+.inputfull{
+  margin: 0px;padding: 0px;border: 0px;width: 100%;height:100%;font-size: 16px;text-align: center;
+}
+
+

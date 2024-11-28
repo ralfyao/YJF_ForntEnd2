@@ -1,0 +1,78 @@
+<div class="wrapper">
+  <div class="wrap-login100">
+    <div>
+      <p class="TitleText" style="margin-bottom: 30px;"><img class="indexCompanyLogo" src="/assets/images/YJF_logo.png">
+      </p>
+      <p class="TitleText">源潤豐進階管理系統</p>
+    </div>
+    <div style="display: flex;flex-direction: column;align-items: center;">
+      <input type="text" style="padding: 5px;" (keydown)="dologin($event)" placeholder="請輸入您的帳號" [(ngModel)]="UserId"
+        [ngModelOptions]="{standalone: true}">
+      <input type="password" style="padding: 5px;" (keydown)="dologin($event)" placeholder="請輸入您的密碼"
+        [(ngModel)]="UserPassword" [ngModelOptions]="{standalone: true}">
+    </div>
+    <div style="display: flex;justify-content: center;align-items: center;height: 50px;">
+      <div>
+        <a class="buttona" href="forgot_password"><i class="fa fa-question" aria-hidden="true"></i>忘記密碼</a>
+      </div>
+      <div>
+        <a class="buttona" href="modify_password"><i class="fa fa-pencil" aria-hidden="true"></i>變更密碼</a>
+      </div>
+    </div>
+    <div style="text-align: center;">
+      <button type="submit" class="btn btn-primary btn-lg"
+        style="margin: 10px;height: 50px;width: 300px;justify-content: center;" (click)="dologin('Enter')">登入</button>
+    </div>
+    <div style="text-align: center;">
+      <button type="submit" class="btn btn-primary btn-lg" role="button" data-toggle="modal" data-target="#Modal_WebCam"
+        data-backdrop="static" style="margin: 10px;height: 50px;width: 150px;justify-content: center;"><img
+          style="width: 30px;margin-right: 5px;color: white;" src="/assets/images/FaceID.png">臉部辨識</button>
+    </div>
+    <div style="text-align: center;width: 100%;justify-content: center;display: flex;">
+      <p id="alertstate" class="alertinfo">
+        <ngb-alert [type]="'warning'" (close)="alertclose()">
+          <strong>登入失敗</strong>， {{altertMsg}}
+        </ngb-alert>
+      </p>
+    </div>
+    <div style="justify-content: center;display: flex;text-align: center">
+      <div class="announcement">
+        <h4><i class="fa fa-list-alt"></i> 公告訊息</h4>
+        <ul>
+          <li><i class="fa fa-caret-right"></i> 本系統資訊請謹守保密條款</li>
+          <li><i class="fa fa-caret-right"></i> 請盡量使用GOOGLE瀏覽器</li>
+          <li><i class="fa fa-caret-right"></i> 即時客服電話：04-25629999</li>
+        </ul>
+      </div>
+    </div>
+    <div style="justify-content: center;display: flex;text-align: center">
+      <div style="margin-top: 10px;">
+        <p class="FootText">Copyright <i class="fa fa-copyright"></i>2019 <a href="https://www.yjfcasting.com"
+            target="_blank">源潤豐鑄造</a>
+          All Right Reserved.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="Modal_WebCam">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-body" style="text-align: center;">
+        <webcam [trigger]="triggerObservable" (imageCapture)="handleImage($event)" [imageQuality]="1"
+          [imageType]="'image/jpg'" (cameraSwitched)="cameraWasSwitched($event)"></webcam>
+      </div>
+      <div class="modal-footer" style="align-self:center">
+        <button type="submit" class="btn btn-primary btn-lg" role="button" data-toggle="modal"
+          data-target="#Modal_WebCam" data-backdrop="static" (click)="triggerSnapshot()"
+          style="margin: 10px;height: 50px;width: 150px;justify-content: center;"><img
+            style="width: 30px;margin-right: 5px;color: white;" src="/assets/images/FaceID.png">登入</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<ngx-spinner bdColor="rgba(57,186,235,0.8)" size="medium" color="#fff" type="square-jelly-box" [fullScreen]="true">
+  <p style="color: white"> Loading... </p>
+</ngx-spinner>

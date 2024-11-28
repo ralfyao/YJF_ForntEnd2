@@ -1,0 +1,39 @@
+.form-check{
+  padding-left: 0;
+}
+.form-check-input{
+  margin-left: 0;
+}
+.form-check-label{
+  cursor: pointer;
+}
+.modal-body
+{
+  height: 60vh;
+
+}
+.modal-footer
+{
+  position: relative;
+
+}
+.totalPrice{
+  font-size: 20px;
+  position: absolute;
+  left: 2em;
+  display: flex;
+  align-items: center;
+}
+
+.ngx-datatable input{
+ cursor: text;
+}
+
+input[type="number"],input[type="date"]
+{
+  padding-right: 0;
+}
+
+.btn.btn-refresh:focus{
+  box-shadow: none;
+}

@@ -1,0 +1,19 @@
+#table_OutLog tr td, #table_ProductOutData tr td, #table_ForeData tr td {
+    text-align: center;
+    padding: 2px 0px 2px 0px;
+}
+
+#table_ProductOutData th {
+    text-align: center;
+    width: 120px;
+}
+
+#table_ProductOutData tr td input, #table_ForeData tr td input {
+    text-align: center;
+}
+input[readonly]{
+    background-color:rgb(196, 214, 247);
+    border: 0;
+    border-radius: 0px;
+    font-size: 1em;
+  }

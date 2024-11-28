@@ -1,0 +1,183 @@
+<div class="pagetitle">
+  <i class="fa fa-play-circle mr-2" aria-hidden="true"></i>生產數量差異對照表
+</div>
+<div class="">
+  <div>
+    <table style="width: 100%;">
+      <tr>
+        <th
+        style="width: 150px;border: 2px solid black;background-color: cornsilk;text-align: center;height: 50px;">
+        搜尋條件
+      </th>
+      <td style="border: 2px solid black;" >
+        <input type="text"  style="margin-left: 10px;width: 350px;" placeholder="全文搜尋" [(ngModel)]="SearchString"
+          (input)="SearchList(SearchString)">
+          <label>匹配率：{{CompareQuantity()}} %</label>
+      </td>
+      </tr>
+    </table>
+  </div>
+</div>
+<div style="height: 90%;">
+  <div style="width: 100%;height: 100%;display: flex;flex-direction: row;overflow: hidden;">
+    <div style="width: 50%;height: 100%;overflow: auto;">
+      <table class="table-fixed" matSort (matSortChange)="FilterTable($event)" style="width: 100%;">
+        <thead>
+          <tr>
+            <th class="thfixed" mat-sort-header="CusName">客戶</th>
+            <th class="thfixed" mat-sort-header="PartNo">品號</th>
+            <th class="thfixed" >品名</th>
+            <th class="thfixed" mat-sort-header="OrderQty">訂單數量</th>
+            <th class="thfixed" mat-sort-header="ProductionOrder">製令數量</th>
+            <th class="thfixed" mat-sort-header="PurchasingOrder">採購數量</th>
+            <th class="thfixed" mat-sort-header="StockQty">庫存數量</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="height: 35px;" *ngFor="let item of ShowOrderList" [ngStyle]="{'background-color':checkQTY(item),
+          'color':checkFont(item)}"
+            (click)="ShowOrderRecordByPartNo(item.PartNo)" data-toggle="modal" data-target="#QuantityMsg"
+            data-backdrop="static">
+            <td class="fullsizetd" style="text-align: center;">{{item.CusName}}</td>
+            <td class="fullsizetd" style="text-align: center;">{{item.PartNo}}</td>
+            <td class="fullsizetd" style="text-align: center;">{{item.PartDesc}}</td>
+            <td class="fullsizetd" style="text-align: center;">{{item.OrderQty}}</td>
+            <td class="fullsizetd" style="text-align: center;">{{item.ProductionOrder}}</td>
+            <td class="fullsizetd" style="text-align: center;">{{item.PurchasingOrder}}</td>
+            <td class="fullsizetd" style="text-align: center;">{{item.StockQty}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="width: 50%;height: 100%;overflow: auto;">
+      <div >
+        <table class="table-fixed"  style="width: 100%;">
+          <thead>
+            <tr style="height:50px">
+              <th class="msgtd">品號</th>
+              <th class="msgtd">訂單號碼</th>
+              <th class="msgtd">客單號碼</th>
+              <th class="msgtd">訂單數量</th>
+              <th class="msgtd">已交數量</th>
+              <th class="msgtd">預交時間</th>
+              <th class="msgtd">出貨位置</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of CusOrderList">
+              <td class="fullsizetd">
+                {{item.PartNo}}
+              </td>
+              <td class="fullsizetd">
+                {{item.PONum}}
+              </td>
+              <td class="fullsizetd">
+                {{item.CusOrderNo}}
+              </td>
+              <td class="fullsizetd">
+                {{item.OrderQTY}}
+              </td>
+              <td class="fullsizetd">
+                {{item.FindQTY}}
+              </td>
+              <td class="fullsizetd">
+                {{item.FinDate}}
+              </td>
+              <td class="fullsizetd">
+                <input style="min-width: 80px;width: 100%;" [(ngModel)]="item.ShipLocation"  (change)="ChangePO(item)">
+              </td>
+            </tr>
+            <tr *ngIf="CusOrderList.length ===0">
+              <td class="fullsizetd" colspan="7">尚無訂單資料</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div >
+        <table class="table-fixed" style="width: 100%;" *ngIf="ProductionOrderList.length>0">
+          <thead>
+            <tr style="height:50px">
+              <th class="msgtd">品號</th>
+              <th class="msgtd">製造命令</th>
+              <th class="msgtd">製令數量</th>
+              <th class="msgtd">完成數量</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of ProductionOrderList">
+              <td class="fullsizetd">
+                {{item.PartNo}}
+              </td>
+              <td class="fullsizetd">
+                {{item.ProductionOrderNo}}
+              </td>
+              <td class="fullsizetd">
+                {{item.OrderQTY}}
+              </td>
+              <td class="fullsizetd">
+                {{item.FindQTY}}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div >
+        <table class="table-fixed" style="width: 100%;" *ngIf="PurchaseRecordList.length>0">
+          <thead>
+            <tr style="height:50px">
+              <th class="msgtd">品號</th>
+              <th class="msgtd">採購單號</th>
+              <th class="msgtd">採購數量</th>
+              <th class="msgtd">完成數量</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of PurchaseRecordList">
+              <td class="fullsizetd">
+                {{item.PartNo}}
+              </td>
+              <td class="fullsizetd">
+                {{item.PurchaseNo}}
+              </td>
+              <td class="fullsizetd">
+                {{item.PurchaseQTY}}
+              </td>
+              <td class="fullsizetd">
+                {{item.FindQTY}}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <table class="table-fixed" style="width: 100%;" *ngIf="StockRecordList.length>0">
+          <thead>
+            <tr style="height:50px">
+              <th class="msgtd">品號</th>
+              <th class="msgtd">庫存數量</th>
+              <th class="msgtd">入庫時間</th>
+              <th class="msgtd">庫存地點</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of StockRecordList">
+              <td class="fullsizetd">
+                {{item.PartNo}}
+              </td>
+              <td class="fullsizetd">
+                {{item.StockQty}}
+              </td>
+              <td class="fullsizetd">
+                {{item.StockInDate}}
+              </td>
+              <td class="fullsizetd">
+                {{item.Location}}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>

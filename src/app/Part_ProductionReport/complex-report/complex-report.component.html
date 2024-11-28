@@ -1,0 +1,180 @@
+<div class="complexreport">
+  <div class="row align-items-center mt-2 mb-2">
+    <div class="col-3 row mb-2">
+      <label class="col-3 my-auto text-right">報表樣式:</label>
+      <select class="col-9 custom-select" [(ngModel)]="SelectedReportId"
+        (ngModelChange)="GetReportInfo(SelectedReportId)">
+        <ng-container *ngFor="let item of ReportList">
+          <option *ngIf="item.ReportType=='1'" [value]="item.ReportId">{{item.ReportName}}</option>
+          <option *ngIf="item.ReportType=='2'" [value]="item.ReportId">{{item.ReportName}}(個人)</option>
+        </ng-container>
+      </select>
+    </div>
+    <button type="button" class="btn btn-secondary btn-sm ml-2" (click)="EditReport(reportstyle,SelectReportInfo)"
+      *ngIf="SelectReportInfo.ReportType=='2'||UserAccount=='admin'"><i class="fa fa-pencil mr-1"></i>修改樣式</button>
+    <button type="button" class="btn btn-info btn-sm ml-2" (click)="EditReport(reportstyle,null)"><i
+        class="fa fa-plus mr-1"></i>新增樣式</button>
+    <div class="Calculate" *ngIf="SelectReportInfo.ReportSourceId==1">
+      <ng-container *ngIf="HasFinishdate">
+        <label class="mr-1">達成率:</label>
+        <label>{{CalAchievementRate}}</label>
+        <label class="mr-3">%</label>
+      </ng-container>
+      <ng-container>
+        <label class="mr-1">總噸數:</label>
+        <label>{{CalWeight}}</label>
+        <label class="mr-3">KG</label>
+      </ng-container>
+      <button type="button" class="btn btn-info btn-sm ml-2" (click)="Calculator()"><i
+          class="fa fa-calculator mr-1"></i>計算</button>
+    </div>
+  </div>
+  <div class="reportblock">
+    <div class="row align-items-center mt-2 mb-2">
+      <ng-container *ngFor="let item of Filters">
+
+        <div *ngIf="item.Type=='date'" class="col-3 row mb-2">
+          <label class="col-3 my-auto text-right">{{item.Label}}:</label>
+          <input class="form-control" type="date" [max]="item.EndDate" [(ngModel)]="item.StartDate"
+            (ngModelChange)="DataFilter()" />
+          <div class="m-auto row">~</div>
+          <input class="form-control" type="date" [min]="item.StartDate" [(ngModel)]="item.EndDate"
+            (ngModelChange)="DataFilter()" />
+        </div>
+
+        <div *ngIf="item.Type=='text'" class="col-3 row text-right mb-2">
+          <label class="col-3 my-auto text-right">{{item.Label}}:</label>
+          <input class="form-control m-0" type="text" [placeholder]="item.Placeholder" [(ngModel)]="item.Value"
+            (ngModelChange)="DataFilter()" />
+        </div>
+
+        <div *ngIf="item.Type=='number'" class="col-3 row text-right mb-2">
+          <label class="col-3 my-auto text-right">{{item.Label}}:</label>
+          <input class="form-control m-0" type="number" [placeholder]="item.Placeholder" [(ngModel)]="item.Value"
+            (ngModelChange)="DataFilter()" />
+        </div>
+        <div *ngIf="item.Type=='select'" class="col-3 row text-right mb-2">
+          <label class="col-3 my-auto text-right">{{item.Label}}:</label>
+          <select class="col-9 custom-select" [(ngModel)]="item.Value" (ngModelChange)="DataFilter()">
+            <option value="全部">全部</option>
+            <option *ngFor="let data of item.DataList" [value]="data">{{data}}</option>
+          </select>
+        </div>
+
+        <!--         <div  *ngIf="item.Type=='checkbox'" class="form-check col-3 row text-right mb-2">
+          <input type="checkbox" [id]="'status'+item.value" (ngModelChange)="DataFilter()"
+            [(ngModel)]="item.selected" [value]="item.value" name="ProductionState" class="form-check-input">
+          <label class="form-check-label" [for]="'status'+item.value">{{item.text}}</label>
+        </div> -->
+      </ng-container>
+    </div>
+    <div class="col-3 row text-right mb-2">
+      <button class="btn btn-primary btn-sm active" (click)="exportToExcel()"><i
+        class="fa fa-file-excel-o mr-1"></i>Excel匯出</button>
+    </div>
+    <ngx-datatable #mydatatable class="material" style="height: calc(100vh - 230px - 4rem);" [scrollbarV]="true"
+      [headerHeight]="50" [limit]="10" [columnMode]="'force'" [footerHeight]="50" [rowHeight]="50" [rows]="tabledata"
+      [selectAllRowsOnPage]="false" [selected]="">
+      <ngx-datatable-column name="序號" [width]="40" [sortable]="false" [canAutoResize]="false" [draggable]="false"
+        [resizeable]="false">
+        <ng-template let-rowIndex="rowIndex" let-row="row" ngx-datatable-cell-template>
+          <div>{{ rowIndex+1 }}</div>
+        </ng-template>
+
+      </ngx-datatable-column>
+      <ng-container *ngFor="let item of SelectReportInfo['FieldList']">
+
+        <ngx-datatable-column *ngIf="item.IsHidden==false" [cellClass]="item.FieldClass" [prop]="item.FieldCode"
+          [name]="item.FieldName">
+          <ng-template ngx-datatable-cell-template let-value="value">
+              <ng-container *ngIf="item.FieldType=='date'">
+                {{DateStringFormat(value)}}
+              </ng-container>
+              <ng-container *ngIf="item.FieldType!='date'">
+                {{value}}
+              </ng-container>
+          </ng-template>
+        </ngx-datatable-column>
+      </ng-container>
+    </ngx-datatable>
+    <!-- <table id="excel-table">
+      <tr>
+        <ng-container *ngFor="let item of SelectReportInfo['FieldList']">
+            <td>{{item.FieldName}}</td>
+        </ng-container>
+      </tr>
+      <ng-container *ngFor="let item of tabledata">
+        <tr>
+          <ng-template ngx-datatable-cell-template let-value="value">
+            <ng-container *ngIf="item.FieldType=='date'">
+              <td>{{DateStringFormat(value)}}</td>
+            </ng-container>
+            <ng-container *ngIf="item.FieldType!='date'">
+              <td>{{value}}</td>
+            </ng-container>
+          </ng-template>
+        </tr>
+      </ng-container>
+    </table> -->
+  </div>
+</div>
+
+<ng-template #reportstyle let-modal>
+  <div class="modal-header">
+    <h3 class="modal-title mb-0">報表樣式</h3>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row mx-2">
+      <label class="text-right my-auto mx-2 col-3">樣式名稱:</label>
+      <input class="mr-2 my-2 col-7" type="text" [(ngModel)]="ModalReportInfo.ReportName" />
+    </div>
+    <div class="row mx-2">
+      <label class="text-right  my-auto mx-2 col-3">樣式來源:</label>
+      <select class="custom-select  my-2 col-7" [ngModelOptions]="{standalone: true}"
+        [(ngModel)]="ModalReportInfo.ReportSourceId" (ngModelChange)="SourceChange()">
+        <option *ngFor="let item of SourceList" [value]="item.ReportSourceId">{{item.SourceName}}</option>
+      </select>
+    </div>
+    <div class="row mx-2">
+      <label class="text-right my-auto mx-2 col-3">預設:</label>
+      <input class="my-2" type="checkbox" id="IsPreset" [(ngModel)]="ModalReportInfo.IsPreset"
+        [value]="ModalReportInfo.IsPreset">
+    </div>
+    <div class="row mx-2 p-3">
+      <ngx-datatable class="material mx-auto" [headerHeight]="50" [limit]="5" [footerHeight]="50" [rowHeight]="60"
+        [rows]="ModalReportInfo.FieldList" style="height: 400px;" [scrollbarV]="true" [scrollbarH]="false">
+        <ngx-datatable-column name="序號" [width]="40" [sortable]="false" [canAutoResize]="false" [draggable]="false"
+          [resizeable]="false">
+          <ng-template let-rowIndex="rowIndex" let-row="row" ngx-datatable-cell-template>
+            <div>{{ rowIndex+1 }}</div>
+          </ng-template>
+          <input class="form-control m-0" type="text" />
+        </ngx-datatable-column>
+        <ngx-datatable-column prop="FieldName" name="欄位" [width]="300" [canAutoResize]="false"></ngx-datatable-column>
+        <ngx-datatable-column prop="IsHidden" name="是否隱藏" [width]="100">
+          <ng-template ngx-datatable-cell-template let-rowIndex="rowIndex" let-row="row" let-value="value">
+            <input type="checkbox" id="hidden{{ rowIndex }}" [(ngModel)]="row['IsHidden']" />
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column prop="IsFilter" name="查詢條件" [width]="100">
+          <ng-template ngx-datatable-cell-template let-rowIndex="rowIndex" let-row="row">
+            <input type="checkbox" id="filter{{ rowIndex }}" [(ngModel)]="row['IsFilter']" />
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column prop="Sequence" name="排序" [width]="100">
+          <ng-template ngx-datatable-cell-template let-rowIndex="rowIndex" let-row="row">
+            <input type="number" min="0" id="Sequence{{ rowIndex }}" [(ngModel)]="row['Sequence']" />
+          </ng-template>
+        </ngx-datatable-column>
+      </ngx-datatable>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="SaveReport();"><i class="fa fa-floppy-o mr-1"></i>儲存</button>
+    <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')"><i
+        class="fa fa-times mr-1"></i>取消</button>
+  </div>
+</ng-template>

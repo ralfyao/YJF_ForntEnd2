@@ -1,0 +1,62 @@
+.btn-expand{
+  padding: 0px;
+  width: 20px;
+  height: 20px;
+  background-color: #fff0;
+  border: 0px;
+  color: #b1b1b1;
+  cursor: pointer;
+}
+.message {
+  font-size: 16px;
+  color: #db8214;
+  margin: auto;
+}
+
+.grid-detail{
+  display:inline-flex;
+  padding-left: 50px;
+}
+.detail-item{
+  margin-right: 20px;
+}
+.hasDefect {
+  background: pink;
+}
+.detailtable{
+  margin-left: 50px;
+}
+.detailtable th,.detailtable td{
+  border: 1px solid #b1b1b1;
+  text-align: center;
+  padding:0 20px;
+}
+
+.printPDF {
+  min-height: 300px;
+  width: 1235px !important;
+  display: none;
+  font-size: 25px;
+  font-family: DFKai-sb;
+  line-height: 35px;
+}
+
+.pdftitle {
+  font-size: 45px;
+  color: #000;
+  line-height: 45px;
+  font-weight: 900;
+  margin: 20px;
+  justify-content: center;
+}
+.subtitle {
+  font-size: 35px;
+  line-height: 35px;
+  margin: 20px;
+  justify-content: center;
+}
+.printPDF img {
+  margin-left:calc(100% - 250px);
+
+}
+

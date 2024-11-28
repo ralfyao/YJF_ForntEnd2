@@ -1,0 +1,18 @@
+select {
+  font-size: 16px;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.btn.btn-lg {
+  font-size: 20px;
+}
+
+.stockWo{
+  background-color: aqua;
+}
+
+.alignLeft{
+  align-content: start;
+  text-align: left;
+}
